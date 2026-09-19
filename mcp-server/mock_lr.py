@@ -9,6 +9,9 @@ Usage:
     python3 mock_lr.py
 """
 
+from mock_masks import MockMasks
+from mask_tools import MASK_COMMANDS
+
 import base64
 import io
 import json
@@ -84,11 +87,14 @@ class _State:
         self.settings = dict(_DEFAULT_SETTINGS)
         self.photos = list(_DEFAULT_PHOTOS)
         self.rating = 0
+        self.mask_state = MockMasks()
         self._lock = threading.Lock()
 
     def handle(self, req: dict) -> dict:
         cmd = req.get("command")
         with self._lock:
+            if cmd in MASK_COMMANDS.values():
+                return self.mask_state.handle(req)
             if cmd == "ping":
                 return {"success": True, "message": "Mock LR Bridge running"}
 
@@ -120,26 +126,9 @@ class _State:
 
             if cmd == "reset":
                 self.settings = dict(_DEFAULT_SETTINGS)
+                self.mask_state.masks = []
+                self.mask_state.selected = self.mask_state.tool = None
                 return {"success": True, "message": "All develop settings reset"}
-
-            if cmd == "add_mask":
-                mask_type = req.get("maskType", "unknown")
-                adjustments = req.get("adjustments") or {}
-                msg = f"Mask created: {mask_type}"
-                if adjustments:
-                    msg += " with adjustments: " + ", ".join(
-                        f"{k}={v}" for k, v in adjustments.items()
-                    )
-                return {"success": True, "message": msg}
-
-            if cmd == "update_mask":
-                adjustments = req.get("adjustments") or {}
-                if not adjustments:
-                    return {"success": False, "error": "No adjustments provided"}
-                msg = "Mask updated with adjustments: " + ", ".join(
-                    f"{k}={v}" for k, v in adjustments.items()
-                )
-                return {"success": True, "message": msg}
 
             if cmd == "export_preview":
                 size = max(1, min(int(req.get("size", 200)), 2048))

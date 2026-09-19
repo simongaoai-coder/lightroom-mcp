@@ -4,33 +4,6 @@ Run with: pytest tests/ -v   (from mcp-server/ with venv active)
 """
 import asyncio
 import base64
-import os
-import subprocess
-import sys
-
-import pytest
-
-# Make server.py importable
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-
-# Use test-only IPC paths so a running Lightroom plugin doesn't race the mock.
-_TEST_REQ = "/tmp/lr_mcp_req_test.json"
-_TEST_RES = "/tmp/lr_mcp_res_test.json"
-os.environ["LR_MCP_REQ"] = _TEST_REQ
-os.environ["LR_MCP_RES"] = _TEST_RES
-
-
-@pytest.fixture()
-def mock_lr():
-    """Start mock_lr.py as a subprocess; yield; terminate."""
-    mock_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "mock_lr.py")
-    env = {**os.environ, "LR_MCP_REQ": _TEST_REQ, "LR_MCP_RES": _TEST_RES}
-    proc = subprocess.Popen([sys.executable, mock_path], stdout=subprocess.PIPE, env=env)
-    # Wait until the server prints its ready line
-    proc.stdout.readline()
-    yield proc
-    proc.terminate()
-    proc.wait()
 
 
 # ── Protocol / existing commands ────────────────────────────────────────────
@@ -103,7 +76,7 @@ def test_add_mask_no_adjustments(mock_lr):
     import server
     result = server.send_to_lightroom({"command": "add_mask", "maskType": "subject"})
     assert result["success"] is True
-    assert "subject" in result["message"]
+    assert result["data"]["maskType"] == "subject"
 
 
 def test_add_mask_with_adjustments(mock_lr):
@@ -114,8 +87,8 @@ def test_add_mask_with_adjustments(mock_lr):
         "adjustments": {"Exposure": -0.5, "Highlights": -40},
     })
     assert result["success"] is True
-    assert "sky" in result["message"]
-    assert "Exposure" in result["message"] or "adjustments" in result["message"]
+    assert result["data"]["maskType"] == "sky"
+    assert result["data"]["adjustments"]["Exposure"] == -0.5
 
 
 def test_add_mask_mcp_tool(mock_lr):
@@ -141,7 +114,7 @@ def test_update_mask_protocol(mock_lr):
         "adjustments": {"Exposure": 1.0, "Saturation": -20},
     })
     assert result["success"] is True
-    assert "Exposure" in result["message"]
+    assert result["data"]["adjustments"]["Exposure"] == 1.0
 
 
 def test_update_mask_no_adjustments(mock_lr):

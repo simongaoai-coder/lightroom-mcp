@@ -13,7 +13,7 @@ local LrLogger            = import "LrLogger"
 local REQ_FILE      = "/tmp/lr_mcp_req.json"
 local RES_FILE      = "/tmp/lr_mcp_res.json"
 local POLL_INTERVAL = 0.05  -- seconds
-local VERSION       = "1.0.3"  -- keep in sync with Info.lua VERSION
+local VERSION       = "1.1.4"  -- keep in sync with Info.lua VERSION
 
 -- ── Bundled JSON encoder/decoder (no LrJSON dependency) ─────────────────────
 local function jsonEncodeValue(val)
@@ -239,21 +239,6 @@ local function buildParamIndex()
     return idx
 end
 local PARAM_INDEX = buildParamIndex()
-
--- Local adjustment parameters settable on a mask via LrDevelopController.setValue("local_*")
-local LOCAL_PARAMS = {
-    "Exposure", "Contrast", "Highlights", "Shadows", "Whites", "Blacks",
-    "Clarity", "Texture", "Dehaze", "Vibrance", "Saturation",
-    "Temperature", "Tint",
-    "Sharpness", "LuminanceNoise", "ColorNoise", "MoireFilter", "Defringe",
-    "ToningHue", "ToningSaturation",
-}
-
-local LOCAL_PARAM_INDEX = (function()
-    local idx = {}
-    for _, p in ipairs(LOCAL_PARAMS) do idx[p:lower()] = "local_" .. p end
-    return idx
-end)()
 
 local function getCurrentPhoto()
     local catalog = LrApplication.activeCatalog()
@@ -490,84 +475,8 @@ local function cropPhoto(params)
     return true, "Crop applied: " .. table.concat(applied, ", ")
 end
 
--- AI selection subtypes map to maskType="aiSelection" + maskSubType
--- Range mask subtypes map to maskType="rangeMask" + maskSubType
-local AI_SUBTYPES = {
-    subject=true, sky=true, background=true,
-    objects=true, people=true, landscape=true,
-}
-local RANGE_SUBTYPES = {
-    luminance=true, color=true, depth=true,
-}
--- Direct maskType values (no subtype needed)
-local DIRECT_MASK_TYPES = {
-    gradient=true, radialGradient=true, brush=true,
-}
-
-local function addMask(maskType, maskParams, adjustments)
-    local args = {}
-
-    if AI_SUBTYPES[maskType] then
-        args.maskType    = "aiSelection"
-        args.maskSubType = maskType
-    elseif RANGE_SUBTYPES[maskType] then
-        args.maskType    = "rangeMask"
-        args.maskSubType = maskType
-    elseif DIRECT_MASK_TYPES[maskType] then
-        args.maskType = maskType
-    else
-        return false, "Unknown mask type '" .. tostring(maskType) ..
-            "'. Valid: subject, sky, background, objects, people, landscape, " ..
-            "luminance, color, depth, gradient, radialGradient, brush"
-    end
-
-    if type(maskParams) == "table" then
-        for k, v in pairs(maskParams) do
-            if k ~= "maskType" and k ~= "maskSubType" then args[k] = v end
-        end
-    end
-
-    local catalog = LrApplication.activeCatalog()
-
-    -- createNewMask is a develop controller UI operation — withWriteAccessDo rolls it back.
-    -- Call directly for all mask types (same as AI masks).
-    if args.maskSubType then
-        LrDevelopController.createNewMask(args.maskType, args.maskSubType)
-    else
-        LrDevelopController.createNewMask(args.maskType)
-    end
-
-    -- Apply local adjustment sliders to the newly created (currently active) mask.
-    if type(adjustments) == "table" and next(adjustments) ~= nil then
-        local applied = {}
-        for key, value in pairs(adjustments) do
-            local lrKey = LOCAL_PARAM_INDEX[key:lower()] or ("local_" .. key)
-            LrDevelopController.setValue(lrKey, value)
-            table.insert(applied, key)
-        end
-        if #applied > 0 then
-            log:info("Mask adjustments applied: " .. table.concat(applied, ", "))
-        end
-    end
-
-    log:info("Mask created: " .. maskType)
-    return true, "Mask created: " .. maskType
-end
-
-local function updateMask(adjustments)
-    if type(adjustments) ~= "table" or next(adjustments) == nil then
-        return false, "No adjustments provided"
-    end
-    local applied = {}
-    for key, value in pairs(adjustments) do
-        local lrKey = LOCAL_PARAM_INDEX[key:lower()] or ("local_" .. key)
-        LrDevelopController.setValue(lrKey, value)
-        table.insert(applied, key)
-    end
-    local msg = "Mask updated: " .. table.concat(applied, ", ")
-    log:info(msg)
-    return true, msg
-end
+-- Mask management is isolated so the SDK workflow can be tested directly.
+local Masking = require "Masking"
 
 -- Valid bokeh shapes for Lens Blur
 local BOKEH_TYPES = {
@@ -692,8 +601,10 @@ local function handleRequest(data)
     local cmd = req.command
     local response = {}
 
-    if cmd == "ping" then
-        response = { success = true, message = "LR MCP Bridge running" }
+    if Masking.commands[cmd] then
+        return jsonEncode(Masking.handle(req))
+    elseif cmd == "ping" then
+        response = { success = true, message = "LR MCP Bridge running", version = VERSION, maskingVersion = Masking.VERSION }
 
     elseif cmd == "apply_settings" then
         local s, msg = applyDevelopSettings(req.settings or {})
@@ -731,16 +642,6 @@ local function handleRequest(data)
         local s, msg = cropPhoto(req.params or {})
         response = { success = s, message = msg }
 
-    elseif cmd == "add_mask" then
-        -- Do NOT pcall addMask — withWriteAccessDo yields internally and Lua 5.1
-        -- cannot yield across a C pcall boundary.
-        local s, msg = addMask(req.maskType, req.params, req.adjustments)
-        response = { success = s, message = msg }
-
-    elseif cmd == "update_mask" then
-        local s, msg = updateMask(req.adjustments)
-        response = { success = s, message = msg }
-
     elseif cmd == "lens_blur" then
         local s, msg = lensBlur(req.params or {})
         response = { success = s, message = msg }
@@ -768,7 +669,7 @@ function Server.start()
     -- Clean up any stale files from a previous run
     LrFileUtils.delete(REQ_FILE)
     LrFileUtils.delete(RES_FILE)
-    log:info("LR MCP Bridge v" .. VERSION .. " started (file IPC mode)")
+    log:info("LR MCP Bridge v" .. VERSION .. " started (file IPC mode), masking=" .. tostring(Masking.VERSION))
 
     local PROC_FILE = REQ_FILE .. ".processing"
     while Server._running and _clrb_gen == myGeneration do

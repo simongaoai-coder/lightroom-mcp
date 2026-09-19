@@ -16,8 +16,8 @@ The Python MCP server communicates with your AI tool over stdio. It sends comman
 
 ## Requirements
 
-- **Lightroom Classic** (any recent version)
-- **Python 3.9+**
+- **Lightroom Classic 11+** for mask management (other AI tools may require newer versions)
+- **Python 3.10+**
 - **Any MCP-compatible AI tool** (Claude Desktop, Cursor, Windsurf, etc.)
 
 ---
@@ -151,7 +151,9 @@ Select multiple photos in Lightroom, then:
 
 ### Masking
 
-AI mask types (`subject`, `sky`, `background`, `objects`, `people`, `landscape`, `luminance`, `color`, `depth`) are placed automatically. Manual types (`gradient`, `radialGradient`, `brush`) activate the tool; the user draws the mask in Lightroom.
+Mask tools can now list, select, update and delete existing masks by ID. Use `lr_list_masks` first, then pass `maskId` to `lr_update_mask`; manual selection remains supported when the ID is omitted.
+
+`subject`, `sky`, `background` are treated as automatic creation. Other types may require drawing, sampling or selection in Lightroom and return `awaiting_user_input`; requested adjustments are deferred and must be resent after completing the mask. See [Mask management](docs/mask-management.md) for all arguments, response fields, errors and validation steps.
 
 ```
 "Darken the sky"
@@ -161,12 +163,12 @@ AI mask types (`subject`, `sky`, `background`, `objects`, `people`, `landscape`,
 → lr_add_mask  maskType=subject  adjustments={Clarity:40, Texture:20}
 
 "Add a gradient and I'll position it"
-→ lr_add_mask  maskType=gradient  adjustments={Exposure:-1.5}
-   (then drag in Lightroom to set the gradient position)
+→ lr_add_mask  maskType=gradient
+   (draw in Lightroom, then call lr_update_mask with Exposure:-1.5)
 
 "I drew the gradient, now darken it more"
 → lr_update_mask  adjustments={Exposure:-1, Highlights:-60}
-  (select the mask in LR's Masks panel first)
+  (pass maskId from lr_list_masks, or select the mask in LR first)
 ```
 
 ### Other commands
@@ -192,7 +194,12 @@ AI mask types (`subject`, `sky`, `background`, `objects`, `people`, `landscape`,
 | `lr_reset`                | Reset all develop settings to defaults                        |
 | `lr_crop`                 | Crop and/or straighten the selected photo                     |
 | `lr_add_mask`             | Add a mask with optional local adjust sliders (subject, sky, gradient…) |
-| `lr_update_mask`          | Update local adjust sliders on the currently selected mask    |
+| `lr_update_mask`          | Update local sliders on a specified or currently selected mask |
+| `lr_list_masks`           | List masks, component tools and selected IDs |
+| `lr_get_selected_mask`    | Read selected IDs and available local sliders |
+| `lr_select_mask`          | Select a mask and optionally one of its component tools |
+| `lr_delete_mask`          | Delete an explicit mask ID and verify removal |
+| `lr_delete_mask_tool`     | Delete a component tool within its specified parent mask |
 | `lr_lens_blur`            | Apply AI Lens Blur with bokeh shape control                   |
 | `lr_enhance`              | Run AI Denoise, Super Resolution, or Raw Details              |
 
@@ -339,12 +346,13 @@ To test the MCP server without Lightroom open, use the included mock server:
 
 ```bash
 cd mcp-server
-pip install -r requirements-dev.txt   # Pillow + pytest
-python3 mock_lr.py                    # polls /tmp/lr_mcp_req.json (file IPC)
-pytest tests/ -v                      # run all 9 tests
+python -m pip install --isolated -r requirements-dev.txt
+python -m pytest tests/ -v             # starts isolated mock processes automatically
 ```
 
-The mock simulates all commands, generates color-shifting JPEG previews based on Temperature, and tracks state across calls, so you can test the full Python layer without Lightroom installed.
+The mock simulates basic adjustments, previews, batch edits and stateful mask management. It does not implement crop, lens blur or enhance. Tests also execute the actual mask module under Lua 5.1 with SDK doubles and exercise MCP over stdio. Live Lightroom validation is still required; see the [manual acceptance steps](docs/mask-management.md#manual-lightroom-acceptance-not-covered-by-simulated-tests).
+
+MCP is constrained to 1.x because the existing server uses its low-level decorator API. After upgrading, confirm the actual Lua plugin path in Lightroom Plug-in Manager and update that copy too. If Lightroom reports `Could not load toolkit script: Masking`, fully quit and reopen Lightroom to refresh its cached file list. Restart the MCP client to load the new tools. See [deployment notes](docs/mask-management.md#deployment-verify-the-loaded-plugin-path).
 
 ---
 

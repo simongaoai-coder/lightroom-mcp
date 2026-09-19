@@ -4,3 +4,5 @@ mcp-server/venv/
 **/*.pyc
 **/*.pyo
 .DS_STORE
+
+.pytest_cache/

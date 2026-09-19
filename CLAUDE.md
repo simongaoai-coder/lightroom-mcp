@@ -22,7 +22,7 @@ File-based IPC using two temp files:
 - **Request**: Python writes JSON to `/tmp/lr_mcp_req.json` (atomic rename from `.tmp`). Lua polls, reads, deletes it.
 - **Response**: Lua writes JSON to `/tmp/lr_mcp_res.json`. Python polls and reads it.
 
-Both files contain a single JSON object per transaction. Python times out after 10s if Lua does not respond.
+Both files contain a single JSON object per transaction. Python defaults to a 10s timeout, with longer per-command timeouts (30s for mask management, 120s for creation).
 
 > **Why not TCP?** `LrSocket` is a client-only event-driven API (connect/callbacks). It cannot bind as a server. File IPC is the correct approach for Lightroom Classic plugins.
 
@@ -39,9 +39,8 @@ python3 server.py   # test run; normally launched by Claude Desktop
 For development and testing without Lightroom:
 
 ```bash
-pip install -r requirements-dev.txt   # installs Pillow + pytest
-python3 mock_lr.py                    # starts mock (polls /tmp/lr_mcp_req.json)
-pytest tests/ -v                      # run all tests against the mock
+python -m pip install --isolated -r requirements-dev.txt
+python -m pytest tests/ -v             # fixtures start isolated mock subprocesses
 ```
 
 `mock_lr.py` is a dev/test tool only. It is never deployed or referenced by Claude Desktop.
@@ -59,7 +58,12 @@ pytest tests/ -v                      # run all tests against the mock
 | `lr_reset`                | Reset all develop settings to defaults                             |
 | `lr_crop`                 | Crop and/or straighten the selected photo                          |
 | `lr_add_mask`             | Add a mask (subject, sky, gradient, brush, etc.)                   |
-| `lr_update_mask`          | Apply local adjust sliders to the currently selected mask          |
+| `lr_update_mask`          | Apply local sliders to a specified or currently selected mask |
+| `lr_list_masks` | List masks and component tools |
+| `lr_get_selected_mask` | Read selected IDs and local sliders |
+| `lr_select_mask` | Select a mask and optional component tool |
+| `lr_delete_mask` | Delete an explicit mask |
+| `lr_delete_mask_tool` | Delete a tool from its explicit parent mask |
 | `lr_lens_blur`            | Apply AI Lens Blur (depth-of-field) with bokeh shape control       |
 | `lr_enhance`              | Run AI Denoise, Super Resolution, or Raw Details enhance           |
 
@@ -84,31 +88,25 @@ Returns MCP `ImageContent` (JPEG). Typical workflow:
 
 Parameter names are case-insensitive. `lr_batch_apply_settings` uses `catalog:getTargetPhotos()` (all photos currently selected in Lightroom).
 
-### lr_add_mask
+### Mask management (1.1.4)
 
-```json
-{
-  "maskType": "sky",
-  "adjustments": { "Exposure": -0.5, "Highlights": -40, "Saturation": 20 }
-}
-```
+See [docs/mask-management.md](docs/mask-management.md) for the complete contract and manual acceptance checklist.
 
-`maskType` selects the mask shape/detection method. Mask types fall into two categories:
-
-- **Automatic** (no user interaction): `subject`, `sky`, `background`, `objects`, `people`, `landscape`, `luminance`, `color`, `depth`. LR detects and places the mask immediately.
-- **Manual** (user must draw after the call): `gradient`, `radialGradient`, `brush`. The call activates the tool; the user drags/paints to define the mask area.
-
-The optional `adjustments` object applies local develop slider values to the newly created mask. Supported params: `Exposure`, `Contrast`, `Highlights`, `Shadows`, `Whites`, `Blacks`, `Clarity`, `Texture`, `Dehaze`, `Vibrance`, `Saturation`, `Temperature`, `Tint`, `Sharpness`, `LuminanceNoise`, `ColorNoise`, `MoireFilter`, `Defringe`, `ToningHue`, `ToningSaturation`.
-
-Implementation: `LrDevelopController.createNewMask()` is called directly (no `catalog:withWriteAccessDo`; wrapping it causes the mask to be rolled back). Adjustments are applied via `LrDevelopController.setValue("local_*")` on the active mask immediately after.
-
-### lr_update_mask
-
-```json
-{ "adjustments": { "Exposure": 0.5, "Highlights": -30 } }
-```
-
-Applies local develop sliders to whichever mask is currently selected in LR's Masks panel. The user selects the target mask in LR first, then calls this tool. Same parameter names and ranges as the `adjustments` field in `lr_add_mask`. Implemented via `LrDevelopController.setValue("local_*")` on the active mask.
+- `Masking.lua` owns all seven mask commands; `Server.lua` delegates them.
+- `lr_list_masks` returns normalized SDK masks/tools, selected IDs and a photo UUID.
+- `lr_get_selected_mask` reads selection and available local sliders.
+- `lr_select_mask` accepts `maskId` and optional child `toolId`.
+- `lr_update_mask` accepts optional `maskId`; omitted means the selected mask. No selection is an error; invalid IDs never fall back.
+- `lr_delete_mask` requires `maskId`; `lr_delete_mask_tool` requires both IDs. Removal is verified.
+- `lr_add_mask` returns `created`, `pending` or `awaiting_user_input`, plus a new ID when identified. Only subject/sky/background are treated as automatic. Deferred adjustments are not queued; resend them after drawing/sampling/selection. Nonempty `params` is rejected (previously ignored).
+- All mask tools accept optional `expectedPhotoId` to reject stale cross-photo requests.
+- SDK summaries use `ID`, `Name`, `Hidden`, `Tools`; child entries use `ID`, `Name`, `Type`, `Subtype`, `Hidden`, `Inverted`. Unknown layouts must fail rather than infer IDs.
+- `lr_ping` reports both main `version` and `maskingVersion`; verify both after deployments.
+- During AI operations, nil/false summaries are transient, never evidence of deletion. Before changing modules, capture catalog mask IDs and wait for the UI summary to match.
+- Use `LrTasks.pcall` around yield-capable masking operations, never ordinary `pcall` or catalog write gates. Check photo identity and active mask after waits and verify slider readback.
+- Local slider ranges are checked dynamically. `MoireFilter` aliases `local_Moire`; unsupported sliders must return errors.
+- Python schemas/validation live in `mask_tools.py`; stateful simulation lives in `mock_masks.py`.
+- `tests/test_masking_lua.py` executes production Lua 5.1 through development-only Lupa. `tests/test_mask_tools.py` checks Python validation, file IPC and MCP stdio. Neither proves Lightroom UI/AI/rendering behavior.
 
 ## Develop Parameter Ranges
 
@@ -238,7 +236,8 @@ Key files in `lrplugin/lightroom-mcp.lrdevplugin/`:
 
 - `Info.lua`: plugin manifest; registers menu items and `InitPlugin.lua`
 - `InitPlugin.lua`: auto-starts the bridge on Lightroom launch via `LrInitPlugin`
-- `Server.lua`: file IPC polling loop, base64, JSON, and all develop logic
+- `Server.lua`: file IPC polling loop, base64, JSON, and non-mask develop logic
+- `Masking.lua`: mask enumeration, selection, creation, deletion and verified local adjustments
 - `StartServer.lua` / `StopServer.lua`: manual fallback start/stop menu items
 
 ## Reference
@@ -247,7 +246,7 @@ Key files in `lrplugin/lightroom-mcp.lrdevplugin/`:
 
 ## Versioning (MANDATORY)
 
-**Every change to `Server.lua` MUST bump the version in both places or the running build will be impossible to identify in logs.**
+**Every change to `Server.lua` or `Masking.lua` MUST bump the version in both places or the running build will be impossible to identify in logs.**
 
 1. `lrplugin/lightroom-mcp.lrdevplugin/Info.lua`: `VERSION = { major, minor, revision }`
 2. `lrplugin/lightroom-mcp.lrdevplugin/Server.lua`: `local VERSION = "x.y.z"`
@@ -292,7 +291,7 @@ Expected: `LR MCP Bridge vX.Y.Z started (file IPC mode)` with no "Server already
 
 ## Adding New Commands
 
-1. Add a handler branch in `Server.lua`:`handleRequest()`
+1. Add a handler branch in `Server.lua`:`handleRequest()` (mask commands go in `Masking.lua`)
 2. Add the tool definition in `server.py`:`list_tools()`
 3. Add the dispatch case in `server.py`:`call_tool()`
 4. Add the mock response in `mock_lr.py`:`_State.handle()`
@@ -301,7 +300,7 @@ Expected: `LR MCP Bridge vX.Y.Z started (file IPC mode)` with no "Server already
 ## Key Constraints
 
 - Parameter names in `lr_apply_settings` are case-insensitive; `Server.lua` normalises via `PARAM_INDEX`.
-- `LrDevelopController` mutations must be inside `catalog:withWriteAccessDo()`.
+- Masking UI mutations must **not** be inside `catalog:withWriteAccessDo()`. Follow existing per-operation SDK handling for other mutations; there is no universal write-gate rule.
 - `photo:requestJpegThumbnail` is callback-based; `Server.lua` polls with `LrTasks.sleep(0.05)` until the callback fires (max 5s).
 - The mock's `_make_jpeg` shifts hue with Temperature, so warm/cool changes are visually verifiable even without Lightroom.
 - `pip install` requires the `--isolated` flag on this machine due to a system pip.conf issue: `venv/bin/python3 -m pip install --isolated <package>`

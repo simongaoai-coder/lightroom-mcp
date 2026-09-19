@@ -1,10 +1,11 @@
 return {
-    LrSdkVersion = 10.0,
+    LrSdkVersion = 11.0,
+    LrSdkMinimumVersion = 11.0,
     LrToolkitIdentifier = "dev.varunkumar.lightroom.mcp",
     LrPluginName = "Lightroom MCP Bridge",
     LrPluginInfoUrl = "https://github.com/varunkumar/lighroom-mcp",
 
-    VERSION = { major = 1, minor = 0, revision = 3 },
+    VERSION = { major = 1, minor = 1, revision = 4 },
 
     LrExportMenuItems = {
         {

@@ -15,6 +15,8 @@ from mcp import types
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 
+from mask_tools import management_tools, validate_mask_call, MASK_COMMANDS
+
 REQ_FILE = os.environ.get("LR_MCP_REQ", "/tmp/lr_mcp_req.json")
 RES_FILE = os.environ.get("LR_MCP_RES", "/tmp/lr_mcp_res.json")
 TIMEOUT = 10.0   # seconds to wait for Lua to respond
@@ -103,7 +105,7 @@ def send_to_lightroom(command: dict, timeout: float = TIMEOUT) -> dict:
 
 @app.list_tools()
 async def list_tools() -> list[types.Tool]:
-    return [
+    return management_tools() + [
         types.Tool(
             name="lr_apply_settings",
             description=(
@@ -284,14 +286,17 @@ async def list_tools() -> list[types.Tool]:
             name="lr_add_mask",
             description=(
                 "Add a mask to the selected photo in Lightroom Classic. "
-                "AI types (fully automatic): 'subject', 'sky', 'background', 'objects', 'people', 'landscape'. "
-                "Range types (automatic): 'luminance', 'color', 'depth'. "
+                "AI selection types: 'subject', 'sky', 'background', 'objects', 'people', 'landscape'. "
+                "Range selection types: 'luminance', 'color', 'depth'. "
                 "Manual types (user must draw after calling): 'gradient' (linear), 'radialGradient' (elliptical), 'brush'. "
-                "All types accept an optional 'adjustments' object to apply local develop sliders to the new mask."
+                "Returns a new maskId when available. Interactive types return awaiting_user_input; "
+                "adjustments are deferred until you draw/sample and call lr_update_mask. "
+                "Only subject, sky and background are treated as automatic."
             ),
             inputSchema={
                 "type": "object",
                 "properties": {
+                    "expectedPhotoId": {"type": "string", "minLength": 1},
                     "maskType": {
                         "type": "string",
                         "description": "Type of mask to create",
@@ -301,8 +306,8 @@ async def list_tools() -> list[types.Tool]:
                     },
                     "params": {
                         "type": "object",
-                        "description": "Optional mask parameters (e.g. angle, midpoint, feather for gradients)",
-                        "additionalProperties": True,
+                        "description": "Reserved; must be empty. The SDK creation API does not accept geometry parameters.",
+                        "additionalProperties": False,
                     },
                     "adjustments": {
                         "type": "object",
@@ -315,17 +320,18 @@ async def list_tools() -> list[types.Tool]:
                             "Saturation, Temperature, Tint, Sharpness, LuminanceNoise, ColorNoise, "
                             "MoireFilter, Defringe, ToningHue, ToningSaturation."
                         ),
-                        "additionalProperties": True,
+                        "additionalProperties": {"type": "number"},
                     },
                 },
                 "required": ["maskType"],
+                "additionalProperties": False,
             },
         ),
         types.Tool(
             name="lr_update_mask",
             description=(
-                "Update the local develop sliders on the mask that is currently selected "
-                "in Lightroom's Masks panel. Select the target mask in LR first, then call "
+                "Update local develop sliders on maskId, or on the currently selected mask if omitted. "
+                "An invalid maskId fails without editing another mask. Call "
                 "this tool with the slider values to apply. Supported: Exposure, Contrast, "
                 "Highlights, Shadows, Whites, Blacks, Clarity, Texture, Dehaze, Vibrance, "
                 "Saturation, Temperature, Tint, Sharpness, LuminanceNoise, ColorNoise, "
@@ -334,13 +340,16 @@ async def list_tools() -> list[types.Tool]:
             inputSchema={
                 "type": "object",
                 "properties": {
+                    "maskId": {"type": "string", "minLength": 1},
+                    "expectedPhotoId": {"type": "string", "minLength": 1},
                     "adjustments": {
                         "type": "object",
                         "description": "Slider values to apply to the active mask (e.g. {\"Exposure\": 0.5, \"Highlights\": -30})",
-                        "additionalProperties": True,
+                        "additionalProperties": {"type": "number"},
                     },
                 },
                 "required": ["adjustments"],
+                "additionalProperties": False,
             },
         ),
     ]
@@ -348,7 +357,17 @@ async def list_tools() -> list[types.Tool]:
 
 @app.call_tool()
 async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
-    if name == "lr_ping":
+    if name in MASK_COMMANDS:
+        error = validate_mask_call(name, arguments)
+        if error:
+            result = {"success": False, "code": "invalid_arguments", "error": error}
+        else:
+            result = send_to_lightroom(
+                {"command": MASK_COMMANDS[name], **arguments},
+                timeout=120.0 if name == "lr_add_mask" else 30.0,
+            )
+
+    elif name == "lr_ping":
         result = send_to_lightroom({"command": "ping"})
 
     elif name == "lr_get_settings":
@@ -401,28 +420,6 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
             result = {"success": False, "error": "No crop parameters provided"}
         else:
             result = send_to_lightroom({"command": "crop", "params": params})
-
-    elif name == "lr_add_mask":
-        mask_type = arguments.get("maskType")
-        if not mask_type:
-            result = {"success": False, "error": "maskType is required"}
-        else:
-            result = send_to_lightroom({
-                "command": "add_mask",
-                "maskType": mask_type,
-                "params": arguments.get("params", {}),
-                "adjustments": arguments.get("adjustments", {}),
-            }, timeout=120.0)
-
-    elif name == "lr_update_mask":
-        adjustments = arguments.get("adjustments", {})
-        if not adjustments:
-            result = {"success": False, "error": "No adjustments provided"}
-        else:
-            result = send_to_lightroom({
-                "command": "update_mask",
-                "adjustments": adjustments,
-            })
 
     elif name == "lr_lens_blur":
         params = {k: v for k, v in arguments.items()}
