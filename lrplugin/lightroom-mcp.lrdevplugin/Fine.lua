@@ -5,7 +5,7 @@ local View=import "LrApplicationView"
 local Tasks=import "LrTasks"
 local Date=import "LrDate"
 local Masking=require "Masking"
-local Fine={VERSION="2.6.1",commands={auto_white_balance=true,get_curve=true,set_curve=true,
+local Fine={VERSION="2.8.0",commands={auto_white_balance=true,get_curve=true,set_curve=true,
     list_point_colors=true,add_point_color=true,update_point_color=true,delete_point_color=true}}
 local function fail(code,message,data) error({success=false,code=code,error=message,data=data},0) end
 local function api(name)
@@ -537,7 +537,61 @@ local function geometryHandle(req)
     return {success=true,data=data}
 end
 
+Fine.commands.get_process_version=true
+Fine.commands.set_process_version=true
+local processVersions={['Version 1']=true,['Version 2']=true,['Version 3']=true,['Version 4']=true,['Version 5']=true,['Version 6']=true}
+local function processVersion(req)
+    if req.command=='set_process_version' and not processVersions[req.version] then fail('invalid_arguments','Use SDK names Version 1 through Version 6, not raw catalog numbers')end
+    if req.expectedVersion~=nil and type(req.expectedVersion)~='string'then fail('invalid_arguments','expectedVersion must be a string')end
+    if req.command=='set_process_version' and (type(req.expectedPhotoId)~='string' or not req.expectedPhotoId:match('%S'))then fail('invalid_arguments','expectedPhotoId is required')end
+    local catalog=Application.activeCatalog();local path=catalog:getPath();local photo=catalog:getTargetPhoto()
+    if not photo then fail('no_photo','Select a photo')end
+    local function guard()
+        if Application.activeCatalog()~=catalog or catalog:getPath()~=path or (req.expectedCatalogPath and req.expectedCatalogPath~=path)then fail('catalog_changed','Catalog changed')end
+        check(photo,req)
+        if req.command=='set_process_version' then
+            local selected=catalog:getTargetPhotos()
+            if #selected~=1 or selected[1]~=photo then fail('multiple_selection','Select only the target photo before changing Process Version')end
+        end
+    end
+    guard();if photo:getRawMetadata('isVideo')then fail('unsupported_photo','Process Version requires a photo')end
+    api('getProcessVersion')
+    if req.command=='set_process_version'then api('setProcessVersion')end
+    if View.getCurrentModuleName()~='develop'then View.switchToModule('develop')end
+    local function poll(fn)
+        local deadline=Date.currentTime()+5
+        repeat guard();if fn()then return true end;Tasks.sleep(.05)until Date.currentTime()>=deadline
+        guard();return fn()
+    end
+    if not poll(function()return View.getCurrentModuleName()=='develop'end)then fail('context_timeout','Develop did not become ready')end
+    local function read()
+        guard();local version=Controller.getProcessVersion();local settings=raw(photo);guard()
+        if type(version)~='string' or version=='' or settings.ProcessVersion==nil then fail('version_unavailable','SDK or catalog process version is unavailable')end
+        return {photoId=photo:getRawMetadata('uuid'),catalogPath=path,version=version,rawVersion=settings.ProcessVersion,
+            recognized=processVersions[version]==true,renderingVerified=false},settings
+    end
+    local before,settingsBefore=read()
+    if req.command=='get_process_version'then return {success=true,data=before}end
+    if req.expectedVersion and req.expectedVersion~=before.version then fail('process_version_changed','Process Version changed; read it again before switching',before)end
+    if before.version==req.version then before.status='unchanged';before.verification='sdk_and_catalog_readback';before.changedKeys={};return {success=true,data=before}end
+    guard();local accepted=Controller.setProcessVersion(req.version)
+    if accepted==false then fail('version_rejected','SDK rejected requested Process Version')end
+    local after,settingsAfter
+    if not poll(function()
+        after,settingsAfter=read()
+        return after.version==req.version and after.rawVersion~=before.rawVersion
+    end)then fail('process_version_unverified','SDK/catalog did not confirm the requested version; inspect before retrying',{previous=before,observed=after,outcomeUnknown=true})end
+    after.previousVersion=before.version;after.previousRawVersion=before.rawVersion;after.status='changed'
+    after.verification='sdk_and_catalog_readback';after.changedKeys={}
+    for k,v in pairs(settingsBefore)do if not equal(v,settingsAfter[k])then after.changedKeys[#after.changedKeys+1]=k end end
+    for k in pairs(settingsAfter)do if settingsBefore[k]==nil then after.changedKeys[#after.changedKeys+1]=k end end
+    table.sort(after.changedKeys)
+    after.note='Version conversion can change rendering and other settings. Switching back is not a lossless restoration; compare a saved baseline/snapshot.'
+    return {success=true,data=after}
+end
+
 local function handle(req)
+    if req.command=="get_process_version" or req.command=="set_process_version" then return processVersion(req) end
     if geometryCommands[req.command] then return geometryHandle(req) end
     if appearanceCommands[req.command] then return appearance(req) end
     if req.command=="set_curve" then curvePoints(req.points) end
@@ -562,7 +616,7 @@ function Fine.capabilities()
     local result={}
     for _,name in ipairs({"setAutoWhiteBalance","addToCurrentMask","subtractFromCurrentMask","intersectWithCurrentMask",
         "invertMask","duplicateAndInvertMask","toggleHideMask","toggleHideMaskTool","toggleInvertMaskTool",
-        "addPointColorSwatch","deletePointColorSwatch","selectPointColorSwatch","updateSelectedPointColorSwatch","getSelectedPointColorSwatchIndex"}) do
+        "addPointColorSwatch","deletePointColorSwatch","selectPointColorSwatch","updateSelectedPointColorSwatch","getSelectedPointColorSwatchIndex","getProcessVersion","setProcessVersion"}) do
         result[name]=type(Controller[name])=="function"
     end
     local photo=Application.activeCatalog():getTargetPhoto()

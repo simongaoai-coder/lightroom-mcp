@@ -455,3 +455,16 @@ settings contract; it supersedes older descriptions above of global setValue,
 - Keep tests/test_history_lua.py and the production Develop fixture distinct from
   mock_history.py's transport-only simulation. Read docs/copy-paste-and-history.md
   and its live validation record before changing these semantics.
+
+## Process Version (2.8.0)
+
+- Fine.lua owns get_process_version/set_process_version; schemas live in
+  appearance_tools.py. Main/Python/Fine are 2.8.0; total 95 tools.
+- Both require Develop context. Setter uses the documented controller API without
+  a write gate, requires expectedPhotoId and one selected photo, and optionally
+  guards expectedVersion. Never treat raw catalog codes as SDK version names.
+- Verify both the requested SDK name and a raw-version transition; same-version
+  calls are explicit no-ops. Report changed keys and no claim of pixel equivalence.
+- All six versions were tested live in 15.2 and the baseline fully restored.
+  See docs/process-version.md and tests/test_process_version.py. Future raw codes
+  must not be guessed from the version number or a hardcoded production table.

@@ -273,6 +273,14 @@ application-global history and require a fresh one-use context token; they are n
 rollback of a specific MCP request. See [Copy/Paste and history](docs/copy-paste-and-history.md)
 for clipboard scope, token lifetime and verification limits.
 
+## Process Version (2.8)
+
+Two tools bring the total to **95**: read the SDK Process Version and its raw
+catalog value, or switch a single selected photo to Version 1–6 with readback.
+Conversions may affect rendering and other settings; changing the version back
+is not guaranteed to restore the original look. See [Process Version](docs/process-version.md)
+for guards and native validation.
+
 ## Available tools
 
 | Tool                      | What it does                                                  |

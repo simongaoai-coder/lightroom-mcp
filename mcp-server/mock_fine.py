@@ -6,6 +6,7 @@ class MockFine:
     def __init__(self, backend):
         self.backend=backend
         self.appearance={"treatment":"color","whiteBalance":"Custom","profile":{"CameraProfile":"Adobe Standard","Look":{"Name":"Adobe Color"},"ConvertToGrayscale":False}}
+        self.process_version='Version 5'
         self.curves={}
         self.swatches={}
 
@@ -13,6 +14,11 @@ class MockFine:
         cmd=req['command'];mask_id=req.get('maskId')
         def error(code):return {'success':False,'code':code,'error':code}
         if req.get('expectedPhotoId','mock-photo-1')!='mock-photo-1':return error('photo_changed')
+        if cmd in {'get_process_version','set_process_version'}:
+            if req.get('expectedVersion',self.process_version)!=self.process_version:return error('process_version_changed')
+            previous=self.process_version
+            if cmd=='set_process_version':self.process_version=req['version']
+            return {'success':True,'data':{'photoId':'mock-photo-1','version':self.process_version,'rawVersion':{'Version 1':'5.0','Version 2':'5.7','Version 3':'6.7','Version 4':'10.0','Version 5':'11.0','Version 6':'15.4'}[self.process_version],'previousVersion':previous}}
         if cmd in {'get_appearance','set_treatment','set_white_balance','list_profiles','set_profile'}:
             if cmd=='set_treatment':self.appearance['treatment']=req['treatment']
             if cmd=='set_white_balance':self.appearance['whiteBalance']=req['mode']
