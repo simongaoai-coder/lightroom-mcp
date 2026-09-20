@@ -13,7 +13,7 @@ local LrLogger            = import "LrLogger"
 local REQ_FILE      = "/tmp/lr_mcp_req.json"
 local RES_FILE      = "/tmp/lr_mcp_res.json"
 local POLL_INTERVAL = 0.05  -- seconds
-local VERSION       = "2.1.1"  -- keep in sync with Info.lua VERSION
+local VERSION       = "2.2.3"  -- keep in sync with Info.lua VERSION
 
 -- ── Bundled JSON encoder/decoder (no LrJSON dependency) ─────────────────────
 local function jsonEncodeValue(val)
@@ -279,6 +279,7 @@ end
 
 -- Mask management is isolated so the SDK workflow can be tested directly.
 local Masking = require "Masking"
+local Fine = require "Fine"
 
 -- Valid bokeh shapes for Lens Blur
 local BOKEH_TYPES = {
@@ -376,7 +377,9 @@ local function dispatch(req)
     local cmd = req.command
     local response = {}
 
-    if Versions.commands[cmd] then
+    if Fine.commands[cmd] then
+        return Fine.handle(req)
+    elseif Versions.commands[cmd] then
         return Versions.handle(req)
     elseif Masking.commands[cmd] then
         return Masking.handle(req)
@@ -387,6 +390,8 @@ local function dispatch(req)
         response.maskingVersion = Masking.VERSION
         response.developVersion = Develop.VERSION
         response.versionsVersion = Versions.VERSION
+        response.fineVersion = Fine.VERSION
+        response.capabilities.fine = Fine.capabilities()
         response.capabilities.versions = Versions.capabilities()
         response.pluginPath = _PLUGIN.path
         response.protocolVersion = 2

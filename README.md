@@ -7,7 +7,7 @@ Control Lightroom Classic develop settings from any MCP-compatible AI tool. Desc
 ## How it works
 
 ```
-MCP Client → MCP Server (Python/stdio) → File IPC (/tmp) → Lua Plugin → LrDevelopController
+MCP Client → MCP Server (Python/stdio) → File IPC (/tmp) → Lua Plugin → Lightroom SDK
 ```
 
 The Python MCP server communicates with your AI tool over stdio. It sends commands to the Lightroom plugin by writing JSON to `/tmp/lr_mcp_req.json` and polling for a response at `/tmp/lr_mcp_res.json`. The Lua plugin running inside Lightroom polls that file every 50ms, processes commands via `LrDevelopController`, and writes results back. No network connection or open ports required.
@@ -208,6 +208,18 @@ Preset and snapshot applications report native SDK completion and observed chang
 AI rendering completion is not inferred. See [Versions and presets](docs/versions-and-presets.md)
 for arguments, verification limits, failure handling and examples.
 
+## Fine editing (2.2)
+
+Twelve new tools bring the total to **38**: mask composition/state controls,
+Auto White Balance, global/local RGB point curves and guarded point-color editing.
+Local numeric adjustments also add Hue, Amount, Grain and RefineSaturation.
+
+Use explicit `maskId` for local curves and point colors; omit it for global edits.
+Point-color updates/deletions require the current `expectedSwatch` object to guard
+against shifted indices. Mask combinations add new components; manual types still
+need drawing/sampling in Lightroom. See [Fine editing](docs/fine-editing.md) for
+units, response states, validation and native SDK limitations.
+
 ## Available tools
 
 | Tool                      | What it does                                                  |
@@ -238,6 +250,18 @@ for arguments, verification limits, failure handling and examples.
 | `lr_select_virtual_copy` | Switch to a master/copy in the current family |
 | `lr_list_presets` | Search and paginate SDK-visible develop presets |
 | `lr_apply_preset` | Apply a preset by UUID to the current or selected photos |
+| `lr_combine_mask` | Add, subtract or intersect a new component on an explicit mask |
+| `lr_set_mask_visibility` | Set hidden state of a mask or child tool |
+| `lr_invert_mask` | Invert a whole mask once |
+| `lr_duplicate_inverted_mask` | Duplicate and invert a mask |
+| `lr_set_mask_tool_inverted` | Set an explicit child tool's inversion state |
+| `lr_auto_white_balance` | Run automatic white balance and read actual values |
+| `lr_get_curve` | Read a global/local RGB or channel point curve |
+| `lr_set_curve` | Set and verify a global/local point curve |
+| `lr_list_point_colors` | Read global/local point-color swatches |
+| `lr_add_point_color` | Add/select a source-color swatch |
+| `lr_update_point_color` | Update a guarded swatch index |
+| `lr_delete_point_color` | Delete one guarded swatch and verify remaining entries |
 
 ---
 

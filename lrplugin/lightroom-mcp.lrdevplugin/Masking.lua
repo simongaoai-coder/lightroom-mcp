@@ -4,13 +4,14 @@ local Tasks = import "LrTasks"
 local Application = import "LrApplication"
 local View = import "LrApplicationView"
 local Date = import "LrDate"
-local Masking = {VERSION="1.1.4"}
+local Masking = {VERSION="2.2.2"}
 Masking.commands = {
     list_masks=true, get_selected_mask=true, select_mask=true, update_mask=true,
     delete_mask=true, delete_mask_tool=true, add_mask=true,
+    combine_mask=true, set_mask_visibility=true, invert_mask=true, duplicate_inverted_mask=true, set_mask_tool_inverted=true,
 }
 local params = {}
-for name in string.gmatch("Exposure Contrast Highlights Shadows Whites Blacks Clarity Texture Dehaze Vibrance Saturation Temperature Tint Sharpness LuminanceNoise ColorNoise Moire Defringe ToningHue ToningSaturation", "%S+") do
+for name in string.gmatch("Exposure Contrast Highlights Shadows Whites Blacks Clarity Texture Dehaze Vibrance Saturation Temperature Tint Sharpness LuminanceNoise ColorNoise Moire Defringe ToningHue ToningSaturation Hue Amount Grain RefineSaturation", "%S+") do
     params[name:lower()] = "local_" .. name
 end
 params.moirefilter = "local_Moire"
@@ -69,8 +70,12 @@ local function prepare(req)
     if not waitFor(photo, function() return View.getCurrentModuleName() == "develop" end, 3) then
         fail("context_timeout", "Develop module did not become active")
     end
-    if Controller.getSelectedTool() ~= "masking" then Controller.goToMasking() end
-    if not waitFor(photo, function() return Controller.getSelectedTool() == "masking" end, 3) then
+    local function maskingActive()
+        local tool=Controller.getSelectedTool()
+        return tool=="masking" or tool=="local_point_color"
+    end
+    if not maskingActive() then Controller.goToMasking() end
+    if not waitFor(photo, maskingActive, 3) then
         fail("context_timeout", "Masking panel did not open")
     end
     -- A newly opened Develop module can report an empty (or previous-photo)
@@ -228,6 +233,10 @@ local function handle(req)
     end
     if cmd == "select_mask" or cmd == "delete_mask" or cmd == "delete_mask_tool" then id(req.maskId, "maskId") end
     if cmd == "delete_mask_tool" then id(req.toolId, "toolId") end
+    if cmd=="combine_mask" or cmd=="set_mask_visibility" or cmd=="invert_mask" or cmd=="duplicate_inverted_mask" or cmd=="set_mask_tool_inverted" then
+        id(req.maskId,"maskId")
+        if req.toolId~=nil then id(req.toolId,"toolId") end
+    end
     local photo, photoId = prepare(req)
     local data = selection(photoId)
     if cmd == "list_masks" then data.masks = masks()
@@ -270,6 +279,90 @@ local function handle(req)
         data.maskId = req.maskId
         data.masks = masks()
         data.parentMaskDeleted = isTool and not findMask(data.masks, req.maskId) or nil
+    elseif cmd == "combine_mask" then
+        local functions={add="addToCurrentMask",subtract="subtractFromCurrentMask",intersect="intersectWithCurrentMask"}
+        local method=functions[req.operation]
+        if not method or not (ai[req.maskType] or ranges[req.maskType] or manual[req.maskType]) then fail("invalid_arguments","Invalid operation or maskType") end
+        requireAPI(method)
+        selectTarget(photo,req.maskId)
+        local before={}
+        for _,tool in ipairs(findMask(masks(),req.maskId).tools) do before[tool.id]=true end
+        checkTarget(photo,req.maskId)
+        if ai[req.maskType] then Controller[method]("aiSelection",req.maskType)
+        elseif ranges[req.maskType] then Controller[method]("rangeMask",req.maskType)
+        else Controller[method](req.maskType) end
+        local added={}
+        local ready=waitFor(photo,function()
+            local selected=Controller.getSelectedMask()
+            if selected and selected~="" and selected~=req.maskId then fail("selection_changed","Target mask selection changed during combination") end
+            local snapshot=masks(true)
+            if not snapshot then return false end
+            local target=findMask(snapshot,req.maskId)
+            if not target then return false end
+            added={}
+            for _,tool in ipairs(target.tools) do if not before[tool.id] then added[#added+1]=tool.id end end
+            return #added>0
+        end,automatic[req.maskType] and 15 or 0.5)
+        data=selection(photoId);data.maskId=req.maskId;data.newToolIds=added;data.operation=req.operation
+        data.status=not automatic[req.maskType] and "awaiting_user_input" or (ready and "component_created" or "pending")
+        data.note="A component appearing does not verify its pixel coverage; drawing/sampling may require Lightroom interaction."
+    elseif cmd == "set_mask_visibility" or cmd == "set_mask_tool_inverted" then
+        local invert=cmd=="set_mask_tool_inverted"
+        local field=invert and "inverted" or "hidden"
+        local wanted=req[field]
+        if type(wanted)~="boolean" then fail("invalid_arguments",field .. " must be boolean") end
+        if invert then id(req.toolId,"toolId") end
+        local method=invert and "toggleInvertMaskTool" or (req.toolId and "toggleHideMaskTool" or "toggleHideMask")
+        requireAPI(method)
+        selectTarget(photo,req.maskId,req.toolId)
+        local function value(allowPending)
+            local list=masks(allowPending)
+            if not list then return nil end
+            local target=findMask(list,req.maskId)
+            if req.toolId then target=findTool(target,req.toolId) end
+            return target and target[field]
+        end
+        local previous=value(false)
+        if type(previous)~="boolean" then fail("unsupported_mask_state","SDK does not expose the requested state") end
+        if previous~=wanted then
+            checkTarget(photo,req.maskId)
+            Controller[method](req.toolId or req.maskId)
+            if not waitFor(photo,function()
+                if Controller.getSelectedMask()~=req.maskId then fail("selection_changed","Mask selection changed") end
+                return value(true)==wanted
+            end,3) then fail("readback_failed","Requested mask state was not retained") end
+        end
+        data=selection(photoId);data.maskId=req.maskId;data.toolId=req.toolId;data[field]=wanted
+        data.changed=previous~=wanted
+    elseif cmd == "invert_mask" or cmd == "duplicate_inverted_mask" then
+        local duplicate=cmd=="duplicate_inverted_mask"
+        local method=duplicate and "duplicateAndInvertMask" or "invertMask"
+        requireAPI(method)
+        selectTarget(photo,req.maskId)
+        local before={}
+        for _,mask in ipairs(masks()) do before[mask.id]=true end
+        checkTarget(photo,req.maskId)
+        local accepted=Controller[method](req.maskId)
+        if accepted==false then fail("inversion_failed","Lightroom rejected the inversion") end
+        data=selection(photoId);data.sourceMaskId=req.maskId
+        if duplicate then
+            local newId
+            if not waitFor(photo,function()
+                local list=masks(true)
+                if not list then return false end
+                local candidates={}
+                for _,mask in ipairs(list) do if not before[mask.id] then candidates[#candidates+1]=mask.id end end
+                if #candidates>1 then fail("ambiguous_creation","Multiple new masks appeared; inspect before retrying") end
+                newId=candidates[1]
+                return newId~=nil
+            end,15) then
+                data.status="pending"
+            else data.maskId=newId;data.status="created" end
+        else
+            data.maskId=req.maskId;data.status="inverted"
+            data.verification="sdk_completed"
+            data.note="Whole-mask inversion is a toggle. SDK completion is not independent verification of pixel coverage."
+        end
     elseif cmd == "add_mask" then
         requireAPI("createNewMask")
         local before = {}
@@ -323,4 +416,12 @@ function Masking.handle(req)
     if type(result) == "table" and result.success == false then return result end
     return {success=false, code="sdk_error", error=tostring(result)}
 end
+-- Shared target preparation for fine local controls. No implicit mask fallback.
+function Masking.prepareTarget(req)
+    id(req.maskId,"maskId")
+    local photo,photoId=prepare(req)
+    selectTarget(photo,req.maskId)
+    return photo,photoId
+end
+Masking.checkTarget=checkTarget
 return Masking

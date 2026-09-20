@@ -337,3 +337,23 @@ settings contract; it supersedes older descriptions above of global setValue,
 - Preserve UTF-8 request names (`ensure_ascii=False`) with the bundled JSON decoder.
 - See [versions-and-presets.md](docs/versions-and-presets.md) and the production Lua
   tests in `test_versions_lua.py`; `MockVersions` is a transport simulator only.
+
+## Phase 3: fine editing (2.2)
+
+- `Fine.lua` owns Auto WB, point curves and point-color CRUD. `fine_tools.py`
+  registers 12 new tools including five commands dispatched through `Masking.lua`.
+- `Masking.prepareTarget` and `checkTarget` are shared with Fine; local controls
+  require explicit mask IDs. `local_point_color` is a valid masking subtool.
+- Combination operations add new components. Nil selected-mask IDs during AI work
+  are transient; a different nonempty ID fails. Do not claim pixel-level coverage.
+- Visibility/child inversion set desired states; whole inversion is a toggle.
+- Global curves use catalog settings, local curves use controller parameters.
+  The public curve coordinate scale is 0-255, converted to recognized native arrays.
+- Point-color updates/deletions require `expectedSwatch`; preserve unknown native
+  fields, compare readback and reject stale indices. Nil initial lists are marked
+  unavailable/uninitialized, never silently treated as proven empty/deleted.
+- Auto WB must return finite controller values as well as observed Auto mode.
+- Use a full Lightroom exit/reopen if plugin reload leaves mixed-version polling
+  tasks. The protocol gate must not be bypassed to work around mixed versions.
+- See `docs/fine-editing.md` and tests `test_fine_lua.py`, `test_mask_fine_lua.py`,
+  `test_fine_tools.py`. Mocks are transport simulators, not proof of native behavior.

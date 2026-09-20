@@ -15,7 +15,7 @@ AUTOMATIC_TYPES = {"subject", "sky", "background"}
 LOCAL_PARAMS = (
     "Exposure Contrast Highlights Shadows Whites Blacks Clarity Texture Dehaze "
     "Vibrance Saturation Temperature Tint Sharpness LuminanceNoise ColorNoise "
-    "MoireFilter Moire Defringe ToningHue ToningSaturation"
+    "MoireFilter Moire Defringe ToningHue ToningSaturation Hue Amount Grain RefineSaturation"
 ).split()
 LOCAL_INDEX = {name.lower(): name for name in LOCAL_PARAMS}
 LOCAL_INDEX["moirefilter"] = "Moire"
