@@ -220,6 +220,18 @@ against shifted indices. Mask combinations add new components; manual types stil
 need drawing/sampling in Lightroom. See [Fine editing](docs/fine-editing.md) for
 units, response states, validation and native SDK limitations.
 
+## Library and delivery (2.3)
+
+Seventeen new tools bring the total to **55**. Search/select photos by UUID,
+read/write catalog metadata, manage keyword assignments and collection membership,
+and run native JPEG/TIFF file exports with progress and cooperative cancellation.
+Explicit photo batches are checked before writing; mutations are read back.
+
+`lr_export_photos` creates an independent batch directory and returns a job ID.
+Poll `lr_get_export_status` for actual output files and per-photo errors. Source
+photos are not reimported or moved. See [Library and delivery](docs/library-and-delivery.md)
+for field names, targeting, export options, cancellation and session-lifetime limits.
+
 ## Available tools
 
 | Tool                      | What it does                                                  |
@@ -262,6 +274,23 @@ units, response states, validation and native SDK limitations.
 | `lr_add_point_color` | Add/select a source-color swatch |
 | `lr_update_point_color` | Update a guarded swatch index |
 | `lr_delete_point_color` | Delete one guarded swatch and verify remaining entries |
+| `lr_get_selection` | Read active/selected photo UUIDs and catalog context |
+| `lr_search_photos` | Search native metadata filters with pagination |
+| `lr_select_photos` | Select explicit UUIDs and verify the result |
+| `lr_get_metadata` | Read metadata and direct keyword assignments |
+| `lr_set_metadata` | Set/clear supported metadata and verify each photo |
+| `lr_list_keywords` | Enumerate keyword hierarchy and IDs |
+| `lr_create_keyword` | Create a keyword under an optional parent |
+| `lr_update_keyword` | Update name, synonyms or export flag |
+| `lr_update_photo_keywords` | Add/remove explicit keyword assignments |
+| `lr_list_collections` | Enumerate standard/smart collections and sets |
+| `lr_create_collection` | Create a collection, smart collection or set |
+| `lr_update_collection` | Rename or update smart-collection filters |
+| `lr_update_collection_photos` | Add/remove standard-collection members |
+| `lr_delete_collection` | Delete a collection definition, retaining photos |
+| `lr_export_photos` | Start a native JPEG/TIFF file export job |
+| `lr_get_export_status` | Read progress and actual per-photo output paths |
+| `lr_cancel_export` | Cancel between photos, retaining completed files |
 
 ---
 

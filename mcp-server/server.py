@@ -27,10 +27,11 @@ from mcp.server.stdio import stdio_server
 from mask_tools import management_tools, validate_mask_call, MASK_COMMANDS
 from version_tools import version_tools, VERSION_COMMANDS
 from fine_tools import fine_tools, FINE_COMMANDS, MASK_FINE_COMMANDS
+from library_tools import library_tools, LIBRARY_COMMANDS, DELIVERY_COMMANDS
 
 REQ_FILE = os.environ.get("LR_MCP_REQ", "/tmp/lr_mcp_req.json")
 RES_FILE = os.environ.get("LR_MCP_RES", "/tmp/lr_mcp_res.json")
-SERVER_VERSION = "2.2.3"
+SERVER_VERSION = "2.3.2"
 PROTOCOL_VERSION = 2
 _IPC_LOCK = threading.Lock()
 TIMEOUT = 10.0   # seconds to wait for Lua to respond
@@ -107,7 +108,7 @@ def _exchange(command: dict, timeout: float) -> dict:
     except (FileNotFoundError, ValueError):
         pass
     return {"success": False, "code": "timeout", "requestId": request_id,
-            "outcomeUnknown": command.get("command") not in {"ping", "get_settings", "list_presets", "list_snapshots", "list_virtual_copies", "get_curve", "list_point_colors"},
+            "outcomeUnknown": command.get("command") not in {"ping", "get_settings", "list_presets", "list_snapshots", "list_virtual_copies", "get_curve", "list_point_colors", "get_selection", "search_photos", "get_metadata", "list_keywords", "list_collections", "get_export_status"},
             "error": "Lightroom did not respond in time. An accepted operation may still finish; read back state before retrying."}
 
 
@@ -170,7 +171,7 @@ def validate_settings(arguments):
 
 @app.list_tools()
 async def list_tools() -> list[types.Tool]:
-    tools = management_tools() + version_tools() + fine_tools() + [
+    tools = management_tools() + version_tools() + fine_tools() + library_tools() + [
         types.Tool(
             name="lr_apply_settings",
             description=(
@@ -455,7 +456,23 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
             result = {"success": False, "code": "invalid_arguments",
                       "error": errors[0].message if errors else "Numbers must be finite"}
             return [types.TextContent(type="text", text=json.dumps(result))]
-    if name in FINE_COMMANDS or name in MASK_FINE_COMMANDS:
+    if name in LIBRARY_COMMANDS:
+        result = send_to_lightroom({"command": LIBRARY_COMMANDS[name], **arguments}, timeout=120.0)
+
+    elif name in DELIVERY_COMMANDS:
+        payload = {"command": DELIVERY_COMMANDS[name], **arguments}
+        job_id = None
+        if name == "lr_export_photos":
+            if not os.path.isabs(arguments["destination"]):
+                return [types.TextContent(type="text", text=json.dumps({"success": False, "code": "invalid_arguments", "error": "destination must be absolute"}))]
+            payload["destination"] = os.path.realpath(arguments["destination"])
+            job_id = uuid.uuid4().hex
+            payload["jobId"] = job_id
+        result = send_to_lightroom(payload, timeout=30.0)
+        if job_id:
+            result["jobId"] = job_id  # Reconcile an uncertain start via get_export_status.
+
+    elif name in FINE_COMMANDS or name in MASK_FINE_COMMANDS:
         result = send_to_lightroom({"command": (FINE_COMMANDS | MASK_FINE_COMMANDS)[name], **arguments}, timeout=120.0)
 
     elif name in VERSION_COMMANDS:

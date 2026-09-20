@@ -13,7 +13,7 @@ local LrLogger            = import "LrLogger"
 local REQ_FILE      = "/tmp/lr_mcp_req.json"
 local RES_FILE      = "/tmp/lr_mcp_res.json"
 local POLL_INTERVAL = 0.05  -- seconds
-local VERSION       = "2.2.3"  -- keep in sync with Info.lua VERSION
+local VERSION       = "2.3.2"  -- keep in sync with Info.lua VERSION
 
 -- ── Bundled JSON encoder/decoder (no LrJSON dependency) ─────────────────────
 local function jsonEncodeValue(val)
@@ -28,7 +28,8 @@ local function jsonEncodeValue(val)
     elseif t == "string" then
         return '"' .. val:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\n', '\\n'):gsub('\r', '\\r'):gsub('\t', '\\t') .. '"'
     elseif t == "table" then
-        local isArray = true
+        local meta = getmetatable(val)
+        local isArray = not (type(meta) == "table" and meta.__jsontype == "object")
         local maxN = 0
         for k, _ in pairs(val) do
             if type(k) ~= "number" or k ~= math.floor(k) or k < 1 then
@@ -280,6 +281,8 @@ end
 -- Mask management is isolated so the SDK workflow can be tested directly.
 local Masking = require "Masking"
 local Fine = require "Fine"
+local Library = require "Library"
+local Delivery = require "Delivery"
 
 -- Valid bokeh shapes for Lens Blur
 local BOKEH_TYPES = {
@@ -377,7 +380,11 @@ local function dispatch(req)
     local cmd = req.command
     local response = {}
 
-    if Fine.commands[cmd] then
+    if Library.commands[cmd] then
+        return Library.handle(req)
+    elseif Delivery.commands[cmd] then
+        return Delivery.handle(req)
+    elseif Fine.commands[cmd] then
         return Fine.handle(req)
     elseif Versions.commands[cmd] then
         return Versions.handle(req)
@@ -391,6 +398,10 @@ local function dispatch(req)
         response.developVersion = Develop.VERSION
         response.versionsVersion = Versions.VERSION
         response.fineVersion = Fine.VERSION
+        response.libraryVersion = Library.VERSION
+        response.deliveryVersion = Delivery.VERSION
+        response.capabilities.library = Library.capabilities()
+        response.capabilities.delivery = Delivery.capabilities()
         response.capabilities.fine = Fine.capabilities()
         response.capabilities.versions = Versions.capabilities()
         response.pluginPath = _PLUGIN.path

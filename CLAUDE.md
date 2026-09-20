@@ -357,3 +357,24 @@ settings contract; it supersedes older descriptions above of global setValue,
   tasks. The protocol gate must not be bypassed to work around mixed versions.
 - See `docs/fine-editing.md` and tests `test_fine_lua.py`, `test_mask_fine_lua.py`,
   `test_fine_tools.py`. Mocks are transport simulators, not proof of native behavior.
+
+## Phase 4: library and delivery (2.3)
+
+- `Library.lua` owns catalog search/selection, metadata, keyword and collection
+  operations. Targets resolve UUIDs before writing; numeric keyword/collection IDs
+  are catalog-local and can be guarded by expectedCatalogPath.
+- Native findPhotos descriptors are compiled from a restricted, typed filter set.
+  Smart collections share the compiler. No photo import/deletion/file moves.
+- Catalog mutations use write gates and readback. Metadata clearFields handles
+  explicit clearing without relying on JSON null in the existing Lua decoder.
+- `Delivery.lua` starts native export sessions in a separate LrTasks task. Never
+  hold a catalog write gate while rendering. Each job has a unique output folder;
+  native collisions rename. No auto-reimport and no automatic cleanup of outputs.
+- Python creates export job IDs and returns the ID on uncertain starts. Clients
+  must poll job status; queued/running is not delivery completion. Cancellation is
+  cooperative between photos. Job state does not survive plugin reload/restart.
+- Stop the service before deployment and do not reload during active exports.
+- Schemas are in library_tools.py; production Lua tests use library_fixture.lua and
+  delivery_fixture.lua. MockLibrary is only a transport simulator.
+- See docs/library-and-delivery.md and the phase-4 verification record for native
+  validation status; mocks do not establish output dimensions/encoding/ICC data.

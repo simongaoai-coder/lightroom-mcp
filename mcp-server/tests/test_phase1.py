@@ -10,7 +10,7 @@ import server
 def test_ping_reports_actual_process_tools(mock_lr):
     result = json.loads(asyncio.run(server.call_tool('lr_ping', {}))[0].text)
     assert result['compatible']
-    assert result['server']['toolCount'] == 38
+    assert result['server']['toolCount'] == 55
     assert 'lr_list_masks' in result['server']['tools']
 
 
