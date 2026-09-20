@@ -17,7 +17,7 @@ def test_all_tools_registered_with_valid_schemas():
     from jsonschema import Draft202012Validator
     tools = asyncio.run(server.list_tools())
     names = [t.name for t in tools]
-    assert len(names) == len(set(names)) == 72
+    assert len(names) == len(set(names)) == 77
     assert set(MASK_COMMANDS) <= set(names)
     for tool in tools:
         Draft202012Validator.check_schema(tool.inputSchema)
@@ -87,7 +87,7 @@ def test_mcp_stdio_roundtrip(mock_lr):
             async with ClientSession(read, write) as session:
                 await session.initialize()
                 listing = await session.list_tools()
-                assert len(listing.tools) == 72
+                assert len(listing.tools) == 77
                 result = await session.call_tool("lr_list_masks", {})
                 assert json.loads(result.content[0].text)["success"]
                 result = await session.call_tool("lr_update_mask", {"maskId": "mask-2", "adjustments": {"Exposure": 0.75}})

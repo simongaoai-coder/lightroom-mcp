@@ -5,6 +5,7 @@ from copy import deepcopy
 class MockFine:
     def __init__(self, backend):
         self.backend=backend
+        self.appearance={"treatment":"color","whiteBalance":"Custom","profile":{"CameraProfile":"Adobe Standard","Look":{"Name":"Adobe Color"},"ConvertToGrayscale":False}}
         self.curves={}
         self.swatches={}
 
@@ -12,6 +13,14 @@ class MockFine:
         cmd=req['command'];mask_id=req.get('maskId')
         def error(code):return {'success':False,'code':code,'error':code}
         if req.get('expectedPhotoId','mock-photo-1')!='mock-photo-1':return error('photo_changed')
+        if cmd in {'get_appearance','set_treatment','set_white_balance','list_profiles','set_profile'}:
+            if cmd=='set_treatment':self.appearance['treatment']=req['treatment']
+            if cmd=='set_white_balance':self.appearance['whiteBalance']=req['mode']
+            if cmd=='list_profiles':return {'success':True,'data':{'profiles':[{'profileId':'photo:mock-photo-1','name':'Adobe Color','expectedProfile':deepcopy(self.appearance['profile'])}],'completeInstalledList':False,'total':1}}
+            if cmd=='set_profile':
+                if req['profileId']!='photo:mock-photo-1':return error('profile_not_found')
+                if req['expectedProfile']!=self.appearance['profile']:return error('profile_changed')
+            return {'success':True,'data':{'photoId':'mock-photo-1',**deepcopy(self.appearance)}}
         mask=None
         if mask_id:
             mask=next((m for m in self.backend.mask_state.masks if m['id']==mask_id),None)

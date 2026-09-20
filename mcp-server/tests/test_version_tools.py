@@ -60,7 +60,7 @@ def test_new_tools_over_stdio(mock_lr):
             async with ClientSession(r,w) as session:
                 await session.initialize()
                 names={t.name for t in (await session.list_tools()).tools}
-                assert set(VERSION_COMMANDS)<=names and len(names)==72
+                assert set(VERSION_COMMANDS)<=names and len(names)==77
                 result=json.loads((await session.call_tool('lr_create_snapshot',{'name':'测试快照'})).content[0].text)
                 assert result['success'] and result['data']['name']=='测试快照'
     asyncio.run(run())

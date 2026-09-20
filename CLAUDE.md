@@ -396,3 +396,21 @@ settings contract; it supersedes older descriptions above of global setValue,
   existing generative spot. Do not retry an uncertain mutation blindly.
 - See docs/healing-and-remove.md. Production Lua tests use healing_fixture.lua;
   MockHealing is only a transport simulator.
+
+## Appearance controls (2.5.1)
+
+- Fine.lua also owns get_appearance, set_treatment, set_white_balance, list_profiles
+  and set_profile. Schemas are in appearance_tools.py; total tool count is 77.
+- Main/Python/Fine are 2.5.1. Reuse the existing Lua module to avoid unnecessary
+  full application restarts. Other modules keep independent version numbers.
+- Quick Develop treatment/WB methods use native calls without a write gate;
+  As Shot and profile settings use catalog write access. Verify readback and identity.
+- Profile sources are observed photos and public SDK-visible presets, not a full
+  installed-profile inventory. Only server-read profile fields are applied; require
+  expectedProfile and conservative camera/RAW compatibility checks.
+- As Shot/Auto catalog numeric WB fields may be stale/absent. Do not report them as
+  effective sliders. Custom numeric WB stays in lr_apply_settings.
+- Native rendering can normalize processing version later. Never claim snapshot
+  restoration is complete without comparing saved baseline settings.
+- See docs/appearance-controls.md and its native verification record. Tests:
+  test_appearance_lua.py, appearance_fixture.lua, test_appearance_tools.py.

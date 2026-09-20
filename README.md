@@ -247,6 +247,16 @@ Separate tools manage Remove panel defaults, bounded AI-settings update jobs, an
 empty-mask cleanup. AI jobs report native call completion, not verified rendering.
 See [Repair / Remove](docs/healing-and-remove.md) for the contract and limitations.
 
+## Treatment, white balance and profiles (2.5.1)
+
+Five new tools bring the total to **77**: read appearance, switch color/B&W,
+set named white-balance modes, list observed profile configurations and apply one.
+Profiles can be extracted from SDK-visible presets or reused from a compatible
+photo without copying the full preset. The list is not a complete installed-profile
+browser. Every mutation checks the target and verifies catalog readback.
+See [Appearance controls](docs/appearance-controls.md) for modes, compatibility,
+Auto/As Shot value semantics and native validation limits.
+
 ## Available tools
 
 | Tool                      | What it does                                                  |

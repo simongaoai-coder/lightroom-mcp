@@ -5,7 +5,7 @@ local View=import "LrApplicationView"
 local Tasks=import "LrTasks"
 local Date=import "LrDate"
 local Masking=require "Masking"
-local Fine={VERSION="2.2.3",commands={auto_white_balance=true,get_curve=true,set_curve=true,
+local Fine={VERSION="2.5.1",commands={auto_white_balance=true,get_curve=true,set_curve=true,
     list_point_colors=true,add_point_color=true,update_point_color=true,delete_point_color=true}}
 local function fail(code,message,data) error({success=false,code=code,error=message,data=data},0) end
 local function api(name)
@@ -263,7 +263,163 @@ local function pointColors(req,photo)
     check(photo,req)
     return {success=true,data=data}
 end
+-- Appearance controls are kept in this existing module so deployment does not
+-- require a full Lightroom restart merely to discover a new Lua file.
+local appearanceCommands={get_appearance=true,set_treatment=true,set_white_balance=true,list_profiles=true,set_profile=true}
+for name in pairs(appearanceCommands) do Fine.commands[name]=true end
+local wbModes={['As Shot']=true,Auto=true,Daylight=true,Cloudy=true,Shade=true,Tungsten=true,Fluorescent=true,Flash=true}
+local function profileSettings(settings)
+    if type(settings.CameraProfile)~="string" and type(settings.Look)~="table" then return nil end
+    local out={}
+    for _,key in ipairs({'CameraProfile','CameraProfileDigest','Look','ConvertToGrayscale'}) do
+        if settings[key]~=nil then out[key]=clone(settings[key]) end
+    end
+    if out.ConvertToGrayscale==nil and type(out.Look)=='table' and type(out.Look.Parameters)=='table' and type(out.Look.Parameters.ConvertToGrayscale)=='boolean' then
+        out.ConvertToGrayscale=out.Look.Parameters.ConvertToGrayscale
+    end
+    return out
+end
+local function appearanceState(photo)
+    local s=raw(photo)
+    local data={photoId=photo:getRawMetadata('uuid'),whiteBalance=s.WhiteBalance,
+        profile=profileSettings(s),fileFormat=photo:getRawMetadata('fileFormat'),
+        storedTemperature=s.Temperature or s.IncrementalTemperature,storedTint=s.Tint or s.IncrementalTint,
+        whiteBalanceValuesSource='catalog_stored',
+        temperatureUnits=(photo:getRawMetadata('fileFormat')=='RAW' or photo:getRawMetadata('fileFormat')=='DNG') and 'kelvin' or 'relative'}
+    if s.WhiteBalance~='Auto' and s.WhiteBalance~='As Shot' then
+        data.temperature=data.storedTemperature;data.tint=data.storedTint
+    else data.whiteBalanceValuesSource='catalog_stored_not_resolved' end
+    if type(s.ConvertToGrayscale)=='boolean' then data.treatment=s.ConvertToGrayscale and 'grayscale' or 'color' end
+    return data
+end
+local function rawClass(photo)
+    local format=photo:getRawMetadata('fileFormat')
+    return format=='RAW' or format=='DNG'
+end
+local function appearance(req)
+    local catalog=Application.activeCatalog();local photo=catalog:getTargetPhoto();local path=catalog:getPath()
+    if not photo then fail('no_photo','No photo selected') end
+    local function guard()
+        if Application.activeCatalog()~=catalog or catalog:getPath()~=path or (req.expectedCatalogPath and req.expectedCatalogPath~=path) then fail('catalog_changed','Catalog changed') end
+        check(photo,req)
+    end
+    guard()
+    if photo:getRawMetadata('isVideo') then fail('unsupported_photo','Appearance controls require a photo') end
+    local function write(values)
+        if type(photo.applyDevelopSettings)~='function' then fail('unsupported_api','applyDevelopSettings unavailable') end
+        local entered=false
+        catalog:withWriteAccessDo('MCP Appearance',function()guard();entered=true;photo:applyDevelopSettings(values)end,{timeout=5})
+        if not entered then fail('write_timeout','Catalog write access was not acquired') end
+    end
+    local function verify(predicate)
+        local deadline=Date.currentTime()+5
+        repeat guard();if predicate(raw(photo)) then return end;Tasks.sleep(.05) until Date.currentTime()>=deadline
+        fail('readback_failed','Requested appearance was not retained; inspect before retrying',{appearance=appearanceState(photo),outcomeUnknown=true})
+    end
+    local function sourcePhoto(id)
+        if type(id)~='string' or not id:match('%S') then fail('invalid_arguments','Invalid source photo ID') end
+        local source=catalog:findPhotoByUuid(id)
+        if not source then fail('photo_not_found','Source photo does not exist in this catalog') end
+        if source:getRawMetadata('isVideo') then fail('unsupported_photo','Profile source must be a photo') end
+        return source
+    end
+    local function presetObjects()
+        if type(Application.developPresetFolders)~='function' then fail('unsupported_api','Preset enumeration unavailable') end
+        local out={}
+        for _,folder in ipairs(Application.developPresetFolders() or {}) do
+            for _,preset in ipairs(folder:getDevelopPresets() or {}) do out[#out+1]=preset end
+        end
+        return out
+    end
+    local function entry(id,label,settings)
+        local p=profileSettings(settings);if not p then return nil end
+        local look=type(p.Look)=='table' and p.Look or {}
+        return {profileId=id,name=look.Name or p.CameraProfile or label,sourceName=label,expectedProfile=p}
+    end
+    local cmd=req.command
+    if cmd=='get_appearance' then local d=appearanceState(photo);d.catalogPath=path;guard();return {success=true,data=d} end
+    if cmd=='list_profiles' then
+        local offset,limit=req.offset or 0,req.limit or 50
+        if not finite(offset) or offset<0 or offset~=math.floor(offset) or not finite(limit) or limit<1 or limit>200 or limit~=math.floor(limit) then fail('invalid_arguments','Invalid pagination') end
+        if req.includePresets~=nil and type(req.includePresets)~='boolean' then fail('invalid_arguments','includePresets must be boolean') end
+        if req.query~=nil and type(req.query)~='string' then fail('invalid_arguments','query must be a string') end
+        local ids=req.sourcePhotoIds or {photo:getRawMetadata('uuid')};local rows,errors,seen={},{},{}
+        if type(ids)~='table' or #ids<1 or #ids>50 then fail('invalid_arguments','Provide 1-50 source photos') end
+        for _,id in ipairs(ids) do
+            if seen[id] then fail('invalid_arguments','Duplicate source photo') end;seen[id]=true
+            local source=sourcePhoto(id);local e=entry('photo:'..id,source:getFormattedMetadata('fileName'),raw(source))
+            if e then rows[#rows+1]=e end
+        end
+        if req.includePresets~=false then
+            for _,preset in ipairs(presetObjects()) do
+                guard()
+                local id=preset:getUuid()
+                local ok,value=Tasks.pcall(function()return entry('preset:'..id,preset:getName(),preset:getSetting())end)
+                if ok then if value then rows[#rows+1]=value end
+                else errors[#errors+1]={presetId=id,error=tostring(value)} end
+            end
+        end
+        local filtered={};local query=(req.query or ''):lower()
+        for _,e in ipairs(rows) do if (e.name..' '..e.sourceName):lower():find(query,1,true) then filtered[#filtered+1]=e end end
+        table.sort(filtered,function(a,b)if a.name==b.name then return a.profileId<b.profileId end;return a.name<b.name end)
+        local page={};for i=offset+1,math.min(offset+limit,#filtered) do page[#page+1]=filtered[i] end
+        guard();return {success=true,data={profiles=page,total=#filtered,offset=offset,hasMore=offset+limit<#filtered,
+            catalogPath=path,coverage='observed_photos_and_sdk_presets',completeInstalledList=false,presetErrors=errors}}
+    end
+    local before=raw(photo)
+    if cmd=='set_treatment' then
+        if req.treatment~='color' and req.treatment~='grayscale' then fail('invalid_arguments','Invalid treatment') end
+        if type(photo.quickDevelopSetTreatment)~='function' then fail('unsupported_api','quickDevelopSetTreatment unavailable') end
+        guard();photo:quickDevelopSetTreatment(req.treatment)
+        verify(function(s)return s.ConvertToGrayscale==(req.treatment=='grayscale')end)
+    elseif cmd=='set_white_balance' then
+        if not wbModes[req.mode] then fail('invalid_arguments','Invalid white-balance mode') end
+        if req.mode~='As Shot' and req.mode~='Auto' and not rawClass(photo) then fail('unsupported_mode','Lighting white-balance presets require RAW/DNG; rendered files use As Shot or Auto; use numeric adjustments for Custom') end
+        if req.mode=='As Shot' then
+            write({WhiteBalance=req.mode})
+        else
+            if type(photo.quickDevelopSetWhiteBalance)~='function' then fail('unsupported_api','quickDevelopSetWhiteBalance unavailable') end
+            guard();photo:quickDevelopSetWhiteBalance(req.mode)
+        end
+        verify(function(s)return s.WhiteBalance==req.mode end)
+    elseif cmd=='set_profile' then
+        if type(req.profileId)~='string' or type(req.expectedProfile)~='table' or next(req.expectedProfile)==nil then fail('invalid_arguments','profileId and expectedProfile are required') end
+        local kind,id=req.profileId:match('^(%a+):(.+)$');local source,settings
+        if kind=='photo' then source=sourcePhoto(id);settings=profileSettings(raw(source))
+        elseif kind=='preset' then
+            for _,p in ipairs(presetObjects()) do if p:getUuid()==id then settings=profileSettings(p:getSetting());break end end
+        else fail('invalid_arguments','Use an observed photo:/preset: profile ID') end
+        if not settings then fail('profile_not_found','No profile configuration found at this source') end
+        if not equal(settings,req.expectedProfile) then fail('profile_changed','Source profile changed; list profiles again') end
+        if source then
+            if rawClass(source)~=rawClass(photo) then fail('incompatible_profile','Source and target must both be RAW/DNG or both rendered') end
+            if rawClass(photo) then
+                local a,b=source:getFormattedMetadata('cameraModel'),photo:getFormattedMetadata('cameraModel')
+                if not a or a=='' or a~=b or source:getFormattedMetadata('cameraMake')~=photo:getFormattedMetadata('cameraMake') then fail('incompatible_profile','RAW profile reuse requires the same known camera model') end
+            end
+        elseif settings.CameraProfile and settings.CameraProfile~='Adobe Standard' and settings.CameraProfile~=before.CameraProfile then
+            fail('incompatible_profile','Camera-specific preset profile is not validated for this photo; reuse it from a matching-camera photo')
+        end
+        if not rawClass(photo) and ((settings.CameraProfile and settings.CameraProfile~='Embedded' and settings.CameraProfile~='Color') or (settings.Look and settings.Look.SupportsOutputReferred==false)) then fail('incompatible_profile','RAW-only profile cannot be applied to a rendered photo') end
+        -- An absent Look must clear a previous creative profile, not leave it active.
+        local patch=clone(settings);if patch.Look==nil then patch.Look={} end
+        write(patch)
+        verify(function(s)
+            for key,value in pairs(settings) do if not subset(s[key],value) then return false end end
+            if settings.Look==nil and type(s.Look)=='table' and next(s.Look)~=nil then return false end
+            return true
+        end)
+    else fail('unknown_command','Unknown appearance command') end
+    guard();local data=appearanceState(photo);data.catalogPath=path;data.verification='catalog_readback';data.changedKeys={}
+    local after=raw(photo)
+    for key,value in pairs(before) do if not equal(value,after[key]) then data.changedKeys[#data.changedKeys+1]=key end end
+    for key in pairs(after) do if before[key]==nil then data.changedKeys[#data.changedKeys+1]=key end end
+    table.sort(data.changedKeys)
+    return {success=true,data=data}
+end
+
 local function handle(req)
+    if appearanceCommands[req.command] then return appearance(req) end
     if req.command=="set_curve" then curvePoints(req.points) end
     if req.command=="add_point_color" then validateSwatch(req.swatch,true) end
     if req.command=="update_point_color" then validateSwatch(req.changes,false) end
@@ -289,6 +445,12 @@ function Fine.capabilities()
         "addPointColorSwatch","deletePointColorSwatch","selectPointColorSwatch","updateSelectedPointColorSwatch","getSelectedPointColorSwatchIndex"}) do
         result[name]=type(Controller[name])=="function"
     end
+    local photo=Application.activeCatalog():getTargetPhoto()
+    result.appearance={profileEnumeration='observed_photos_and_sdk_presets',
+        getDevelopSettings=photo and type(photo.getDevelopSettings)=='function' or false,
+        applyDevelopSettings=photo and type(photo.applyDevelopSettings)=='function' or false,
+        quickDevelopSetTreatment=photo and type(photo.quickDevelopSetTreatment)=='function' or false,
+        quickDevelopSetWhiteBalance=photo and type(photo.quickDevelopSetWhiteBalance)=='function' or false}
     return result
 end
 function Fine.handle(req)

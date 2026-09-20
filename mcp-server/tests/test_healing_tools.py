@@ -36,4 +36,4 @@ def test_uncertain_start_keeps_id(monkeypatch):
  r=call('lr_update_ai_settings');assert r['jobId']==sent[0]['jobId'] and r['outcomeUnknown']
 
 def test_registration():
- tools=asyncio.run(server.list_tools());assert len(tools)==72 and set(HEALING_COMMANDS)<={t.name for t in tools}
+ tools=asyncio.run(server.list_tools());assert len(tools)==77 and set(HEALING_COMMANDS)<={t.name for t in tools}
