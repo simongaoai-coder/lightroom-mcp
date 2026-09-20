@@ -3,7 +3,7 @@ local Application=import "LrApplication"
 local View=import "LrApplicationView"
 local Tasks=import "LrTasks"
 local Date=import "LrDate"
-local Library={VERSION="2.6.1",commands={get_selection=true,search_photos=true,select_photos=true,
+local Library={VERSION="2.9.0",commands={get_selection=true,search_photos=true,select_photos=true,
     get_metadata=true,set_metadata=true,list_keywords=true,create_keyword=true,update_keyword=true,
     update_photo_keywords=true,list_collections=true,create_collection=true,update_collection=true,
     update_collection_photos=true,delete_collection=true}}
@@ -103,14 +103,43 @@ local function dated(v)
     if not d or d<1 or d>days[m] then fail("invalid_arguments","Invalid calendar date") end
 end
 local colors={red=1,yellow=2,green=3,blue=4,purple=5,none="none"}
-local function searchDesc(filters,required)
+local function searchDesc(filters,required,depth,budget)
+    depth=depth or 0;budget=budget or {count=0}
+    if depth>8 then fail("invalid_arguments","Search nesting exceeds 8 levels")end
     if filters~=nil and type(filters)~="table" then fail("invalid_arguments","filters must be an object") end
     filters=filters or {}
     local desc={combine="intersect"}
     local strings={query="all",filename="filename",keyword="keywords"}
     for k,v in pairs(filters) do
+        budget.count=budget.count+1;if budget.count>100 then fail('invalid_arguments','Search exceeds 100 nodes')end
         local entry
-        if strings[k] then
+        if k=='all' or k=='any' or k=='none' then
+            if type(v)~='table' or #v<1 or #v>50 then fail('invalid_arguments','Logical groups need 1-50 clauses')end
+            entry={combine=({all='intersect',any='union',none='exclude'})[k]}
+            local count=0;for index,child in pairs(v)do
+                if type(index)~='number' or index<1 or index>#v or index~=math.floor(index)then fail('invalid_arguments','Logical clauses must be arrays')end
+                count=count+1
+            end
+            if count~=#v then fail('invalid_arguments','Sparse logical clauses')end
+            for _,child in ipairs(v)do entry[#entry+1]=searchDesc(child,true,depth+1,budget)end
+        elseif ({cameraModel=true,cameraSerialNumber=true,lens=true,country=true,city=true,creator=true})[k] then
+            text(v,k);entry={criteria=({cameraModel='camera',cameraSerialNumber='cameraSN'})[k]or k,operation='==',value=v}
+        elseif ({folder=true,collection=true,title=true,caption=true,copyName=true})[k] then
+            text(v,k);entry={criteria=k=='copyName' and 'copyname' or k,operation='any',value=v}
+        elseif k=='minISO' or k=='maxISO' then
+            if not number(v,1,10000000)then fail('invalid_arguments','Invalid ISO bound')end
+            entry={criteria='isoSpeedRating',operation=k=='minISO' and '>='or '<=',value=v}
+        elseif k=='hasAdjustments' or k=='hasGPS' or k=='cropped' then
+            if type(v)~='boolean'then fail('invalid_arguments','Boolean filter required')end
+            entry={criteria=k=='hasGPS'and 'hasGPSData'or k,operation=v and 'isTrue'or 'isFalse',value=v}
+        elseif k=='treatment' or k=='orientation' then
+            local values=k=='treatment'and {color=true,grayscale=true}or {portrait=true,landscape=true,square=true}
+            if not values[v]then fail('invalid_arguments','Invalid enum filter')end
+            entry={criteria=k=='orientation'and 'aspectRatio'or k,operation='==',value=v}
+        elseif k=='captureInLastDays' then
+            if not number(v,1,365000)or v~=math.floor(v)then fail('invalid_arguments','Invalid relative date')end
+            entry={criteria='captureTime',operation='inLast',value=v,value2=1,value_units='days'}
+        elseif strings[k] then
             text(v,k,true)
             if v~="" then entry={criteria=strings[k],operation="any",value=v} end
         elseif k=="minRating" or k=="maxRating" then
@@ -123,16 +152,17 @@ local function searchDesc(filters,required)
             if not colors[v] then fail("invalid_arguments","Invalid color label") end
             entry={criteria="labelColor",operation="==",value=colors[v]}
         elseif k=="fileFormat" then
-            if not ({RAW=true,DNG=true,JPG=true,TIFF=true,PSD=true})[v] then fail("invalid_arguments","Invalid format") end
+            if not ({RAW=true,DNG=true,JPG=true,TIFF=true,PSD=true,PNG=true,PSB=true,AVIF=true,JXL=true,VIDEO=true})[v] then fail("invalid_arguments","Invalid format") end
             entry={criteria="fileFormat",operation="==",value=v}
         elseif k=="captureAfter" or k=="captureBefore" then
             dated(v);entry={criteria="captureTime",operation=k=="captureAfter" and ">" or "<",value=v}
         else fail("invalid_arguments","Unsupported filter: "..tostring(k)) end
         if entry then desc[#desc+1]=entry end
     end
+    if filters.minISO and filters.maxISO and filters.minISO>filters.maxISO then fail('invalid_arguments','minISO exceeds maxISO')end
     if filters.minRating and filters.maxRating and filters.minRating>filters.maxRating then fail("invalid_arguments","minRating exceeds maxRating") end
     if filters.captureAfter and filters.captureBefore and filters.captureAfter>=filters.captureBefore then fail("invalid_arguments","Date bounds are reversed") end
-    table.sort(desc,function(a,b) return a.criteria..a.operation < b.criteria..b.operation end)
+    table.sort(desc,function(a,b) return (a.criteria or a.combine)..(a.operation or "") < (b.criteria or b.combine)..(b.operation or "") end)
     if #desc==0 then if required then fail("invalid_arguments","Smart collections require non-empty filters") end;return nil end
     return desc
 end
@@ -175,8 +205,8 @@ local function keywordRows(c)
             local id=kw.localIdentifier
             if seen[id] then fail("invalid_hierarchy","Repeated keyword ID") end
             seen[id]=true;objects[id]=kw
-            local name=kw:getName()
-            rows[#rows+1]={keywordId=id,name=name,path=path..name,parentId=parent,synonyms=kw:getSynonyms(),includeOnExport=kw:getAttributes().includeOnExport}
+            local name=kw:getName();local attributes=kw:getAttributes()
+            rows[#rows+1]={keywordId=id,name=name,path=path..name,parentId=parent,synonyms=kw:getSynonyms(),includeOnExport=attributes.includeOnExport,keywordType=attributes.keywordType,attributes=clone(attributes)}
             walk(kw:getChildren(),path..name.."/",id)
         end
     end
@@ -403,7 +433,143 @@ local function navigation(req,c)
     end
 end
 
+local structureCommands={move_keyword=true,list_keyword_photos=true,move_collection=true,show_target_collection=true,toggle_target_collection=true,
+    rename_virtual_copy=true,remove_virtual_copy=true,list_metadata_presets=true,apply_metadata_preset=true}
+for name in pairs(structureCommands)do Library.commands[name]=true end
+local function expandedLibrary(req,c)
+    local cmd=req.command
+    local function poll(fn,selectionChanges)
+        local deadline=Date.currentTime()+5
+        repeat check(c,selectionChanges);if fn()then return true end;Tasks.sleep(.05)until Date.currentTime()>=deadline
+        check(c,selectionChanges);return fn()
+    end
+    local function photoPage(photos)
+        local rows,seen={},{}
+        for _,p in ipairs(photos)do local id=uuid(p);if not seen[id]then rows[#rows+1]={id=id,photo=p};seen[id]=true end end
+        table.sort(rows,function(a,b)return a.id<b.id end)
+        local data=page(rows,req,function(r)return summary(r.photo)end);data.photos=data.items;data.items=nil;return data
+    end
+    local function parentId(node)local p=node:getParent();return p and p.localIdentifier or 0 end
+    local function ensureNoCycle(node,parent)
+        local seen={}
+        while parent do
+            local id=parent.localIdentifier
+            if id==node.localIdentifier then fail('hierarchy_cycle','Cannot move an item into itself or its descendants')end
+            if seen[id]then fail('invalid_hierarchy','Repeated ancestor')end;seen[id]=true;parent=parent:getParent()
+        end
+    end
+    if cmd=='move_keyword' or cmd=='list_keyword_photos'then
+        local rows,objects=keywordRows(c);local node=objects[identifier(req.keywordId)]
+        if not node then fail('keyword_not_found','Keyword not in this catalog')end
+        if cmd=='list_keyword_photos'then
+            if req.includeDescendants~=nil and type(req.includeDescendants)~='boolean'then fail('invalid_arguments','includeDescendants must be boolean')end
+            local photos,visited={},{}
+            local function visit(kw)
+                if visited[kw.localIdentifier]then return end;visited[kw.localIdentifier]=true
+                api(kw,'getPhotos');for _,p in ipairs(kw:getPhotos())do photos[#photos+1]=p end
+                if req.includeDescendants then for _,child in ipairs(kw:getChildren())do visit(child)end end
+            end
+            visit(node);local d=photoPage(photos);d.keywordId=req.keywordId;return {success=true,data=d}
+        end
+        if not number(req.parentId,0)or req.parentId~=math.floor(req.parentId)then fail('invalid_arguments','parentId must be 0 or a keyword ID')end
+        local parent=req.parentId~=0 and objects[req.parentId]or nil
+        if req.parentId~=0 and not parent then fail('keyword_not_found','Parent keyword missing')end
+        ensureNoCycle(node,parent)
+        for _,r in ipairs(rows)do if r.keywordId~=req.keywordId and (r.parentId or 0)==req.parentId and r.name:lower()==node:getName():lower()then fail('keyword_exists','Destination has a same-name keyword')end end
+        api(node,'setParent');check(c);local result=node:setParent(parent)
+        if result==false then fail('move_rejected','Keyword parent change rejected')end
+        if not poll(function()return parentId(node)==req.parentId end)then fail('readback_failed','Keyword parent did not persist')end
+        return {success=true,data={keywordId=req.keywordId,parentId=parentId(node),name=node:getName()}}
+    elseif cmd=='move_collection'then
+        local node=collection(c,req.collectionId)
+        if not number(req.parentId,0)or req.parentId~=math.floor(req.parentId)then fail('invalid_arguments','parentId must be 0 or a collection set ID')end
+        local parent
+        if req.parentId~=0 then local kind;parent,kind=collection(c,req.parentId);if kind~='set'then fail('invalid_parent','Parent must be a collection set')end end
+        ensureNoCycle(node,parent)
+        for _,r in ipairs(collectionRows(c,false))do if r.collectionId~=node.localIdentifier and (r.parentId or 0)==req.parentId and r.name:lower()==node:getName():lower()then fail('collection_exists','Destination has a same-name collection')end end
+        api(node,'setParent');local result=write(c,'MCP Move Collection',function()ensureNoCycle(node,parent);return node:setParent(parent)end)
+        if result==false then fail('move_rejected','Collection parent change rejected')end
+        if not poll(function()return parentId(node)==req.parentId end)then fail('readback_failed','Collection parent did not persist')end
+        return {success=true,data={collectionId=req.collectionId,parentId=parentId(node),name=node:getName()}}
+    elseif cmd=='show_target_collection'then
+        if not c.catalog.kTargetCollection then fail('unsupported_api','Target collection source unavailable')end
+        check(c);View.switchToModule('library');local result=c.catalog:setActiveSources({c.catalog.kTargetCollection})
+        if result==false then fail('source_rejected','Target collection source rejected')end
+        Tasks.sleep(.2);check(c,true);local d=navigationState(c,req);d.verification='native_call_and_sources_observed';return {success=true,data=d}
+    elseif cmd=='toggle_target_collection'then
+        if type(req.expectedPhotoId)~='string' or not c.target then fail('invalid_arguments','expectedPhotoId and an active photo are required')end
+        c.guardTarget=true
+        local ps=c.catalog:getTargetPhotos();if #ps~=1 or ps[1]~=c.target then fail('multiple_selection','Select only the intended photo')end
+        api(c.target,'addOrRemoveFromTargetCollection');api(c.target,'getContainedCollections')
+        local function memberships()local ids={};for _,col in ipairs(c.target:getContainedCollections())do ids[#ids+1]=col.localIdentifier end;table.sort(ids);return ids end
+        local before=memberships();check(c);c.target:addOrRemoveFromTargetCollection();Tasks.sleep(.1);check(c,true)
+        return {success=true,data={photoId=uuid(c.target),beforeCollectionIds=before,afterCollectionIds=memberships(),verification='native_call_and_membership_observation',
+            note='Native target designation/Quick Collection membership may not be exposed by ordinary collection IDs. Toggle is relative; do not retry automatically.'}}
+    elseif cmd=='rename_virtual_copy' or cmd=='remove_virtual_copy'then
+        text(req.photoId,'photoId');api(c.catalog,'findPhotoByUuid');local photo=c.catalog:findPhotoByUuid(req.photoId)
+        if not photo then fail('photo_not_found','Virtual copy not found')end
+        local function validate()
+            if photo:getRawMetadata('isVirtualCopy')~=true then fail('not_virtual_copy','Original photos cannot be targeted by this operation')end
+            if req.expectedCopyName~=nil and photo:getFormattedMetadata('copyName')~=req.expectedCopyName then fail('copy_name_changed','Virtual copy name changed')end
+            if cmd=='remove_virtual_copy'then
+                text(req.expectedMasterPhotoId,'expectedMasterPhotoId');local master=photo:getRawMetadata('masterPhoto')
+                if not master or uuid(master)~=req.expectedMasterPhotoId then fail('master_changed','Virtual copy master does not match')end
+            end
+        end
+        validate()
+        if cmd=='rename_virtual_copy'then
+            text(req.copyName,'copyName',true)
+            write(c,'MCP Rename Virtual Copy',function()validate();photo:setRawMetadata('copyName',req.copyName)end)
+            if not poll(function()return photo:getFormattedMetadata('copyName')==req.copyName end)then fail('readback_failed','copyName did not persist')end
+            return {success=true,data=summary(photo)}
+        end
+        local Selection=import 'LrSelection';api(Selection,'removeFromCatalog')
+        -- RemoveFromCatalog is selection-based. Only ever invoke it on a verified
+        -- single virtual copy, from Library/All Photographs; never on a master.
+        check(c);View.showView('grid');c.catalog:setActiveSources({c.catalog.kAllPhotos});Tasks.sleep(.2);check(c,true)
+        if not poll(function()local sources=c.catalog:getActiveSources();return View.getCurrentModuleName()=='library' and #sources==1 and sources[1]==c.catalog.kAllPhotos end,true)then fail('context_timeout','Library/All Photographs did not become ready')end
+        c.catalog:setSelectedPhotos(photo,{photo})
+        if not poll(function()local ps=c.catalog:getTargetPhotos();return c.catalog:getTargetPhoto()==photo and #ps==1 and ps[1]==photo end,true)then fail('selection_failed','Virtual copy could not be selected alone; filters may hide it')end
+        validate();check(c,true)
+        local ps=c.catalog:getTargetPhotos();if c.catalog:getTargetPhoto()~=photo or #ps~=1 or ps[1]~=photo then fail('selection_changed','Selection changed before removal')end
+        Selection.removeFromCatalog()
+        if not poll(function()return c.catalog:findPhotoByUuid(req.photoId)==nil end,true)then fail('removal_unverified','Copy still resolves; inspect before retrying',{outcomeUnknown=true})end
+        if not c.catalog:findPhotoByUuid(req.expectedMasterPhotoId)then fail('master_unavailable','Master unavailable after removal; inspect catalog immediately',{outcomeUnknown=true})end
+        return {success=true,data={removedPhotoId=req.photoId,masterPhotoId=req.expectedMasterPhotoId,masterStillPresent=true,status='removed',verification='catalog_absence_and_master_presence'}}
+    elseif cmd=='list_metadata_presets' or cmd=='apply_metadata_preset'then
+        api(Application,'metadataPresets');local rows={}
+        for name,id in pairs(Application.metadataPresets()or {})do
+            if type(name)~='string' or type(id)~='string'then fail('unsupported_preset_data','Unknown metadata preset layout')end
+            rows[#rows+1]={name=name,presetId=id}
+        end
+        table.sort(rows,function(a,b)if a.name==b.name then return a.presetId<b.presetId end;return a.name<b.name end)
+        if cmd=='list_metadata_presets'then
+            local query=req.query or '';text(query,'query',true);local selected={}
+            for _,r in ipairs(rows)do if r.name:lower():find(query:lower(),1,true)then selected[#selected+1]=r end end
+            local d=page(selected,req);d.presets=d.items;d.items=nil;return {success=true,data=d}
+        end
+        text(req.presetId,'presetId');local found
+        for _,r in ipairs(rows)do if r.presetId==req.presetId then found=r end end
+        if not found then fail('preset_not_found','Metadata preset ID is not enumerated')end
+        local photos=targets(c,req);local fields=req.readbackFields
+        if not fields then fields={};for k in pairs(writable)do fields[#fields+1]=k end;table.sort(fields)end
+        for _,photo in ipairs(photos)do api(photo,'applyMetadataPreset');metadata(photo,fields)end
+        local result=batch(c,photos,function(photo,row)
+            local before=metadata(photo,fields)
+            local accepted=write(c,'MCP Metadata Preset',function()return photo:applyMetadataPreset(req.presetId)end)
+            if accepted==false then fail('preset_rejected','Native metadata preset application rejected')end
+            row.before=before;row.after=metadata(photo,fields);row.changedFields={}
+            for _,key in ipairs(fields)do if not equal(before.metadata[key],row.after.metadata[key])then row.changedFields[#row.changedFields+1]=key end end
+            row.verification='native_call_and_known_metadata_observation'
+        end)
+        result.data.presetId=found.presetId;result.data.presetName=found.name
+        result.data.note='Preset field selection is not enumerable; observed fields do not prove all preset effects.'
+        return result
+    end
+end
+
 local function handle(req,c)
+    if structureCommands[req.command]then return expandedLibrary(req,c)end
     if navigationCommands[req.command] then return navigation(req,c) end
     local cmd=req.command
     if cmd=="get_selection" then
@@ -495,8 +661,9 @@ local function handle(req,c)
             if not node then node=write(c,"MCP Create Keyword",function()return c.catalog:createKeyword(req.name,req.synonyms or {},req.includeOnExport~=false,parent,true)end) end
             if not node then fail("creation_failed","Keyword was not created") end
         else
+            if req.ignoreCase~=nil and type(req.ignoreCase)~="boolean" then fail("invalid_arguments","ignoreCase must be boolean")end
             if req.name==nil and req.synonyms==nil and req.includeOnExport==nil then fail("invalid_arguments","No keyword changes provided") end
-            local ok=write(c,"MCP Update Keyword",function()return node:setAttributes({keywordName=req.name,synonyms=req.synonyms,includeOnExport=req.includeOnExport})end)
+            local ok=write(c,"MCP Update Keyword",function()return node:setAttributes({keywordName=req.name,synonyms=req.synonyms,includeOnExport=req.includeOnExport,ignoreCase=req.ignoreCase})end)
             if ok==false then fail("keyword_exists","Keyword update conflicts with an existing sibling") end
         end
         local latest=keywordRows(c);local result
@@ -575,7 +742,7 @@ end
 function Library.handle(req)
     local ok,result=Tasks.pcall(function()
         local c=context(req);local result=handle(req,c)
-        check(c,req.command=="select_photos" or req.command=="set_sources" or req.command=="show_view" or req.command=="navigate_photos" or req.command=="set_view_filter")
+        check(c,req.command=="select_photos" or req.command=="set_sources" or req.command=="show_view" or req.command=="navigate_photos" or req.command=="set_view_filter" or req.command=="show_target_collection" or req.command=="remove_virtual_copy" or req.command=="toggle_target_collection")
         result.data=result.data or {};result.data.catalogPath=c.path
         return result
     end)

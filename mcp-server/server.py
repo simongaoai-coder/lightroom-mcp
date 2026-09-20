@@ -35,7 +35,7 @@ from library_tools import library_tools, LIBRARY_COMMANDS, DELIVERY_COMMANDS
 
 REQ_FILE = os.environ.get("LR_MCP_REQ", "/tmp/lr_mcp_req.json")
 RES_FILE = os.environ.get("LR_MCP_RES", "/tmp/lr_mcp_res.json")
-SERVER_VERSION = "2.8.0"
+SERVER_VERSION = "2.9.0"
 PROTOCOL_VERSION = 2
 _IPC_LOCK = threading.Lock()
 TIMEOUT = 10.0   # seconds to wait for Lua to respond
@@ -112,7 +112,7 @@ def _exchange(command: dict, timeout: float) -> dict:
     except (FileNotFoundError, ValueError):
         pass
     return {"success": False, "code": "timeout", "requestId": request_id,
-            "outcomeUnknown": command.get("command") not in {"ping", "get_settings", "list_presets", "list_snapshots", "list_virtual_copies", "get_curve", "list_point_colors", "get_selection", "search_photos", "get_metadata", "list_keywords", "list_collections", "get_export_status", "list_spots", "get_selected_spot", "get_remove_preferences", "get_ai_update_status", "get_appearance", "list_profiles", "get_geometry", "get_navigation", "list_folders", "list_folder_photos", "get_history_state", "get_process_version"},
+            "outcomeUnknown": command.get("command") not in {"ping", "get_settings", "list_presets", "list_snapshots", "list_virtual_copies", "get_curve", "list_point_colors", "get_selection", "search_photos", "get_metadata", "list_keywords", "list_collections", "get_export_status", "list_spots", "get_selected_spot", "get_remove_preferences", "get_ai_update_status", "get_appearance", "list_profiles", "get_geometry", "get_navigation", "list_folders", "list_folder_photos", "get_history_state", "get_process_version", "list_keyword_photos", "list_metadata_presets"},
             "error": "Lightroom did not respond in time. An accepted operation may still finish; read back state before retrying."}
 
 

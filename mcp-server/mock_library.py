@@ -17,14 +17,19 @@ class MockLibrary:
         off,lim=req.get('offset',0),req.get('limit',50)
         return {key:items[off:off+lim],'total':len(items),'offset':off,'hasMore':off+lim<len(items)}
     def search(self,filters):
-        result=[]
-        for row in self.photos.values():
-            m=row['metadata']
-            if filters.get('filename','').lower() not in row['filename'].lower():continue
-            if m['rating']<filters.get('minRating',0) or m['rating']>filters.get('maxRating',5):continue
-            if 'pickStatus' in filters and m['pickStatus']!=filters['pickStatus']:continue
-            result.append(row)
-        return sorted(result,key=lambda r:r['photoId'])
+        def match(row,f):
+            m=row['metadata'];checks=[]
+            for key,value in f.items():
+                if key in {'all','any','none'}:
+                    found=[match(row,x) for x in value]
+                    checks.append(all(found) if key=='all' else any(found) if key=='any' else not any(found))
+                elif key=='filename':checks.append(value.lower() in row['filename'].lower())
+                elif key=='minRating':checks.append(m['rating']>=value)
+                elif key=='maxRating':checks.append(m['rating']<=value)
+                elif key=='pickStatus':checks.append(m['pickStatus']==value)
+                else:checks.append(m.get(key)==value)
+            return all(checks)
+        return sorted([r for r in self.photos.values() if match(r,filters)],key=lambda r:r['photoId'])
 
     def handle(self,req):
         cmd=req['command']
@@ -33,7 +38,18 @@ class MockLibrary:
         target_ids=self.targets(req)
         if any(i not in self.photos for i in target_ids):return self.error('photo_not_found')
         data={}
-        if cmd=='get_selection':
+        if cmd=='list_metadata_presets':data={'presets':[{'name':'Test Metadata','presetId':'meta1'}],'total':1}
+        elif cmd=='apply_metadata_preset':
+            if req['presetId']!='meta1':return self.error('preset_not_found')
+            for i in target_ids:self.photos[i]['metadata']['title']='preset title'
+            data={'results':[{'photoId':i,'success':True}for i in target_ids]}
+        elif cmd in {'move_keyword','move_collection'}:
+            items=self.keywords if cmd=='move_keyword' else self.collections
+            key='keywordId' if cmd=='move_keyword' else 'collectionId'
+            if req[key] not in items:return self.error('not_found')
+            items[req[key]]['parentId']=req['parentId'] or None;data=items[req[key]]
+        elif cmd=='list_keyword_photos':data=self.paginate([p for p in self.photos.values() if req['keywordId'] in p['keywords']],req,'photos')
+        elif cmd=='get_selection':
             data=self.paginate([self.photos[i] for i in self.selected],req,'photos');data['activePhotoId']=self.current
         elif cmd=='search_photos':
             rows=self.search(req.get('filters',{}))

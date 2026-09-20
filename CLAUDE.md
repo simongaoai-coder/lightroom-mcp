@@ -468,3 +468,23 @@ settings contract; it supersedes older descriptions above of global setValue,
 - All six versions were tested live in 15.2 and the baseline fully restored.
   See docs/process-version.md and tests/test_process_version.py. Future raw codes
   must not be guessed from the version number or a hardcoded production table.
+
+## Library expansion (2.9.0)
+
+- Main/Python/Library are 2.9.0; 104 tools total. Library.lua/library_tools.py add
+  nine commands and extend the existing search and keyword contracts.
+- all/any/none compile to intersect/union/exclude, with depth/node/child bounds.
+  Preserve false-valued Boolean filters and reuse the compiler for smart collections.
+- Keyword setParent is called outside an outer write gate; collection/set reparenting
+  uses a write gate. Reject cycles and sibling collisions, then verify the parent.
+- Keyword native attributes/keywordType are readable. Only documented setter fields
+  and ignoreCase are writable. Do not invent additional keyword flags/type writes.
+- Native target collection supports source navigation and a single-photo relative
+  membership toggle here; no public target-designation setter is claimed.
+- Virtual-copy removal must verify virtual flag, expected master, Library/All Photos
+  and exact single selection immediately before removeFromCatalog. Never broaden
+  to original photos or use filesystem deletion. Verify copy absence/master presence.
+- Metadata preset contents are not enumerable; report known-field observations,
+  stop batch failures and never claim full-preset readback or automatic rollback.
+- Read docs/library-expansion.md and its native verification record. Production Lua
+  tests: library_expansion_fixture.lua / test_library_expansion_lua.py.

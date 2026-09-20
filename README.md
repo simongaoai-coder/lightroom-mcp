@@ -281,6 +281,15 @@ Conversions may affect rendering and other settings; changing the version back
 is not guaranteed to restore the original look. See [Process Version](docs/process-version.md)
 for guards and native validation.
 
+## Expanded library workflows (2.9)
+
+Search now supports bounded nested AND/OR/exclusion groups and camera, lens, ISO,
+edit-state and other typed criteria, shared with smart collections. Nine new tools
+bring the total to **104**: keyword/collection reparenting, exact keyword-photo
+lookup, current target-collection navigation/toggling, guarded virtual-copy rename/
+removal, and metadata-preset enumeration/application. See
+[Library expansion](docs/library-expansion.md) for exact scope and SDK limits.
+
 ## Available tools
 
 | Tool                      | What it does                                                  |
