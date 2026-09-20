@@ -193,6 +193,21 @@ and unavailable controls; `includeRaw: true` adds the complete read-only SDK tab
 Unsupported parameters and partial failures are explicit. Batch failure does not
 roll back earlier photos. Optional `expectedPhotoId` guards these settings calls.
 
+## Save versions and reuse styles (2.1)
+
+Nine new tools bring the total to **26**. Save/restore snapshots, create and switch
+virtual copies, search develop presets and apply them by UUID. Current-photo scope
+is the default; batch preset/copy operations require `scope: "selected"`.
+
+A typical workflow is `lr_create_snapshot` → `lr_list_presets` → `lr_apply_preset`
+→ `lr_apply_snapshot`. For parallel looks, create a named virtual copy and use
+`lr_list_virtual_copies` / `lr_select_virtual_copy` to switch between it and the master.
+
+Same-name snapshots are not overwritten unless `updateExisting: true` is explicit.
+Preset and snapshot applications report native SDK completion and observed changes;
+AI rendering completion is not inferred. See [Versions and presets](docs/versions-and-presets.md)
+for arguments, verification limits, failure handling and examples.
+
 ## Available tools
 
 | Tool                      | What it does                                                  |
@@ -214,6 +229,15 @@ roll back earlier photos. Optional `expectedPhotoId` guards these settings calls
 | `lr_delete_mask_tool`     | Delete a component tool within its specified parent mask |
 | `lr_lens_blur`            | Apply AI Lens Blur with bokeh shape control                   |
 | `lr_enhance`              | Run AI Denoise, Super Resolution, or Raw Details              |
+| `lr_list_snapshots` | List current photo snapshots and their IDs |
+| `lr_create_snapshot` | Save current edits as a named snapshot |
+| `lr_apply_snapshot` | Restore an explicit snapshot |
+| `lr_delete_snapshot` | Delete an explicit snapshot and verify removal |
+| `lr_list_virtual_copies` | List the master and its virtual copies |
+| `lr_create_virtual_copies` | Create named copies of the current or selected photos |
+| `lr_select_virtual_copy` | Switch to a master/copy in the current family |
+| `lr_list_presets` | Search and paginate SDK-visible develop presets |
+| `lr_apply_preset` | Apply a preset by UUID to the current or selected photos |
 
 ---
 

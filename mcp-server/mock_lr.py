@@ -10,6 +10,8 @@ Usage:
 """
 
 from mock_masks import MockMasks
+from mock_versions import MockVersions
+from version_tools import VERSION_COMMANDS
 from mask_tools import MASK_COMMANDS
 
 import base64
@@ -88,15 +90,18 @@ class _State:
         self.photos = list(_DEFAULT_PHOTOS)
         self.rating = 0
         self.mask_state = MockMasks()
+        self.version_state = MockVersions(self)
         self._lock = threading.Lock()
 
     def handle(self, req: dict) -> dict:
         cmd = req.get("command")
         with self._lock:
+            if cmd in VERSION_COMMANDS.values():
+                return self.version_state.handle(req)
             if cmd in MASK_COMMANDS.values():
                 return self.mask_state.handle({k: v for k, v in req.items() if k not in {"requestId", "expectedPluginVersion"}})
             if cmd == "ping":
-                return {"success": True, "message": "Mock LR Bridge running", "version": "2.0.0", "protocolVersion": 2}
+                return {"success": True, "message": "Mock LR Bridge running", "version": "2.1.1", "protocolVersion": 2}
 
             if cmd == "get_settings":
                 return {

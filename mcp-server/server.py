@@ -25,10 +25,11 @@ from mcp.server import Server
 from mcp.server.stdio import stdio_server
 
 from mask_tools import management_tools, validate_mask_call, MASK_COMMANDS
+from version_tools import version_tools, VERSION_COMMANDS
 
 REQ_FILE = os.environ.get("LR_MCP_REQ", "/tmp/lr_mcp_req.json")
 RES_FILE = os.environ.get("LR_MCP_RES", "/tmp/lr_mcp_res.json")
-SERVER_VERSION = "2.0.0"
+SERVER_VERSION = "2.1.1"
 PROTOCOL_VERSION = 2
 _IPC_LOCK = threading.Lock()
 TIMEOUT = 10.0   # seconds to wait for Lua to respond
@@ -75,7 +76,7 @@ def _exchange(command: dict, timeout: float) -> dict:
         os.remove(RES_FILE)
     tmp = REQ_FILE + ".tmp"
     with open(tmp, "w") as f:
-        json.dump(payload, f, allow_nan=False)
+        json.dump(payload, f, allow_nan=False, ensure_ascii=False)
     os.replace(tmp, REQ_FILE)
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
@@ -105,7 +106,7 @@ def _exchange(command: dict, timeout: float) -> dict:
     except (FileNotFoundError, ValueError):
         pass
     return {"success": False, "code": "timeout", "requestId": request_id,
-            "outcomeUnknown": command.get("command") not in {"ping", "get_settings"},
+            "outcomeUnknown": command.get("command") not in {"ping", "get_settings", "list_presets", "list_snapshots", "list_virtual_copies"},
             "error": "Lightroom did not respond in time. An accepted operation may still finish; read back state before retrying."}
 
 
@@ -168,7 +169,7 @@ def validate_settings(arguments):
 
 @app.list_tools()
 async def list_tools() -> list[types.Tool]:
-    tools = management_tools() + [
+    tools = management_tools() + version_tools() + [
         types.Tool(
             name="lr_apply_settings",
             description=(
@@ -450,7 +451,10 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
             result = {"success": False, "code": "invalid_arguments",
                       "error": errors[0].message if errors else "Numbers must be finite"}
             return [types.TextContent(type="text", text=json.dumps(result))]
-    if name in MASK_COMMANDS:
+    if name in VERSION_COMMANDS:
+        result = send_to_lightroom({"command": VERSION_COMMANDS[name], **arguments}, timeout=120.0)
+
+    elif name in MASK_COMMANDS:
         error = validate_mask_call(name, arguments)
         if error:
             result = {"success": False, "code": "invalid_arguments", "error": error}

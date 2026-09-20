@@ -126,7 +126,7 @@ def test_real_dispatch_version_gate_and_sdk_errors(sdk):
     ''')
     develop = lua.execute((PLUGIN / 'Develop.lua').read_text())
     lua.globals().developModule = develop
-    lua.execute('function require(name) if name=="Develop" then return developModule end; return {commands={}, VERSION="1.1.4"} end')
+    lua.execute('function require(name) if name=="Develop" then return developModule end; return {commands={}, VERSION="1.1.4", capabilities=function() return {} end} end')
     module = lua.execute((PLUGIN / 'Server.lua').read_text())
     info = lua.execute((PLUGIN / 'Info.lua').read_text())['VERSION']
     version = '.'.join(str(info[k]) for k in ['major','minor','revision'])

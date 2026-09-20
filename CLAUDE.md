@@ -320,3 +320,20 @@ settings contract; it supersedes older descriptions above of global setValue,
   return raw SDK settings for inspection, not arbitrary raw settings writes.
 - Production Lua tests are in `test_develop_lua.py`; transport checks are in
   `test_phase1.py`. Preserve the existing mask tests.
+
+## Phase 2: versions and presets (2.1)
+
+- `Versions.lua` owns nine new tools for snapshot CRUD, virtual-copy creation/family
+  selection and preset enumeration/application. Python schemas are in `version_tools.py`.
+- Snapshot `snapshotID` is the public `snapshotId` and native apply argument;
+  native deletion uses its `id_global`. Never interchange them or guess IDs.
+- Snapshot creation/preset application require catalog write access. Snapshot
+  apply/delete use Develop context without a write gate; virtual-copy creation
+  also runs without a write gate and implicitly changes selection.
+- A preset/snapshot application can legitimately be a no-op. Report native SDK
+  completion and observed changed keys, never claim every stored setting or AI
+  render was independently verified. Batch failures do not roll back earlier photos.
+- `updateAISettings` requests require the actual photo method before applying presets.
+- Preserve UTF-8 request names (`ensure_ascii=False`) with the bundled JSON decoder.
+- See [versions-and-presets.md](docs/versions-and-presets.md) and the production Lua
+  tests in `test_versions_lua.py`; `MockVersions` is a transport simulator only.

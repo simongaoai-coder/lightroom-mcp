@@ -13,7 +13,7 @@ local LrLogger            = import "LrLogger"
 local REQ_FILE      = "/tmp/lr_mcp_req.json"
 local RES_FILE      = "/tmp/lr_mcp_res.json"
 local POLL_INTERVAL = 0.05  -- seconds
-local VERSION       = "2.0.0"  -- keep in sync with Info.lua VERSION
+local VERSION       = "2.1.1"  -- keep in sync with Info.lua VERSION
 
 -- ── Bundled JSON encoder/decoder (no LrJSON dependency) ─────────────────────
 local function jsonEncodeValue(val)
@@ -172,6 +172,7 @@ Server._running = false
 _clrb_gen = (_clrb_gen or 0)
 
 local Develop = require "Develop"
+local Versions = require "Versions"
 local function getCurrentPhoto()
     return LrApplication.activeCatalog():getTargetPhoto()
 end
@@ -375,7 +376,9 @@ local function dispatch(req)
     local cmd = req.command
     local response = {}
 
-    if Masking.commands[cmd] then
+    if Versions.commands[cmd] then
+        return Versions.handle(req)
+    elseif Masking.commands[cmd] then
         return Masking.handle(req)
     elseif cmd == "ping" then
         response = Develop.capabilities()
@@ -383,6 +386,8 @@ local function dispatch(req)
         response.version = VERSION
         response.maskingVersion = Masking.VERSION
         response.developVersion = Develop.VERSION
+        response.versionsVersion = Versions.VERSION
+        response.capabilities.versions = Versions.capabilities()
         response.pluginPath = _PLUGIN.path
         response.protocolVersion = 2
 
