@@ -115,3 +115,6 @@ References: Adobe API reference mirrors for
 [LrDevelopPresetFolder](https://lrc.mcor.dev/modules/LrDevelopPresetFolder.html).
 Snapshot ID distinctions and Develop context are also discussed in Adobe's
 [snapshot SDK documentation issue](https://community.adobe.com/bug-reports-674/p-sdk-document-lrphoto-snapshot-methods-663151).
+
+As of 2.4.0, the optional per-photo AI update runs in its own catalog write
+gate, as required by the SDK. This is separate from the preset application gate.

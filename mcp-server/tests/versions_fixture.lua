@@ -42,7 +42,7 @@ local function extend(photo,parent,name)
         for i,s in ipairs(self.snapshots) do if s.id_global==id then table.remove(self.snapshots,i);return end end
         error("Wrong deletion ID: requires id_global")
     end
-    function photo:updateAISettings() state.lastAI=true end
+    function photo:updateAISettings() assert(state.inWrite,"AI update needs write gate");state.lastAI=true end
     function photo:applyDevelopPreset(preset,plugin,amount,updateAI)
         assert(state.inWrite,"preset needs write gate")
         if state.failPreset==self.id then error("injected preset failure") end

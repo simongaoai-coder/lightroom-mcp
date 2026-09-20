@@ -232,6 +232,21 @@ Poll `lr_get_export_status` for actual output files and per-photo errors. Source
 photos are not reimported or moved. See [Library and delivery](docs/library-and-delivery.md)
 for field names, targeting, export options, cancellation and session-lifetime limits.
 
+## Repair / Remove (2.4)
+
+Seventeen tools bring the total to **72**. Read and guard existing spots, change
+parameters/type, move source or target regions, refresh/delete/reset repairs, and
+navigate existing generative variations. Remove APIs require Lightroom Classic
+14.1+ and are checked at runtime. New brush paths still require drawing in Lightroom.
+
+The spot-parameter setter was observed to have no effect in Lightroom 15.2 and
+returns a readback error; parameter editing is not claimed to work on that build.
+Source/target movement also had no observed effect on the tested brush region
+and returns movement_unverified if readback remains unchanged.
+Separate tools manage Remove panel defaults, bounded AI-settings update jobs, and
+empty-mask cleanup. AI jobs report native call completion, not verified rendering.
+See [Repair / Remove](docs/healing-and-remove.md) for the contract and limitations.
+
 ## Available tools
 
 | Tool                      | What it does                                                  |

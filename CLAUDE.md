@@ -378,3 +378,21 @@ settings contract; it supersedes older descriptions above of global setValue,
   delivery_fixture.lua. MockLibrary is only a transport simulator.
 - See docs/library-and-delivery.md and the phase-4 verification record for native
   validation status; mocks do not establish output dimensions/encoding/ICC data.
+
+## Phase 5: repair / Remove (2.4)
+
+- Healing.lua owns 17 tools; schemas live in healing_tools.py. Main/Python and
+  Healing are 2.4.2; Versions is 2.4.0. Tool total: 72.
+- Controller spot operations run in Develop/Remove without a write gate. Use
+  returned native indices plus expectedSpot, never guess the index base. Reset
+  requires the full-list revision. Nil/count mismatch is not proof of an empty list.
+- AI settings updates and catalog empty-mask cleanup DO require catalog write
+  access. Preset-triggered AI updates use the same rule. Jobs freeze photo objects,
+  yield between photos and report sdk_completed rather than rendered completion.
+- No arbitrary repair-stroke creation or raw catalog repair-data writes. Only Opacity/Feather (0–1) may be patched; other spot data is read-only.
+  Lightroom 15.2 ignored the native setter in live testing, so readback_failed is
+  expected there. Never silently fall back to raw catalog repair writes.
+- Generative refresh requires explicit opt-in; next/previous only target an
+  existing generative spot. Do not retry an uncertain mutation blindly.
+- See docs/healing-and-remove.md. Production Lua tests use healing_fixture.lua;
+  MockHealing is only a transport simulator.

@@ -3,7 +3,7 @@ local Application = import "LrApplication"
 local Tasks = import "LrTasks"
 local View = import "LrApplicationView"
 local Date = import "LrDate"
-local Versions = {VERSION="2.1.1"}
+local Versions = {VERSION="2.4.0"}
 Versions.commands = {
     list_snapshots=true, create_snapshot=true, apply_snapshot=true, delete_snapshot=true,
     list_virtual_copies=true, create_virtual_copies=true, select_virtual_copy=true,
@@ -323,7 +323,7 @@ local function applyPreset(req,photo)
             if status==false then fail("preset_rejected","Lightroom rejected the preset") end
             if req.updateAISettings then
                 check(photo,req.expectedPhotoId)
-                local updated=item:updateAISettings()
+                local updated=write(photo,req.expectedPhotoId,"MCP Update AI Settings",function() return item:updateAISettings() end)
                 if updated==false then fail("ai_update_failed","Lightroom rejected the AI update") end
             end
             result.changedKeys=changes(before,raw(item))
