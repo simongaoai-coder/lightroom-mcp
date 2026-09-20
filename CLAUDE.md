@@ -304,3 +304,19 @@ Expected: `LR MCP Bridge vX.Y.Z started (file IPC mode)` with no "Server already
 - `photo:requestJpegThumbnail` is callback-based; `Server.lua` polls with `LrTasks.sleep(0.05)` until the callback fires (max 5s).
 - The mock's `_make_jpeg` shifts hue with Temperature, so warm/cool changes are visually verifiable even without Lightroom.
 - `pip install` requires the `--isolated` flag on this machine due to a system pip.conf issue: `venv/bin/python3 -m pip install --isolated <package>`
+
+## Phase 1 foundations (2.0.0)
+
+See [phase1-foundation.md](docs/phase1-foundation.md) for the current protocol and
+settings contract; it supersedes older descriptions above of global setValue,
+10-second transport behavior and unconditional AI availability.
+
+- `Develop.lua` owns numeric parameter registration, photo-specific catalog mapping,
+  single/batch preflight and readback. Main and Develop versions are 2.0.0;
+  Masking remains independently versioned at 1.1.4.
+- Request IDs, protocol version 2, and expected plugin version are required for
+  non-ping dispatch. Python uses a read-only handshake before sending commands.
+- `lr_ping` reports actual paths and runtime capabilities. `lr_get_settings` can
+  return raw SDK settings for inspection, not arbitrary raw settings writes.
+- Production Lua tests are in `test_develop_lua.py`; transport checks are in
+  `test_phase1.py`. Preserve the existing mask tests.

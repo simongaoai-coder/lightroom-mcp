@@ -13,7 +13,7 @@ local LrLogger            = import "LrLogger"
 local REQ_FILE      = "/tmp/lr_mcp_req.json"
 local RES_FILE      = "/tmp/lr_mcp_res.json"
 local POLL_INTERVAL = 0.05  -- seconds
-local VERSION       = "1.1.4"  -- keep in sync with Info.lua VERSION
+local VERSION       = "2.0.0"  -- keep in sync with Info.lua VERSION
 
 -- ── Bundled JSON encoder/decoder (no LrJSON dependency) ─────────────────────
 local function jsonEncodeValue(val)
@@ -171,177 +171,38 @@ Server._running = false
 -- creates a fresh Server table.
 _clrb_gen = (_clrb_gen or 0)
 
--- All develop parameters supported by LrDevelopController
-local DEVELOP_PARAMS = {
-    -- Tone
-    "Exposure", "Contrast", "Highlights", "Shadows", "Whites", "Blacks",
-    "Brightness", "Recovery", "FillLight",
-    -- Presence
-    "Clarity", "Texture", "Dehaze", "Vibrance", "Saturation",
-    -- White Balance
-    "Temperature", "Tint",
-    -- Tone Curve
-    "ParametricDarks", "ParametricLights", "ParametricShadows", "ParametricHighlights",
-    "ParametricShadowSplit", "ParametricMidtoneSplit", "ParametricHighlightSplit",
-    -- HSL
-    "HueAdjustmentRed", "HueAdjustmentOrange", "HueAdjustmentYellow",
-    "HueAdjustmentGreen", "HueAdjustmentAqua", "HueAdjustmentBlue",
-    "HueAdjustmentPurple", "HueAdjustmentMagenta",
-    "SaturationAdjustmentRed", "SaturationAdjustmentOrange", "SaturationAdjustmentYellow",
-    "SaturationAdjustmentGreen", "SaturationAdjustmentAqua", "SaturationAdjustmentBlue",
-    "SaturationAdjustmentPurple", "SaturationAdjustmentMagenta",
-    "LuminanceAdjustmentRed", "LuminanceAdjustmentOrange", "LuminanceAdjustmentYellow",
-    "LuminanceAdjustmentGreen", "LuminanceAdjustmentAqua", "LuminanceAdjustmentBlue",
-    "LuminanceAdjustmentPurple", "LuminanceAdjustmentMagenta",
-    -- Detail
-    "Sharpness", "SharpenRadius", "SharpenDetail", "SharpenEdgeMasking",
-    "LuminanceSmoothing", "LuminanceNoiseReductionDetail",
-    "ColorNoiseReduction", "ColorNoiseReductionDetail", "ColorNoiseReductionSmoothness",
-    -- Lens
-    "LensProfileEnable", "AutoLateralCA",
-    "VignetteAmount", "VignetteMidpoint",
-    -- Transform
-    "PerspectiveVertical", "PerspectiveHorizontal",
-    "PerspectiveRotate", "PerspectiveScale",
-    "PerspectiveAspect", "PerspectiveX", "PerspectiveY", "PerspectiveUpright",
-    -- Crop
-    "CropAngle", "CropTop", "CropBottom", "CropLeft", "CropRight",
-    -- Effects
-    "PostCropVignetteAmount", "PostCropVignetteMidpoint",
-    "PostCropVignetteFeather", "PostCropVignetteRoundness",
-    "GrainAmount", "GrainSize", "GrainFrequency",
-    -- Color Grading (3-way color wheels)
-    "ColorGradeBlending",
-    "ColorGradeGlobalHue", "ColorGradeGlobalLum", "ColorGradeGlobalSat",
-    "ColorGradeHighlightLum",
-    "ColorGradeMidtoneHue", "ColorGradeMidtoneLum", "ColorGradeMidtoneSat",
-    "ColorGradeShadowLum",
-    -- B&W Mix
-    "GrayMixerRed", "GrayMixerOrange", "GrayMixerYellow", "GrayMixerGreen",
-    "GrayMixerAqua", "GrayMixerBlue", "GrayMixerPurple", "GrayMixerMagenta",
-    -- Split Toning (legacy but still functional)
-    "SplitToningBalance",
-    "SplitToningHighlightHue", "SplitToningHighlightSaturation",
-    "SplitToningShadowHue", "SplitToningShadowSaturation",
-    -- Defringe
-    "DefringeGreenAmount", "DefringeGreenHueHi", "DefringeGreenHueLo",
-    "DefringePurpleAmount", "DefringePurpleHueHi", "DefringePurpleHueLo",
-    -- Lens Blur (AI depth-of-field)
-    "LensBlurActive", "LensBlurAmount", "LensBlurCatEye",
-    "LensBlurFocalRange", "LensBlurHighlightsBoost",
-}
-
-local function buildParamIndex()
-    local idx = {}
-    for _, p in ipairs(DEVELOP_PARAMS) do
-        idx[p:lower()] = p
-    end
-    return idx
-end
-local PARAM_INDEX = buildParamIndex()
-
+local Develop = require "Develop"
 local function getCurrentPhoto()
-    local catalog = LrApplication.activeCatalog()
-    local photo = catalog:getTargetPhoto()
+    return LrApplication.activeCatalog():getTargetPhoto()
+end
+
+local function prepareController(api)
+    if type(LrDevelopController[api]) ~= "function" then
+        error({success=false, code="unsupported_api", error="Lightroom does not provide " .. api}, 0)
+    end
+    local photo = getCurrentPhoto()
+    if not photo then error({success=false, code="no_photo", error="No photo selected"}, 0) end
+    local View = import "LrApplicationView"
+    if View.getCurrentModuleName() ~= "develop" then View.switchToModule("develop") end
+    local elapsed = 0
+    while View.getCurrentModuleName() ~= "develop" and elapsed < 5 do
+        LrTasks.sleep(0.05)
+        elapsed = elapsed + 0.05
+    end
+    if getCurrentPhoto() ~= photo then error({success=false, code="photo_changed", error="Photo selection changed"}, 0) end
+    if View.getCurrentModuleName() ~= "develop" then error({success=false, code="context_timeout", error="Develop is not ready"}, 0) end
     return photo
 end
 
-local function applyDevelopSettings(settings)
-    local photo = getCurrentPhoto()
-    if not photo then
-        return false, "No photo selected in Lightroom"
-    end
-
-    local applied = {}
-    local skipped = {}
-    local catalog = LrApplication.activeCatalog()
-
-    -- Run setValue + catalog flush in a fresh LrTask so the call stack is clean
-    -- (no pending C function references that would block withWriteAccessDo yield).
-    local done = false
-    LrTasks.startAsyncTask(function()
-        for key, value in pairs(settings) do
-            local paramName = PARAM_INDEX[key:lower()] or key
-            local ok2, err2 = pcall(function()
-                LrDevelopController.setValue(paramName, tonumber(value) or value)
-            end)
-            if ok2 then
-                table.insert(applied, paramName .. "=" .. tostring(value))
-                log:info("setValue " .. paramName .. "=" .. tostring(value))
-            else
-                table.insert(skipped, paramName .. "(" .. tostring(err2) .. ")")
-                log:error("setValue failed " .. paramName .. ": " .. tostring(err2))
-            end
-        end
-        -- Flush buffered Local* changes to the catalog.
-        catalog:withWriteAccessDo("Flush Settings", function() end, {timeout = 30})
-        done = true
-    end)
-
-    -- Wait for the async task (cooperative yield via sleep).
-    local elapsed = 0
-    while not done and elapsed < 10 do
-        LrTasks.sleep(0.05)
-        elapsed = elapsed + 0.05
-    end
-
-    local msg = "Applied: " .. table.concat(applied, ", ")
-    if #skipped > 0 then
-        msg = msg .. " | Skipped: " .. table.concat(skipped, ", ")
-    end
-    return true, msg
-end
-
-local function getCurrentSettings()
-    local photo = getCurrentPhoto()
-    if not photo then
-        return nil, "No photo selected"
-    end
-
-    local settings = {}
-    for _, param in ipairs(DEVELOP_PARAMS) do
-        local ok, val = pcall(function()
-            return LrDevelopController.getValue(param)
-        end)
-        if ok and val ~= nil then
-            settings[param] = val
-        end
-    end
-
-    -- Also grab filename and basic metadata
-    local info = {
-        filename = photo:getFormattedMetadata("fileName"),
-        rating   = photo:getRawMetadata("rating"),
-        settings = settings,
-    }
-    return info, nil
-end
-
 local function applyAutoTone()
-    local photo = getCurrentPhoto()
-    if not photo then return false, "No photo selected" end
-    local catalog = LrApplication.activeCatalog()
-    local done = false
-    LrTasks.startAsyncTask(function()
-        LrDevelopController.setAutoTone()
-        catalog:withWriteAccessDo("Flush AutoTone", function() end, {timeout = 30})
-        done = true
-    end)
-    local elapsed = 0
-    while not done and elapsed < 10 do
-        LrTasks.sleep(0.05)
-        elapsed = elapsed + 0.05
-    end
+    prepareController("setAutoTone")
+    LrDevelopController.setAutoTone()
     return true, "Auto tone applied"
 end
 
 local function resetAllSettings()
-    local catalog = LrApplication.activeCatalog()
-    local photo = getCurrentPhoto()
-    if not photo then return false, "No photo selected" end
-    catalog:withWriteAccessDo("Reset", function()
-        LrDevelopController.resetAllDevelopAdjustments()
-    end, {timeout = 30})
+    prepareController("resetAllDevelopAdjustments")
+    LrDevelopController.resetAllDevelopAdjustments()
     return true, "All develop settings reset"
 end
 
@@ -353,10 +214,8 @@ local function exportPreview(size)
     local thumbSize = math.min(tonumber(size) or 1500, 2048)
     local jpegData  = nil
 
-    -- Use requestJpegThumbnail from the preview cache. LrExportSession cannot
-    -- be called from the polling-loop task (requires Lightroom's export service
-    -- context). The thumbnail may be larger than thumbSize if 1:1 previews are
-    -- cached; that is a Lightroom limitation.
+    -- This tool intentionally reads the preview cache rather than rendering a
+    -- formal LrExportSession. Cached thumbnails may exceed the requested size.
     local catalog = LrApplication.activeCatalog()
     local sizes   = { thumbSize }
     if thumbSize > 640 then sizes[#sizes + 1] = 640 end
@@ -408,71 +267,13 @@ local function exportPreview(size)
     return base64Encode(jpegData), nil, orientation
 end
 
-local function batchApplySettings(settings)
-    local catalog = LrApplication.activeCatalog()
-    local photos  = catalog:getTargetPhotos()   -- all selected photos
-
-    if not photos or #photos == 0 then
-        return false, "No photos selected"
-    end
-
-    local count   = 0
-    local skipped = 0
-
-    for _, photo in ipairs(photos) do
-        catalog:withWriteAccessDo("Batch Edit", function()
-            local devSettings = {}
-            for key, value in pairs(settings) do
-                local paramName = PARAM_INDEX[key:lower()] or key
-                devSettings[paramName] = tonumber(value) or value
-            end
-            local ok, err = pcall(function()
-                photo:applyDevelopSettings(devSettings)
-            end)
-            if ok then
-                count = count + 1
-            else
-                skipped = skipped + 1
-                log:error("Batch apply failed for photo: " .. tostring(err))
-            end
-        end, {timeout = 30})
-    end
-
-    return true, string.format("Applied to %d photos, %d skipped", count, skipped)
-end
-
 local function cropPhoto(params)
-    local catalog = LrApplication.activeCatalog()
-    local photo = getCurrentPhoto()
-    if not photo then return false, "No photo selected" end
-
-    local applied = {}
-    catalog:withWriteAccessDo("Crop", function()
-        -- Straighten/rotate angle
-        if params.angle ~= nil then
-            local ok, err = pcall(function()
-                LrDevelopController.straightenAngle(tonumber(params.angle))
-            end)
-            if not ok then
-                -- fall back to setValue
-                pcall(function() LrDevelopController.setValue("CropAngle", tonumber(params.angle)) end)
-            end
-            table.insert(applied, "angle=" .. tostring(params.angle))
-        end
-        -- Crop bounds (0.0–1.0 normalized)
-        for _, k in ipairs({ "CropTop", "CropBottom", "CropLeft", "CropRight" }) do
-            local v = params[k] or params[k:lower():sub(5)]  -- accept "top","bottom" etc.
-            if v ~= nil then
-                pcall(function() LrDevelopController.setValue(k, tonumber(v)) end)
-                table.insert(applied, k .. "=" .. tostring(v))
-            end
-        end
-    end, {timeout = 30})
-
-    if #applied == 0 then
-        return false, "No crop parameters provided"
+    local settings = {}
+    if params.angle ~= nil then settings.CropAngle = params.angle end
+    for _, key in ipairs({"CropTop", "CropBottom", "CropLeft", "CropRight"}) do
+        if params[key] ~= nil then settings[key] = params[key] end
     end
-    return true, "Crop applied: " .. table.concat(applied, ", ")
+    return Develop.handle({command="apply_settings", settings=settings})
 end
 
 -- Mask management is isolated so the SDK workflow can be tested directly.
@@ -484,74 +285,52 @@ local BOKEH_TYPES = {
 }
 
 local function lensBlur(params)
-    local catalog = LrApplication.activeCatalog()
-    local photo = getCurrentPhoto()
-    if not photo then return false, "No photo selected" end
-
-    local applied = {}
-
-    catalog:withWriteAccessDo("Lens Blur", function()
-        -- Activate / deactivate
-        if params.active ~= nil then
-            local v = params.active and 1 or 0
-            pcall(function() LrDevelopController.setValue("LensBlurActive", v) end)
-            table.insert(applied, "active=" .. tostring(params.active))
-        end
-        -- Amount
-        if params.amount ~= nil then
-            pcall(function() LrDevelopController.setValue("LensBlurAmount", tonumber(params.amount)) end)
-            table.insert(applied, "amount=" .. tostring(params.amount))
-        end
-        -- Cat-eye
-        if params.catEye ~= nil then
-            pcall(function() LrDevelopController.setValue("LensBlurCatEye", tonumber(params.catEye)) end)
-            table.insert(applied, "catEye=" .. tostring(params.catEye))
-        end
-        -- Highlights boost
-        if params.highlightsBoost ~= nil then
-            pcall(function() LrDevelopController.setValue("LensBlurHighlightsBoost", tonumber(params.highlightsBoost)) end)
-            table.insert(applied, "highlightsBoost=" .. tostring(params.highlightsBoost))
-        end
-    end, {timeout = 30})
-
-    -- Bokeh shape (outside write access — it's a UI/render property)
+    local photo = prepareController("setValue")
+    local settings = {}
+    if params.active ~= nil then settings.LensBlurActive = params.active and 1 or 0 end
+    for key, param in pairs({amount="LensBlurAmount", catEye="LensBlurCatEye", highlightsBoost="LensBlurHighlightsBoost"}) do
+        if params[key] ~= nil then settings[param] = params[key] end
+    end
+    -- Check optional APIs before any mutation.
     if params.bokeh ~= nil then
-        local bokehName = tostring(params.bokeh)
-        -- Capitalise first letter to match enum (circle → Circle)
-        bokehName = bokehName:sub(1,1):upper() .. bokehName:sub(2)
-        if BOKEH_TYPES[bokehName] then
-            local ok2, err2 = pcall(function()
-                LrDevelopController.setLensBlurBokeh(bokehName)
-            end)
-            if ok2 then
-                table.insert(applied, "bokeh=" .. bokehName)
-            else
-                table.insert(applied, "bokeh_error=" .. tostring(err2))
-            end
-        else
-            table.insert(applied, "bokeh_skipped(invalid)=" .. bokehName)
+        if not BOKEH_TYPES[params.bokeh] then return false, "Invalid bokeh shape" end
+        if type(LrDevelopController.setLensBlurBokeh) ~= "function" then
+            error({success=false, code="unsupported_api", error="setLensBlurBokeh is unavailable"}, 0)
         end
     end
-
-    -- Set focal range from subject (AI depth map)
-    if params.focalRangeFromSubject then
-        local ok2, err2 = pcall(function()
-            LrDevelopController.setLensBlurFocalRangeFromSubject()
-        end)
-        if ok2 then
-            table.insert(applied, "focalRangeFromSubject=true")
-        else
-            table.insert(applied, "focalRangeFromSubject_error=" .. tostring(err2))
+    if params.focalRangeFromSubject and type(LrDevelopController.setLensBlurFocalRangeFromSubject) ~= "function" then
+        error({success=false, code="unsupported_api", error="setLensBlurFocalRangeFromSubject is unavailable"}, 0)
+    end
+    -- Lens blur is nested in catalog settings; use its documented controller
+    -- API instead of pretending these are flat catalog keys.
+    for param, value in pairs(settings) do
+        local low, high = LrDevelopController.getRange(param)
+        if type(low) ~= "number" or type(high) ~= "number" then
+            error({success=false, code="unsupported_parameter", error="No range for " .. param}, 0)
         end
+        if value < low or value > high then error({success=false, code="out_of_range", error=param .. " is out of range"}, 0) end
     end
-
-    if #applied == 0 then
-        return false, "No lens blur parameters provided"
+    for param, value in pairs(settings) do
+        if getCurrentPhoto() ~= photo then error({success=false, code="photo_changed", error="Selected photo changed"}, 0) end
+        LrDevelopController.setValue(param, value)
+        local matched = false
+        for attempt=1,60 do
+            if getCurrentPhoto() ~= photo then error({success=false, code="photo_changed", error="Selected photo changed"}, 0) end
+            local current = LrDevelopController.getValue(param)
+            if type(current) == "boolean" then current = current and 1 or 0 end
+            if type(current) == "number" and math.abs(current-value) < 0.0001 then matched=true; break end
+            LrTasks.sleep(0.05)
+        end
+        if not matched then error({success=false, code="readback_failed", error="Lens blur did not retain " .. param}, 0) end
     end
-    return true, "Lens blur applied: " .. table.concat(applied, ", ")
+    if getCurrentPhoto() ~= photo then error({success=false, code="photo_changed", error="Selected photo changed"}, 0) end
+    if params.bokeh then LrDevelopController.setLensBlurBokeh(params.bokeh) end
+    if params.focalRangeFromSubject then LrDevelopController.setLensBlurFocalRangeFromSubject() end
+    return true, "Lens blur settings applied; depth processing may continue in Lightroom"
 end
 
 local function enhancePhoto(params)
+    prepareController("setEnhance")
     local catalog = LrApplication.activeCatalog()
     local photo = getCurrentPhoto()
     if not photo then return false, "No photo selected" end
@@ -575,7 +354,7 @@ local function enhancePhoto(params)
         return false, "No enhance options provided. Use: denoise, denoiseAmount (0-100), superRes, rawDetails"
     end
 
-    local ok2, err2 = pcall(function()
+    local ok2, err2 = LrTasks.pcall(function()
         catalog:withWriteAccessDo("Enhance", function()
             LrDevelopController.setEnhance(opts)
         end, {timeout = 30})
@@ -592,31 +371,23 @@ local function enhancePhoto(params)
         ". Note: AI Denoise/Super Resolution may take time to complete in the background."
 end
 
-local function handleRequest(data)
-    local ok, req = pcall(jsonDecode, data)
-    if not ok or type(req) ~= "table" then
-        return jsonEncode({ success = false, error = "Invalid JSON: " .. tostring(data) })
-    end
-
+local function dispatch(req)
     local cmd = req.command
     local response = {}
 
     if Masking.commands[cmd] then
-        return jsonEncode(Masking.handle(req))
+        return Masking.handle(req)
     elseif cmd == "ping" then
-        response = { success = true, message = "LR MCP Bridge running", version = VERSION, maskingVersion = Masking.VERSION }
+        response = Develop.capabilities()
+        response.success = true
+        response.version = VERSION
+        response.maskingVersion = Masking.VERSION
+        response.developVersion = Develop.VERSION
+        response.pluginPath = _PLUGIN.path
+        response.protocolVersion = 2
 
-    elseif cmd == "apply_settings" then
-        local s, msg = applyDevelopSettings(req.settings or {})
-        response = { success = s, message = msg }
-
-    elseif cmd == "get_settings" then
-        local info, err = getCurrentSettings()
-        if info then
-            response = { success = true, data = info }
-        else
-            response = { success = false, error = err }
-        end
+    elseif cmd == "apply_settings" or cmd == "get_settings" or cmd == "batch_apply_settings" then
+        response = Develop.handle(req)
 
     elseif cmd == "auto_tone" then
         local s, msg = applyAutoTone()
@@ -634,13 +405,8 @@ local function handleRequest(data)
             response = { success = false, error = err }
         end
 
-    elseif cmd == "batch_apply_settings" then
-        local ok, msg = batchApplySettings(req.settings or {})
-        response = { success = ok, message = msg }
-
     elseif cmd == "crop" then
-        local s, msg = cropPhoto(req.params or {})
-        response = { success = s, message = msg }
+        response = cropPhoto(req.params or {})
 
     elseif cmd == "lens_blur" then
         local s, msg = lensBlur(req.params or {})
@@ -654,7 +420,26 @@ local function handleRequest(data)
         response = { success = false, error = "Unknown command: " .. tostring(cmd) }
     end
 
-return jsonEncode(response)
+return response
+end
+
+function Server.handleRequest(data)
+    local decoded, req = pcall(jsonDecode, data)
+    if not decoded or type(req) ~= "table" then
+        return jsonEncode({success=false, code="invalid_request", error="Expected a JSON object"})
+    end
+    local ok, response = LrTasks.pcall(function()
+        if req.command ~= "ping" and req.expectedPluginVersion ~= VERSION then
+            return {success=false, code="version_mismatch", error="Restart/update both MCP server and Lightroom plugin", version=VERSION}
+        end
+        return dispatch(req)
+    end)
+    if not ok then
+        response = type(response) == "table" and response or {success=false, code="sdk_error", error=tostring(response)}
+    end
+    if response.success == false and not response.code then response.code = "operation_failed" end
+    response.requestId = req.requestId
+    return jsonEncode(response)
 end
 
 function Server.start()
@@ -675,19 +460,20 @@ function Server.start()
     while Server._running and _clrb_gen == myGeneration do
         -- Atomic rename: only one polling loop can claim each request file.
         -- LrFileUtils.move returns true/false (no throw), so check return value directly.
-        if LrFileUtils.move(REQ_FILE, PROC_FILE) then
+        if LrFileUtils.exists(REQ_FILE) and LrFileUtils.move(REQ_FILE, PROC_FILE) then
             local f = io.open(PROC_FILE, "r")
             local data = f and f:read("*a")
             if f then f:close() end
             LrFileUtils.delete(PROC_FILE)
 
             if data and #data > 0 then
-                local responseStr = handleRequest(data)
+                local responseStr = Server.handleRequest(data)
                 log:info("Writing response len=" .. #responseStr)
-                local rf = io.open(RES_FILE, "w")
+                local rf = io.open(RES_FILE .. ".tmp", "w")
                 if rf then
                     rf:write(responseStr)
                     rf:close()
+                    LrFileUtils.move(RES_FILE .. ".tmp", RES_FILE)
                     log:info("Response written OK")
                 else
                     log:error("Failed to open RES_FILE for writing")

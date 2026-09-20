@@ -5,7 +5,7 @@ return {
     LrPluginName = "Lightroom MCP Bridge",
     LrPluginInfoUrl = "https://github.com/varunkumar/lighroom-mcp",
 
-    VERSION = { major = 1, minor = 1, revision = 4 },
+    VERSION = { major = 2, minor = 0, revision = 0 },
 
     LrExportMenuItems = {
         {

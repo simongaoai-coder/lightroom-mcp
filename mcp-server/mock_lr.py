@@ -94,9 +94,9 @@ class _State:
         cmd = req.get("command")
         with self._lock:
             if cmd in MASK_COMMANDS.values():
-                return self.mask_state.handle(req)
+                return self.mask_state.handle({k: v for k, v in req.items() if k not in {"requestId", "expectedPluginVersion"}})
             if cmd == "ping":
-                return {"success": True, "message": "Mock LR Bridge running"}
+                return {"success": True, "message": "Mock LR Bridge running", "version": "2.0.0", "protocolVersion": 2}
 
             if cmd == "get_settings":
                 return {
@@ -160,6 +160,7 @@ def serve() -> None:
                         req = json.load(f)
                     os.remove(REQ_FILE)
                     resp = state.handle(req)
+                    resp["requestId"] = req.get("requestId")
                     tmp = RES_FILE + ".tmp"
                     with open(tmp, "w") as f:
                         json.dump(resp, f)

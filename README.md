@@ -181,6 +181,18 @@ Mask tools can now list, select, update and delete existing masks by ID. Use `lr
 
 ---
 
+## Deployment and verified settings (2.0.0)
+
+Use `lr_ping` to inspect the running Python path/tool list, loaded plugin path,
+Lightroom version and SDK API availability. Python and Lua must both be updated;
+restart the MCP client and verify `compatible: true`. See [Phase 1 foundations](docs/phase1-foundation.md).
+
+Single and batch numeric edits now share per-photo catalog mappings and readback
+verification. `lr_get_settings` returns photo ID, process version, mapped parameters
+and unavailable controls; `includeRaw: true` adds the complete read-only SDK table.
+Unsupported parameters and partial failures are explicit. Batch failure does not
+roll back earlier photos. Optional `expectedPhotoId` guards these settings calls.
+
 ## Available tools
 
 | Tool                      | What it does                                                  |
@@ -307,7 +319,7 @@ Mask tools can now list, select, update and delete existing masks by ID. Use `lr
 | DefringePurpleAmount   | 0–100 |
 | DefringePurpleHueHi/Lo | 0–100 |
 
-Parameter names are **case-insensitive**: `exposure` and `Exposure` both work; the plugin normalises them.
+Parameter names are **case-insensitive**: `exposure` and `Exposure` both work; the plugin normalises registered numeric names. Use `lr_get_settings` for the actual mappings available on the current photo.
 
 ---
 

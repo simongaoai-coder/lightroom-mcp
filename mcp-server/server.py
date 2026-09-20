@@ -10,6 +10,15 @@ import io
 import json
 import os
 import time
+import math
+import uuid
+import threading
+if os.name == "nt":
+    import msvcrt
+else:
+    import fcntl
+from jsonschema import Draft7Validator
+from pathlib import Path
 
 from mcp import types
 from mcp.server import Server
@@ -19,6 +28,9 @@ from mask_tools import management_tools, validate_mask_call, MASK_COMMANDS
 
 REQ_FILE = os.environ.get("LR_MCP_REQ", "/tmp/lr_mcp_req.json")
 RES_FILE = os.environ.get("LR_MCP_RES", "/tmp/lr_mcp_res.json")
+SERVER_VERSION = "2.0.0"
+PROTOCOL_VERSION = 2
+_IPC_LOCK = threading.Lock()
 TIMEOUT = 10.0   # seconds to wait for Lua to respond
 POLL = 0.05   # seconds between polls
 TARGET_IMAGE_BYTES = 1 * 1024 * 1024  # 1 MB target for preview images
@@ -56,56 +68,107 @@ def _compress_preview(b64_data: str, max_long_edge: int = 1500, orientation=1) -
 app = Server("lightroom-bridge")
 
 
-def send_to_lightroom(command: dict, timeout: float = TIMEOUT) -> dict:
-    """Write a command to the request file and wait for the response file."""
-    try:
-        # Clean up any stale response from a previous call
+def _exchange(command: dict, timeout: float) -> dict:
+    request_id = uuid.uuid4().hex
+    payload = {**command, "requestId": request_id, "expectedPluginVersion": SERVER_VERSION}
+    if os.path.exists(RES_FILE):
+        os.remove(RES_FILE)
+    tmp = REQ_FILE + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(payload, f, allow_nan=False)
+    os.replace(tmp, REQ_FILE)
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
         if os.path.exists(RES_FILE):
+            try:
+                with open(RES_FILE) as f:
+                    result = json.load(f)
+            except (json.JSONDecodeError, FileNotFoundError):
+                time.sleep(POLL)
+                continue
             os.remove(RES_FILE)
-
-        # Write request atomically via a temp file + rename
-        tmp = REQ_FILE + ".tmp"
-        with open(tmp, "w") as f:
-            json.dump(command, f)
-        os.replace(tmp, REQ_FILE)
-
-        # Poll for the response file
-        elapsed = 0.0
-        while elapsed < timeout:
-            if os.path.exists(RES_FILE):
-                try:
-                    with open(RES_FILE, "r") as f:
-                        data = f.read()
-                    result = json.loads(data)  # parse before deleting
-                    os.remove(RES_FILE)
-                    return result
-                except (json.JSONDecodeError, ValueError):
-                    pass  # partial write in progress — don't delete, retry
-                except Exception:
-                    try:
-                        os.remove(RES_FILE)
-                    except Exception:
-                        pass
-            time.sleep(POLL)
-            elapsed += POLL
-
-        # Clean up request file if Lua never read it
-        if os.path.exists(REQ_FILE):
+            if not isinstance(result, dict):
+                return {"success": False, "code": "invalid_response", "error": "Expected an object response"}
+            # Older plugins do not echo IDs. Only allow their read-only ping so
+            # version diagnostics can explain the required deployment update.
+            if result.get("requestId") == request_id or (
+                command.get("command") == "ping" and "requestId" not in result
+            ):
+                return result
+        time.sleep(POLL)
+    # Remove only our own unclaimed request; a claimed operation can still finish.
+    try:
+        with open(REQ_FILE) as f:
+            pending = json.load(f)
+        if pending.get("requestId") == request_id:
             os.remove(REQ_FILE)
-        return {
-            "success": False,
-            "error": (
-                "Lightroom did not respond in time. "
-                "Make sure Lightroom Classic is open and the Claude LR Bridge plugin is running."
-            ),
-        }
-    except Exception as e:
-        return {"success": False, "error": str(e)}
+    except (FileNotFoundError, ValueError):
+        pass
+    return {"success": False, "code": "timeout", "requestId": request_id,
+            "outcomeUnknown": command.get("command") not in {"ping", "get_settings"},
+            "error": "Lightroom did not respond in time. An accepted operation may still finish; read back state before retrying."}
+
+
+def send_to_lightroom(command: dict, timeout: float = TIMEOUT) -> dict:
+    """Serialize clients and correlate responses; never mutate an older plugin."""
+    try:
+        with _IPC_LOCK, open(REQ_FILE + ".lock", "a+") as lock:
+            deadline = time.monotonic() + timeout
+            while True:
+                try:
+                    if os.name == "nt":
+                        lock.seek(0)
+                        if not lock.read(1):
+                            lock.write("0")
+                            lock.flush()
+                        lock.seek(0)
+                        msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+                    else:
+                        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    break
+                except OSError as exc:
+                    if exc.errno not in {11, 13, 35}:
+                        raise
+                    if time.monotonic() >= deadline:
+                        return {"success": False, "code": "bridge_busy", "error": "Another MCP client is using Lightroom"}
+                    time.sleep(POLL)
+            if command.get("command") != "ping":
+                health = _exchange({"command": "ping"}, min(timeout, 5))
+                if not health.get("success"):
+                    return health
+                if health.get("version") != SERVER_VERSION or health.get("protocolVersion") != PROTOCOL_VERSION:
+                    return {"success": False, "code": "version_mismatch",
+                            "error": "Update/reload the Lightroom plugin and restart the MCP client",
+                            "serverVersion": SERVER_VERSION, "pluginVersion": health.get("version")}
+            return _exchange(command, timeout)
+    except Exception as exc:
+        return {"success": False, "code": "transport_error", "error": str(exc)}
+
+
+def validate_settings(arguments):
+    if not isinstance(arguments, dict) or set(arguments) - {"settings", "expectedPhotoId"}:
+        return "Expected settings and optional expectedPhotoId"
+    settings = arguments.get("settings")
+    if not isinstance(settings, dict) or not settings:
+        return "No settings provided"
+    seen = set()
+    for key, value in settings.items():
+        if not isinstance(key, str) or not key.strip():
+            return "Parameter names must be non-empty strings"
+        if key.lower() in seen:
+            return "Duplicate parameter: " + key
+        seen.add(key.lower())
+        if isinstance(value, bool) or not isinstance(value, (float, int)) or not math.isfinite(value):
+            return key + " must be a finite number"
+    expected = arguments.get("expectedPhotoId")
+    if expected is not None and (not isinstance(expected, str) or not expected.strip()):
+        return "expectedPhotoId must be a non-empty string"
+    return None
 
 
 @app.list_tools()
 async def list_tools() -> list[types.Tool]:
-    return management_tools() + [
+    tools = management_tools() + [
         types.Tool(
             name="lr_apply_settings",
             description=(
@@ -235,7 +298,7 @@ async def list_tools() -> list[types.Tool]:
                 "Apply AI Lens Blur (depth-of-field effect) to the selected photo in Lightroom Classic. "
                 "Uses an AI-generated depth map to blur foreground/background. "
                 "Parameters: "
-                "active (bool, default true — enable/disable lens blur), "
+                "active (bool — enable/disable lens blur; omitted leaves current state), "
                 "amount (0-100, blur strength), "
                 "bokeh (shape of out-of-focus highlights: 'Circle', 'SoapBubble', 'Blade', 'Ring', 'Anamorphic'), "
                 "catEye (0-100, cat-eye vignetting on bokeh), "
@@ -245,7 +308,7 @@ async def list_tools() -> list[types.Tool]:
             inputSchema={
                 "type": "object",
                 "properties": {
-                    "active": {"type": "boolean", "description": "Enable or disable lens blur (default true)"},
+                    "active": {"type": "boolean", "description": "Enable or disable lens blur; omitted leaves current state"},
                     "amount": {"type": "number", "description": "Blur strength (0-100)"},
                     "bokeh": {
                         "type": "string",
@@ -268,7 +331,7 @@ async def list_tools() -> list[types.Tool]:
                 "Supports: AI Denoise (reduces noise using machine learning), "
                 "Super Resolution (upscales image to 2× using AI), "
                 "Raw Details (improves demosaicing of RAW files). "
-                "Note: These operations create a new enhanced DNG and may take time to process. "
+                "Requires the runtime setEnhance API; check lr_ping capabilities. Returns unsupported_api when absent. Output and processing behavior depend on Lightroom version. "
                 "Parameters: denoise (bool), denoiseAmount (0-100, strength of noise reduction), "
                 "superRes (bool), rawDetails (bool)."
             ),
@@ -354,9 +417,39 @@ async def list_tools() -> list[types.Tool]:
         ),
     ]
 
+    for tool in tools:
+        if tool.name in {"lr_apply_settings", "lr_batch_apply_settings", "lr_get_settings"}:
+            tool.inputSchema["properties"]["expectedPhotoId"] = {"type": "string", "minLength": 1}
+            tool.inputSchema["additionalProperties"] = False
+        if tool.name == "lr_get_settings":
+            tool.inputSchema["properties"]["includeRaw"] = {"type": "boolean", "default": False}
+            tool.description = "Read catalog numeric settings, photo ID, process version, actual parameter mappings and unavailable parameters. includeRaw also returns the full SDK settings table (read-only, potentially large)."
+        if tool.name in {"lr_apply_settings", "lr_batch_apply_settings"}:
+            tool.description = "Apply absolute numeric develop values using the same per-photo catalog mapping for single and batch edits. Names are case-insensitive. Use lr_get_settings to discover available parameters. Values are verified after writing; inspect per-photo results on failure. Temperature/Tint units depend on RAW versus rendered files. Only the current selection is targeted."
+        if tool.name == "lr_ping":
+            tool.description = "Inspect running plugin path/version, Lightroom version, SDK API availability, and this MCP process's tool names/version. Does not modify photos."
+    for tool in tools:
+        tool.inputSchema["additionalProperties"] = False
+    return tools
+
 
 @app.call_tool()
 async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
+    definition = next((tool for tool in await list_tools() if tool.name == name), None)
+    if definition is not None:
+        errors = list(Draft7Validator(definition.inputSchema).iter_errors(arguments))
+        def nonfinite(value):
+            if isinstance(value, float):
+                return not math.isfinite(value)
+            if isinstance(value, dict):
+                return any(nonfinite(v) for v in value.values())
+            if isinstance(value, list):
+                return any(nonfinite(v) for v in value)
+            return False
+        if errors or nonfinite(arguments):
+            result = {"success": False, "code": "invalid_arguments",
+                      "error": errors[0].message if errors else "Numbers must be finite"}
+            return [types.TextContent(type="text", text=json.dumps(result))]
     if name in MASK_COMMANDS:
         error = validate_mask_call(name, arguments)
         if error:
@@ -369,9 +462,20 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
 
     elif name == "lr_ping":
         result = send_to_lightroom({"command": "ping"})
+        names = [tool.name for tool in await list_tools()]
+        result["server"] = {"version": SERVER_VERSION, "path": str(Path(__file__).resolve()),
+                            "toolCount": len(names), "tools": names}
+        result["compatible"] = (result.get("version") == SERVER_VERSION and result.get("protocolVersion") == PROTOCOL_VERSION)
+        if result.get("success") and not result["compatible"]:
+            result["warning"] = "Plugin/server versions differ; writes are blocked until deployment is updated."
 
     elif name == "lr_get_settings":
-        result = send_to_lightroom({"command": "get_settings"})
+        if (not isinstance(arguments, dict) or set(arguments) - {"includeRaw", "expectedPhotoId"}
+                or ("includeRaw" in arguments and not isinstance(arguments["includeRaw"], bool))
+                or ("expectedPhotoId" in arguments and (not isinstance(arguments["expectedPhotoId"], str) or not arguments["expectedPhotoId"].strip()))):
+            result = {"success": False, "code": "invalid_arguments", "error": "Invalid get_settings arguments"}
+        else:
+            result = send_to_lightroom({"command": "get_settings", **arguments})
 
     elif name == "lr_auto_tone":
         result = send_to_lightroom({"command": "auto_tone"})
@@ -379,13 +483,12 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
     elif name == "lr_reset":
         result = send_to_lightroom({"command": "reset"})
 
-    elif name == "lr_apply_settings":
-        settings = arguments.get("settings", {})
-        if not settings:
-            result = {"success": False, "error": "No settings provided"}
+    elif name in {"lr_apply_settings", "lr_batch_apply_settings"}:
+        error = validate_settings(arguments)
+        if error:
+            result = {"success": False, "code": "invalid_arguments", "error": error}
         else:
-            result = send_to_lightroom(
-                {"command": "apply_settings", "settings": settings}, timeout=45.0)
+            result = send_to_lightroom({"command": name.removeprefix("lr_"), **arguments}, timeout=120.0)
 
     elif name == "lr_export_preview":
         size = min(int(arguments.get("size", 1500)), 2048)
@@ -405,14 +508,6 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
                 )
             ]
         return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
-
-    elif name == "lr_batch_apply_settings":
-        settings = arguments.get("settings", {})
-        if not settings:
-            result = {"success": False, "error": "No settings provided"}
-        else:
-            result = send_to_lightroom(
-                {"command": "batch_apply_settings", "settings": settings})
 
     elif name == "lr_crop":
         params = {k: v for k, v in arguments.items()}
@@ -442,6 +537,8 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
     else:
         result = {"success": False, "error": f"Unknown tool: {name}"}
 
+    if result.get("success") is False and "code" not in result:
+        result["code"] = "operation_failed"
     return [types.TextContent(type="text", text=json.dumps(result, indent=2))]
 
 
