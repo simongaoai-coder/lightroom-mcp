@@ -11,6 +11,8 @@ Usage:
 
 from mock_masks import MockMasks
 from mock_versions import MockVersions
+from history_tools import HISTORY_COMMANDS
+from mock_history import MockHistory
 from mock_fine import MockFine
 from appearance_tools import APPEARANCE_COMMANDS
 from mock_library import MockLibrary
@@ -100,6 +102,7 @@ class _State:
         self.rating = 0
         self.mask_state = MockMasks()
         self.version_state = MockVersions(self)
+        self.history_state = MockHistory(self)
         self.fine_state = MockFine(self)
         self.library_state = MockLibrary(self)
         self.navigation_state = MockNavigation()
@@ -109,6 +112,8 @@ class _State:
     def handle(self, req: dict) -> dict:
         cmd = req.get("command")
         with self._lock:
+            if cmd in HISTORY_COMMANDS.values():
+                return self.history_state.handle(req)
             if cmd in GEOMETRY_COMMANDS.values() or cmd in NAVIGATION_COMMANDS.values():
                 return self.navigation_state.handle(req)
             if cmd in HEALING_COMMANDS.values():
@@ -122,7 +127,7 @@ class _State:
             if cmd in MASK_COMMANDS.values():
                 return self.mask_state.handle({k: v for k, v in req.items() if k not in {"requestId", "expectedPluginVersion"}})
             if cmd == "ping":
-                return {"success": True, "message": "Mock LR Bridge running", "version": "2.6.1", "protocolVersion": 2}
+                return {"success": True, "message": "Mock LR Bridge running", "version": "2.7.0", "protocolVersion": 2}
 
             if cmd == "get_settings":
                 return {

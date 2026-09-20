@@ -265,6 +265,14 @@ filmstrip navigation and view-filter controls. Reset-all and original-file chang
 are not part of these tools. See [Geometry and navigation](docs/geometry-and-navigation.md)
 for readback limits, selection effects and validation status.
 
+## Copy/Paste and history (2.7)
+
+Five tools bring the total to **93**. Copy/paste can use Lightroom's UI-selected
+categories or a frozen list of numeric parameters. Undo/redo operate on the native
+application-global history and require a fresh one-use context token; they are not
+rollback of a specific MCP request. See [Copy/Paste and history](docs/copy-paste-and-history.md)
+for clipboard scope, token lifetime and verification limits.
+
 ## Available tools
 
 | Tool                      | What it does                                                  |

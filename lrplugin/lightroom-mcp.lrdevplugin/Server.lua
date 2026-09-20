@@ -13,7 +13,7 @@ local LrLogger            = import "LrLogger"
 local REQ_FILE      = "/tmp/lr_mcp_req.json"
 local RES_FILE      = "/tmp/lr_mcp_res.json"
 local POLL_INTERVAL = 0.05  -- seconds
-local VERSION       = "2.6.1"  -- keep in sync with Info.lua VERSION
+local VERSION       = "2.7.0"  -- keep in sync with Info.lua VERSION
 
 -- ── Bundled JSON encoder/decoder (no LrJSON dependency) ─────────────────────
 local function jsonEncodeValue(val)
@@ -458,6 +458,7 @@ function Server.handleRequest(data)
         if req.command ~= "ping" and req.expectedPluginVersion ~= VERSION then
             return {success=false, code="version_mismatch", error="Restart/update both MCP server and Lightroom plugin", version=VERSION}
         end
+        if Versions.beforeCommand then Versions.beforeCommand(req.command or "") end
         return dispatch(req)
     end)
     if not ok then

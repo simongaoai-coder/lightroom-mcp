@@ -438,3 +438,20 @@ settings contract; it supersedes older descriptions above of global setValue,
 - Do not call yield-capable photo metadata APIs inside table.sort comparators.
   Precompute UUIDs before sorting folder-photo pages. Native view-filter key is
   noLabel on Lightroom 15.2 (some API docs spell it nolabel).
+
+## Copy/Paste and history (2.7.0)
+
+- Versions.lua owns five history_tools.py commands. Main/Python/Versions are 2.7.0;
+  93 tools total. Receipts are in-plugin-session objects, latest 20 retained.
+- native_ui uses copySettings/pasteSettings(false) without a write gate. Category
+  selection and clipboard contents cannot be independently enumerated. Verify
+  source state and re-copy immediately before paste; never claim full-paste proof.
+- explicit copy freezes only registered numeric values and reuses Develop's normal
+  mapping, write gate and readback. No generic raw-settings write tool is added.
+- LrUndo is application-global. One-use 60-second history tokens capture context,
+  not actual history-entry identity. Server calls Versions.beforeCommand to
+  invalidate observations on intervening MCP mutations. Manual edits elsewhere
+  may remain undetected. Never auto-retry undo/redo after uncertainty.
+- Keep tests/test_history_lua.py and the production Develop fixture distinct from
+  mock_history.py's transport-only simulation. Read docs/copy-paste-and-history.md
+  and its live validation record before changing these semantics.

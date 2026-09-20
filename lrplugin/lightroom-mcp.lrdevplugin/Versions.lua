@@ -3,7 +3,7 @@ local Application = import "LrApplication"
 local Tasks = import "LrTasks"
 local View = import "LrApplicationView"
 local Date = import "LrDate"
-local Versions = {VERSION="2.4.0"}
+local Versions = {VERSION="2.7.0"}
 Versions.commands = {
     list_snapshots=true, create_snapshot=true, apply_snapshot=true, delete_snapshot=true,
     list_virtual_copies=true, create_virtual_copies=true, select_virtual_copy=true,
@@ -344,19 +344,151 @@ local function applyPreset(req,photo)
             aiUpdateRequested=req.updateAISettings==true,
             note="SDK call completion and observed changes do not verify every preset value or AI rendering completion."}}
 end
+local historyCommands={copy_settings=true,paste_settings=true,get_history_state=true,undo=true,redo=true}
+for name in pairs(historyCommands)do Versions.commands[name]=true end
+local copies,copyOrder={},{}
+local historyObservation=nil
+local function cloneHistory(v)
+    if type(v)~='table'then return v end
+    local out={};for k,x in pairs(v)do out[k]=cloneHistory(x)end;return out
+end
+local function token(value)
+    if type(value)~='string' or #value~=32 or not value:match('^[a-f0-9]+$')then fail('invalid_arguments','Invalid session token')end
+    return value
+end
+-- Read-only bridge commands do not consume history. Other MCP operations do,
+-- even if they eventually fail: conservative invalidation is preferable to reuse.
+function Versions.beforeCommand(cmd)
+    if cmd=='get_history_state' or cmd=='undo' or cmd=='redo' or cmd=='ping' or cmd=='export_preview' or cmd:match('^get_') or cmd:match('^list_') or cmd:match('^search_')then return end
+    historyObservation=nil
+end
+local function historyHandle(req)
+    local c=catalog();local path=c:getPath();local photo=c:getTargetPhoto()
+    local function guard(selectionMayChange)
+        if catalog()~=c or c:getPath()~=path or (req.expectedCatalogPath and req.expectedCatalogPath~=path)then fail('catalog_changed','Catalog changed')end
+        if not selectionMayChange and (c:getTargetPhoto()~=photo or (req.expectedPhotoId and (not photo or uuid(photo)~=req.expectedPhotoId)))then fail('photo_changed','Active photo changed')end
+    end
+    guard()
+    local function capture()
+        local active=c:getTargetPhoto();local state={catalogPath=path,selection={}}
+        if active then
+            state.photoId=uuid(active);state.settings=cloneHistory(raw(active));state.orientation=active:getRawMetadata('orientation')
+            state.rating=active:getRawMetadata('rating');state.pickStatus=active:getRawMetadata('pickStatus')
+            for _,p in ipairs(c:getTargetPhotos())do state.selection[#state.selection+1]=uuid(p)end
+            table.sort(state.selection)
+        end
+        return state
+    end
+    local function observed(before)
+        guard(true);local after=capture()
+        local data={catalogPath=path,photoId=after.photoId,previousPhotoId=before.photoId,
+            activePhotoChanged=after.photoId~=before.photoId,verification='current_photo_observation',changedKeys={}}
+        if before.photoId and before.photoId==after.photoId then data.changedKeys=changes(before.settings,after.settings)end
+        data.currentPhotoStateChanged=not equal(before,after)
+        return data
+    end
+    local cmd=req.command
+    if cmd=='copy_settings' then
+        if not photo then fail('no_photo','Select a source photo')end;image(photo)
+        token(req.copyId);if copies[req.copyId]then fail('duplicate_copy','Copy ID already exists')end;local mode=req.mode or 'native_ui'
+        if mode~='native_ui' and mode~='explicit'then fail('invalid_arguments','Invalid copy mode')end
+        if mode=='native_ui' and req.parameters~=nil then fail('invalid_arguments','Native copy uses UI categories; use explicit mode for named parameters')end
+        local saved={copyId=req.copyId,mode=mode,sourcePhotoId=uuid(photo),catalogPath=path,createdAt=Date.currentTime()}
+        if mode=='explicit'then
+            if type(req.parameters)~='table' or #req.parameters<1 or #req.parameters>150 then fail('invalid_arguments','Explicit mode needs 1-150 parameters')end
+            local result=require('Develop').handle({command='get_settings',expectedPhotoId=uuid(photo)})
+            if not result.success then return result end
+            local index={};for name in pairs(result.data.settings)do index[name:lower()]=name end
+            saved.settings={};local seen={}
+            for _,requested in ipairs(req.parameters)do
+                text(requested,'parameter');local canonical=index[requested:lower()]
+                if not canonical then fail('unsupported_parameter','Numeric parameter not available: '..requested)end
+                if seen[canonical]then fail('invalid_arguments','Duplicate parameter alias')end;seen[canonical]=true
+                saved.settings[canonical]=result.data.settings[canonical]
+            end
+            guard()
+        else
+            api(photo,'copySettings');local before=cloneHistory(raw(photo));guard()
+            local accepted=photo:copySettings()
+            if accepted~=true then fail('copy_failed','Native copy did not report success')end
+            guard();if not equal(before,raw(photo))then fail('source_changed','Source changed while copying')end
+            saved.sourceSettings=before
+        end
+        copies[req.copyId]=saved;copyOrder[#copyOrder+1]=req.copyId
+        if #copyOrder>20 then copies[table.remove(copyOrder,1)]=nil end
+        return {success=true,data={copyId=saved.copyId,mode=mode,sourcePhotoId=saved.sourcePhotoId,catalogPath=path,
+            settings=cloneHistory(saved.settings),scope=mode=='explicit' and 'named_numeric_parameters' or 'ui_categories_unenumerated',
+            nativeClipboardChanged=mode=='native_ui',survivesPluginReload=false}}
+    elseif cmd=='paste_settings'then
+        if not photo then fail('no_photo','Select a destination photo')end;image(photo);text(req.expectedPhotoId,'expectedPhotoId')
+        local saved=copies[token(req.copyId)]
+        if not saved then fail('copy_not_found','Copy expired/evicted or plugin reloaded; copy again')end
+        if saved.catalogPath~=path then fail('catalog_changed','Copy belongs to another catalog')end
+        local before=capture();local result
+        if saved.mode=='explicit'then
+            guard();result=require('Develop').handle({command='apply_settings',settings=cloneHistory(saved.settings),expectedPhotoId=uuid(photo)})
+            if not result.success then result.copyId=req.copyId;return result end
+            guard()
+        else
+            api(c,'findPhotoByUuid');local source=c:findPhotoByUuid(saved.sourcePhotoId)
+            if not source then fail('photo_not_found','Copied source is no longer in this catalog')end
+            if not equal(saved.sourceSettings,raw(source))then fail('source_changed','Native copied source changed; copy again')end
+            api(source,'copySettings');api(photo,'pasteSettings');guard()
+            -- Re-copy immediately so unrelated clipboard changes between requests
+            -- do not intentionally become the paste source. UI categories remain
+            -- controlled by Lightroom and cannot be enumerated by this API.
+            if source:copySettings()~=true then fail('copy_failed','Native source refresh failed; paste not attempted')end
+            guard()
+            if not equal(saved.sourceSettings,raw(source))then fail('source_changed','Source changed before paste')end
+            local accepted=photo:pasteSettings(false)
+            if accepted~=true then fail('paste_failed','Native paste did not report success; inspect destination before retrying')end
+            Tasks.sleep(.1);guard()
+        end
+        local d=observed(before);d.copyId=req.copyId;d.mode=saved.mode;d.sourcePhotoId=saved.sourcePhotoId
+        d.verification=saved.mode=='explicit' and 'numeric_readback' or 'native_call_and_observation'
+        d.clipboardScopeVerified=saved.mode=='explicit';d.aiUpdateRequested=false
+        if saved.mode=='explicit'then d.settings=cloneHistory(saved.settings)
+        else d.note='UI copy categories and native clipboard payload are not independently enumerable; changedKeys is not full-paste verification.'end
+        return {success=true,data=d}
+    end
+    local Undo=import 'LrUndo';api(Undo,'canUndo');api(Undo,'canRedo')
+    if cmd=='get_history_state'then
+        token(req.historyToken)
+        local state=capture();local canUndo,canRedo=Undo.canUndo(),Undo.canRedo();guard()
+        historyObservation={token=req.historyToken,state=state,createdAt=Date.currentTime(),canUndo=canUndo,canRedo=canRedo}
+        return {success=true,data={historyToken=req.historyToken,canUndo=canUndo,canRedo=canRedo,photoId=state.photoId,catalogPath=path,
+            scope='application_global',expiresInSeconds=60,historyEntryIdentityAvailable=false,
+            note='Context guard cannot detect every manual edit to other photos or identify the actual history entry. Not an MCP-operation rollback.'}}
+    end
+    if cmd~='undo' and cmd~='redo'then fail('unknown_command','Unknown history command')end
+    local observation=historyObservation
+    if not observation or observation.token~=req.historyToken then fail('history_token_invalid','Read history state again before every undo/redo')end
+    historyObservation=nil -- One attempt only, including uncertain SDK outcomes.
+    if Date.currentTime()-observation.createdAt>60 then fail('history_token_expired','Read fresh history state')end
+    if not equal(observation.state,capture()) or Undo.canUndo()~=observation.canUndo or Undo.canRedo()~=observation.canRedo then fail('history_state_changed','Observed context changed; read fresh history state')end
+    local available=cmd=='undo' and observation.canUndo or cmd=='redo' and observation.canRedo
+    if not available then fail('history_unavailable','Native '..cmd..' is disabled')end
+    api(Undo,cmd);guard();Undo[cmd]();Tasks.sleep(.1)
+    local d=observed(observation.state);d.action=cmd;d.scope='application_global';d.canUndo=Undo.canUndo();d.canRedo=Undo.canRedo()
+    d.historyEntryIdentityAvailable=false;d.status='native_call_completed'
+    d.note='Only current-photo context was observed. Unchanged current-photo settings do not prove global history had no effect.'
+    return {success=true,data=d}
+end
+
 function Versions.capabilities()
     local result={catalog={},application={},photo={}}
     for _,name in ipairs({"createVirtualCopies","setSelectedPhotos"}) do result.catalog[name]=type(catalog()[name])=="function" end
     for _,name in ipairs({"developPresetFolders","getDevelopPresetsForPlugin"}) do result.application[name]=type(Application[name])=="function" end
     local photo=catalog():getTargetPhoto()
     if photo then
-        for _,name in ipairs({"getDevelopSnapshots","createDevelopSnapshot","applyDevelopSnapshot","deleteDevelopSnapshot","applyDevelopPreset","updateAISettings"}) do result.photo[name]=type(photo[name])=="function" end
+        for _,name in ipairs({"getDevelopSnapshots","createDevelopSnapshot","applyDevelopSnapshot","deleteDevelopSnapshot","applyDevelopPreset","updateAISettings","copySettings","pasteSettings"}) do result.photo[name]=type(photo[name])=="function" end
     end
     result.photoSelected=photo~=nil
     return result
 end
 function Versions.handle(req)
     local ok,result=Tasks.pcall(function()
+        if historyCommands[req.command] then return historyHandle(req) end
         if req.command=="list_presets" then return listPresets(req) end
         local photo=current(req)
         if req.command:find("snapshot",1,true) then return snapshotCommand(req,photo) end
