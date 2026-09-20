@@ -257,6 +257,14 @@ browser. Every mutation checks the target and verifies catalog readback.
 See [Appearance controls](docs/appearance-controls.md) for modes, compatibility,
 Auto/As Shot value semantics and native validation limits.
 
+## Geometry and navigation (2.6)
+
+Eleven tools bring the total to **88**: native left/right rotation, crop proportions,
+scoped adjustment resets, geometry readback, catalog folders/sources, views,
+filmstrip navigation and view-filter controls. Reset-all and original-file changes
+are not part of these tools. See [Geometry and navigation](docs/geometry-and-navigation.md)
+for readback limits, selection effects and validation status.
+
 ## Available tools
 
 | Tool                      | What it does                                                  |

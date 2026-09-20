@@ -47,4 +47,4 @@ def test_export_job_id_and_results_over_transport(mock_lr,tmp_path):
 def test_library_and_delivery_tools_registered():
  tools={t.name for t in asyncio.run(server.list_tools())}
  assert set(LIBRARY_COMMANDS)|set(DELIVERY_COMMANDS)<=tools
- assert len(tools)==77
+ assert len(tools)==88

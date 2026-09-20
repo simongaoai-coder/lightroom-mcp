@@ -414,3 +414,27 @@ settings contract; it supersedes older descriptions above of global setValue,
   restoration is complete without comparing saved baseline settings.
 - See docs/appearance-controls.md and its native verification record. Tests:
   test_appearance_lua.py, appearance_fixture.lua, test_appearance_tools.py.
+
+## Geometry and navigation (2.6.1)
+
+- Fine.lua handles four geometry/reset tools; Library.lua handles seven navigation
+  tools. Python schemas/routes are in navigation_tools.py. Main/Python/Fine/Library
+  are 2.6.1; total tool count 88. Existing module files avoid a full restart just
+  to discover new Lua filenames.
+- Photo rotation and crop proportions use native LrPhoto methods; controller
+  resets run in Develop without a catalog write gate; crop reset instead writes
+  explicit crop bounds/angle under a catalog write gate after a native no-op was
+  observed. Verify rotation/crop/group
+  state. Parameter resets have no independent default getter: report that limit.
+- Navigation calls can change selection, so final catalog guards must allow the
+  intended photo switch. Source paths/collection IDs are preflighted before writes.
+- getCurrentViewFilter/setViewFilter are the actual SDK method names. False from
+  setViewFilter can mean already applied, not an error. Preserve unknown fields.
+- showView can only be verified by module, not a nonexistent main-view getter.
+  Do not modify Lights Out or screen settings to implement navigation.
+- See docs/geometry-and-navigation.md. Native behavior must be checked separately
+  from mocks; production Lua coverage uses navigation_fixture.lua.
+
+- Do not call yield-capable photo metadata APIs inside table.sort comparators.
+  Precompute UUIDs before sorting folder-photo pages. Native view-filter key is
+  noLabel on Lightroom 15.2 (some API docs spell it nolabel).

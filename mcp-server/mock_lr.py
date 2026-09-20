@@ -14,6 +14,8 @@ from mock_versions import MockVersions
 from mock_fine import MockFine
 from appearance_tools import APPEARANCE_COMMANDS
 from mock_library import MockLibrary
+from navigation_tools import GEOMETRY_COMMANDS, NAVIGATION_COMMANDS
+from mock_navigation import MockNavigation
 from mock_healing import MockHealing
 from healing_tools import HEALING_COMMANDS
 from library_tools import LIBRARY_COMMANDS, DELIVERY_COMMANDS
@@ -100,12 +102,15 @@ class _State:
         self.version_state = MockVersions(self)
         self.fine_state = MockFine(self)
         self.library_state = MockLibrary(self)
+        self.navigation_state = MockNavigation()
         self.healing_state = MockHealing()
         self._lock = threading.Lock()
 
     def handle(self, req: dict) -> dict:
         cmd = req.get("command")
         with self._lock:
+            if cmd in GEOMETRY_COMMANDS.values() or cmd in NAVIGATION_COMMANDS.values():
+                return self.navigation_state.handle(req)
             if cmd in HEALING_COMMANDS.values():
                 return self.healing_state.handle(req)
             if cmd in LIBRARY_COMMANDS.values() or cmd in DELIVERY_COMMANDS.values():
@@ -117,7 +122,7 @@ class _State:
             if cmd in MASK_COMMANDS.values():
                 return self.mask_state.handle({k: v for k, v in req.items() if k not in {"requestId", "expectedPluginVersion"}})
             if cmd == "ping":
-                return {"success": True, "message": "Mock LR Bridge running", "version": "2.5.1", "protocolVersion": 2}
+                return {"success": True, "message": "Mock LR Bridge running", "version": "2.6.1", "protocolVersion": 2}
 
             if cmd == "get_settings":
                 return {

@@ -3,7 +3,7 @@ local Application=import "LrApplication"
 local View=import "LrApplicationView"
 local Tasks=import "LrTasks"
 local Date=import "LrDate"
-local Library={VERSION="2.3.2",commands={get_selection=true,search_photos=true,select_photos=true,
+local Library={VERSION="2.6.1",commands={get_selection=true,search_photos=true,select_photos=true,
     get_metadata=true,set_metadata=true,list_keywords=true,create_keyword=true,update_keyword=true,
     update_photo_keywords=true,list_collections=true,create_collection=true,update_collection=true,
     update_collection_photos=true,delete_collection=true}}
@@ -266,7 +266,145 @@ local function batch(c,photos,fn)
         error=completed<#photos and "Stopped after a failed photo; prior changes are not rolled back" or nil,
         applied=completed,failed=completed<#photos and 1 or 0,notAttempted=#photos-#results,data={results=results}}
 end
+local navigationCommands={get_navigation=true,list_folders=true,list_folder_photos=true,set_sources=true,show_view=true,navigate_photos=true,set_view_filter=true}
+for name in pairs(navigationCommands)do Library.commands[name]=true end
+local function sourceRows(c)
+    local out={}
+    for _,source in ipairs(c.catalog:getActiveSources() or {})do
+        if type(source)=='string' then out[#out+1]={kind='catalog',id=source}
+        else
+            local kind=source:type()
+            if kind=='LrFolder' then out[#out+1]={kind='folder',path=source:getPath(),name=source:getName()}
+            elseif kind=='LrCollection' or kind=='LrCollectionSet' then out[#out+1]={kind=kind,collectionId=source.localIdentifier,name=source:getName()}
+            else fail('unsupported_source','Unknown active source type')end
+        end
+    end
+    table.sort(out,function(a,b)return (a.path or a.id or tostring(a.collectionId))<(b.path or b.id or tostring(b.collectionId))end)
+    return out
+end
+local function viewFilter(c)
+    api(c.catalog,'getCurrentViewFilter');local values,name=c.catalog:getCurrentViewFilter()
+    if type(values)~='table'then fail('filter_unavailable','View filter is not available')end
+    return clone(values),name
+end
+local function filterPresets()
+    api(Application,'viewFilterPresets');local rows={}
+    for name,id in pairs(Application.viewFilterPresets() or {})do
+        if type(name)~='string' or type(id)~='string'then fail('unsupported_filter_presets','Unknown preset layout')end
+        rows[#rows+1]={name=name,presetId=id}
+    end
+    table.sort(rows,function(a,b)return a.name<b.name end);return rows
+end
+local function navigationState(c,req)
+    local active=c.catalog:getTargetPhoto();local photos=active and c.catalog:getTargetPhotos() or {}
+    local d=page(photos,req,summary);d.photos=d.items;d.items=nil;d.activePhotoId=active and uuid(active)
+    d.module=View.getCurrentModuleName();d.sources=sourceRows(c);d.viewFilter,d.filterPresetName=viewFilter(c)
+    d.mainViewReadbackAvailable=false;return d
+end
+local function navigation(req,c)
+    local cmd=req.command
+    local function poll(fn)
+        local deadline=Date.currentTime()+5
+        repeat check(c,true);if fn()then return true end;Tasks.sleep(.05)until Date.currentTime()>=deadline
+        check(c,true);return fn()
+    end
+    local function folder(path)
+        text(path,'folderPath');api(c.catalog,'getFolderByPath')
+        local f=c.catalog:getFolderByPath(path)
+        if not f or f:getPath()~=path then fail('folder_not_found','Use an exact catalog folder path from list_folders')end
+        return f
+    end
+    if cmd=='get_navigation'then local d=navigationState(c,req);d.filterPresets=filterPresets();return {success=true,data=d}
+    elseif cmd=='list_folders'then
+        api(c.catalog,'getFolders');local rows,seen={},{}
+        local function walk(f)
+            check(c);local path=f:getPath();if seen[path]then return end;seen[path]=true
+            local parent=f:getParent();rows[#rows+1]={path=path,name=f:getName(),parentPath=parent and parent:getPath()}
+            for _,child in ipairs(f:getChildren() or {})do walk(child)end
+        end
+        for _,f in ipairs(c.catalog:getFolders() or {})do walk(f)end
+        table.sort(rows,function(a,b)return a.path<b.path end)
+        if req.query~=nil then text(req.query,'query',true);local keep={};for _,r in ipairs(rows)do if (r.path..' '..r.name):lower():find(req.query:lower(),1,true)then keep[#keep+1]=r end end;rows=keep end
+        local d=page(rows,req);d.folders=d.items;d.items=nil;return {success=true,data=d}
+    elseif cmd=='list_folder_photos'then
+        if req.includeChildren~=nil and type(req.includeChildren)~='boolean'then fail('invalid_arguments','includeChildren must be boolean')end
+        local f=folder(req.folderPath);local photos=f:getPhotos(req.includeChildren==true);local entries={}
+        for _,photo in ipairs(photos)do entries[#entries+1]={id=uuid(photo),photo=photo}end
+        table.sort(entries,function(a,b)return a.id<b.id end)
+        local d=page(entries,req,function(e)return summary(e.photo)end);d.photos=d.items;d.items=nil;d.folderPath=f:getPath();return {success=true,data=d}
+    elseif cmd=='set_sources'then
+        local count=(req.allPhotos~=nil and 1 or 0)+(req.folderPaths~=nil and 1 or 0)+(req.collectionIds~=nil and 1 or 0)
+        if count~=1 then fail('invalid_arguments','Provide exactly one source category')end
+        local sources={};local seen={}
+        if req.allPhotos~=nil then if req.allPhotos~=true then fail('invalid_arguments','allPhotos must be true')end;sources={c.catalog.kAllPhotos}
+        else
+            local ids=req.folderPaths or req.collectionIds
+            if type(ids)~='table' or #ids<1 or #ids>50 then fail('invalid_arguments','Provide 1-50 sources')end
+            for _,id in ipairs(ids)do
+                if seen[id]then fail('invalid_arguments','Duplicate source')end;seen[id]=true
+                if req.folderPaths then sources[#sources+1]=folder(id)else sources[#sources+1]=collection(c,id)end
+            end
+        end
+        check(c);if View.getCurrentModuleName()~='library'then View.switchToModule('library')end
+        api(c.catalog,'setActiveSources')
+        local accepted=c.catalog:setActiveSources(sources);if accepted==false then fail('source_rejected','Source switch rejected')end
+        if not poll(function()
+            local actual=c.catalog:getActiveSources();if #actual~=#sources then return false end
+            for _,wanted in ipairs(sources)do local found=false;for _,a in ipairs(actual)do if a==wanted then found=true end end;if not found then return false end end
+            return true
+        end)then fail('source_unverified','Active sources did not match')end
+        Tasks.sleep(.2);check(c,true);local d=navigationState(c,req);d.verification='active_sources_readback';return {success=true,data=d}
+    elseif cmd=='show_view'then
+        local views={grid='library',loupe='library',compare='library',survey='library',people='library',develop_loupe='develop',develop_before='develop',develop_before_after_horiz='develop',develop_before_after_vert='develop',develop_reference_horiz='develop',develop_reference_vert='develop'}
+        local module=views[req.view];if not module then fail('invalid_arguments','Unknown view')end
+        if module=='develop' and not c.target then fail('no_photo','Select a photo before opening Develop')end
+        api(View,'showView');check(c);View.showView(req.view)
+        if not poll(function()return View.getCurrentModuleName()==module end)then fail('view_unverified','Expected module was not observed')end
+        local d=navigationState(c,req);d.requestedView=req.view;d.verification='module_only';return {success=true,data=d}
+    elseif cmd=='navigate_photos'then
+        local method=({next='nextPhoto',previous='previousPhoto',first='selectFirstPhoto',last='selectLastPhoto',all='selectAll',inverse='selectInverse'})[req.action]
+        if not method then fail('invalid_arguments','Unknown navigation action')end
+        local Selection=import 'LrSelection';api(Selection,method)
+        local before=navigationState(c,req)
+        check(c);Selection[method]();Tasks.sleep(.2);check(c,true)
+        local d=navigationState(c,req);d.action=req.action;d.previousPhotoId=before.activePhotoId
+        d.status=(d.activePhotoId~=before.activePhotoId or not equal(d.photos,before.photos) or d.total~=before.total) and 'selection_changed' or 'unchanged_or_boundary'
+        d.verification='selection_observed';return {success=true,data=d}
+    elseif cmd=='set_view_filter'then
+        if (req.changes~=nil)==(req.presetId~=nil)then fail('invalid_arguments','Provide changes OR presetId')end
+        local before=viewFilter(c)
+        if req.expectedFilter and not equal(before,req.expectedFilter)then fail('filter_changed','View filter changed; read navigation state again')end
+        local value,wantedName
+        if req.presetId then
+            for _,p in ipairs(filterPresets())do if p.presetId==req.presetId then wantedName=p.name end end
+            if not wantedName then fail('preset_not_found','Unknown view filter preset ID')end;value=req.presetId
+        else
+            if type(req.changes)~='table' or next(req.changes)==nil then fail('invalid_arguments','Nonempty changes required')end
+            local bools={columnBrowserActive=true,filtersActive=true,searchStringActive=true,label1=true,label2=true,label3=true,label4=true,label5=true,customLabel=true,noLabel=true}
+            local enums={ratingOp={['>=']=true,['<=']=true,['==']=true},searchOp={all=true,words=true,noneof=true,beginwith=true,endswith=true},searchTarget={all=true,filename=true,copyname=true,title=true,caption=true,keyword=true,metadata=true,iptc=true,exif=true,allPluginMetadata=true}}
+            value=clone(before)
+            for k,v in pairs(req.changes)do
+                if bools[k]then if type(v)~='boolean'then fail('invalid_arguments','Invalid boolean filter')end
+                elseif enums[k]then if not enums[k][v]then fail('invalid_arguments','Invalid filter choice')end
+                elseif k=='minRating'then if not number(v,0,5) or v~=math.floor(v)then fail('invalid_arguments','Invalid rating')end
+                elseif k=='searchString'then text(v,k,true)
+                else fail('invalid_arguments','Unsupported filter field')end
+                value[k]=v
+            end
+        end
+        check(c);api(c.catalog,'setViewFilter');local result=c.catalog:setViewFilter(value)
+        if result==nil then fail('filter_rejected','SDK did not accept filter')end
+        if not poll(function()
+            local actual,name=viewFilter(c)
+            if wantedName then return name==wantedName end
+            for k,v in pairs(req.changes)do if not equal(actual[k],v)then return false end end;return true
+        end)then fail('filter_unverified','View filter readback did not match')end
+        local d=navigationState(c,req);d.verification='filter_readback';return {success=true,data=d}
+    end
+end
+
 local function handle(req,c)
+    if navigationCommands[req.command] then return navigation(req,c) end
     local cmd=req.command
     if cmd=="get_selection" then
         local data=page(c.target and c.catalog:getTargetPhotos() or {},req,summary);data.photos=data.items;data.items=nil
@@ -437,7 +575,7 @@ end
 function Library.handle(req)
     local ok,result=Tasks.pcall(function()
         local c=context(req);local result=handle(req,c)
-        check(c,req.command=="select_photos")
+        check(c,req.command=="select_photos" or req.command=="set_sources" or req.command=="show_view" or req.command=="navigate_photos" or req.command=="set_view_filter")
         result.data=result.data or {};result.data.catalogPath=c.path
         return result
     end)
@@ -446,7 +584,7 @@ function Library.handle(req)
 end
 function Library.capabilities()
     local c=Application.activeCatalog();local result={}
-    for _,name in ipairs({"findPhotos","findPhotoByUuid","setSelectedPhotos","getKeywords","createKeyword","createCollection","createCollectionSet","createSmartCollection"}) do result[name]=type(c[name])=="function" end
+    for _,name in ipairs({"findPhotos","findPhotoByUuid","setSelectedPhotos","getKeywords","createKeyword","createCollection","createCollectionSet","createSmartCollection","getFolders","getFolderByPath","getCurrentViewFilter","setViewFilter","getActiveSources","setActiveSources"}) do result[name]=type(c[name])=="function" end
     return result
 end
 Library.context=context;Library.check=check;Library.targets=targets;Library.summary=summary

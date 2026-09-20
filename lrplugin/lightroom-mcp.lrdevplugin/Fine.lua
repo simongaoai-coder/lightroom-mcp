@@ -5,7 +5,7 @@ local View=import "LrApplicationView"
 local Tasks=import "LrTasks"
 local Date=import "LrDate"
 local Masking=require "Masking"
-local Fine={VERSION="2.5.1",commands={auto_white_balance=true,get_curve=true,set_curve=true,
+local Fine={VERSION="2.6.1",commands={auto_white_balance=true,get_curve=true,set_curve=true,
     list_point_colors=true,add_point_color=true,update_point_color=true,delete_point_color=true}}
 local function fail(code,message,data) error({success=false,code=code,error=message,data=data},0) end
 local function api(name)
@@ -418,7 +418,127 @@ local function appearance(req)
     return {success=true,data=data}
 end
 
+local geometryCommands={get_geometry=true,rotate_photo=true,set_crop_aspect=true,reset_adjustments=true}
+for name in pairs(geometryCommands) do Fine.commands[name]=true end
+local function geometry(photo)
+    local s=raw(photo);local crop={}
+    for _,key in ipairs({'CropTop','CropBottom','CropLeft','CropRight','CropAngle','HasCrop','CropConstrainToWarp'}) do if s[key]~=nil then crop[key]=s[key] end end
+    local dims=photo:getRawMetadata('croppedDimensions')
+    return {photoId=photo:getRawMetadata('uuid'),orientation=photo:getRawMetadata('orientation'),
+        dimensions=clone(photo:getRawMetadata('dimensions')),croppedDimensions=clone(dims),crop=crop,
+        effectiveRatio=type(dims)=='table' and finite(dims.width) and finite(dims.height) and dims.height>0 and dims.width/dims.height or nil}
+end
+local function geometryHandle(req)
+    local catalog=Application.activeCatalog();local photo=catalog:getTargetPhoto();local path=catalog:getPath()
+    if not photo then fail('no_photo','No photo selected') end
+    local function guard()
+        if Application.activeCatalog()~=catalog or catalog:getPath()~=path or (req.expectedCatalogPath and path~=req.expectedCatalogPath) then fail('catalog_changed','Catalog changed') end
+        check(photo,req)
+    end
+    guard();if photo:getRawMetadata('isVideo') then fail('unsupported_photo','Geometry controls require a photo') end
+    local cmd=req.command;local before=geometry(photo)
+    if cmd=='get_geometry' then guard();before.catalogPath=path;return {success=true,data=before} end
+    local function poll(fn)
+        local deadline=Date.currentTime()+5
+        repeat guard();if fn() then return true end;Tasks.sleep(.05) until Date.currentTime()>=deadline
+        guard();return fn()
+    end
+    local verification='observed';local extra={}
+    if cmd=='rotate_photo' then
+        if req.direction~='left' and req.direction~='right' then fail('invalid_arguments','Invalid rotation direction') end
+        local o=before.orientation
+        if not ({AB=true,BC=true,CD=true,DA=true,BA=true,AD=true,DC=true,CB=true})[o] then fail('unsupported_orientation','Unrecognized orientation; no rotation attempted') end
+        local map=req.direction=='right' and {A='B',B='C',C='D',D='A'} or {A='D',B='A',C='B',D='C'}
+        local wanted=map[o:sub(1,1)]..map[o:sub(2,2)]
+        local method=req.direction=='right' and 'rotateRight' or 'rotateLeft'
+        if type(photo[method])~='function' then fail('unsupported_api',method..' unavailable') end
+        guard();photo[method](photo)
+        if not poll(function()return photo:getRawMetadata('orientation')==wanted end) then fail('rotation_unverified','Expected orientation not observed; do not retry blindly',{before=o,expected=wanted,actual=photo:getRawMetadata('orientation')}) end
+        extra.previousOrientation=o;verification='orientation_readback'
+    elseif cmd=='set_crop_aspect' then
+        local custom=req.width~=nil or req.height~=nil
+        if (req.preset~=nil)==custom then fail('invalid_arguments','Provide preset OR width and height') end
+        local value,ratio
+        if custom then
+            if not finite(req.width) or not finite(req.height) or req.width<=0 or req.height<=0 or req.width>10000 or req.height>10000 then fail('invalid_arguments','Invalid ratio dimensions') end
+            value={w=req.width,h=req.height};ratio=req.width/req.height
+        else
+            if req.preset~='original' and req.preset~='asshot' then fail('invalid_arguments','Invalid crop preset') end
+            value=req.preset
+            if value=='original' then
+                local d=before.dimensions
+                if type(d)~='table' or not finite(d.width) or not finite(d.height) or d.width<=0 or d.height<=0 then fail('dimensions_unavailable','Original pixel dimensions unavailable') end
+                ratio=d.width/d.height
+            end
+        end
+        if type(photo.quickDevelopCropAspect)~='function' then fail('unsupported_api','quickDevelopCropAspect unavailable') end
+        guard();photo:quickDevelopCropAspect(value)
+        if ratio then
+            if not poll(function()
+                local g=geometry(photo);local d=g.croppedDimensions
+                if not g.effectiveRatio or not d or d.width<=0 or d.height<=0 then return false end
+                return math.abs(d.width-d.height*ratio)<=2 or math.abs(d.height-d.width*ratio)<=2
+            end) then fail('crop_unverified','Requested proportions were not observed',{geometry=geometry(photo)}) end
+            verification='pixel_dimensions_readback';extra.requestedRatio=ratio
+        else
+            Tasks.sleep(.1);guard();verification='native_call_and_observation'
+            extra.note='As-shot camera crop has no documented independent target ratio; inspect the result.'
+        end
+    elseif cmd=='reset_adjustments' then
+        if (req.parameter~=nil)==(req.group~=nil) then fail('invalid_arguments','Provide one parameter OR group') end
+        local parameter,method
+        if req.parameter then
+            if type(req.parameter)~='string' then fail('invalid_arguments','parameter must be a string') end
+            for _,name in ipairs(require('Develop').capabilities().capabilities.numericParameters) do if name:lower()==req.parameter:lower() then parameter=name end end
+            if not parameter then fail('unsupported_parameter','Only registered global numeric parameters can be reset') end
+            method='resetToDefault';api(method);api('getValue')
+        else method=({crop='resetCrop',transforms='resetTransforms',masking='resetMasking',redeye='resetRedeye'})[req.group];if not method then fail('invalid_arguments','Unknown reset group') end;api(method) end
+        if View.getCurrentModuleName()~='develop' then View.switchToModule('develop') end
+        if not poll(function()return View.getCurrentModuleName()=='develop'end) then fail('context_timeout','Develop unavailable') end
+        guard();local previous=raw(photo)
+        if parameter then
+            local old=Controller.getValue(parameter);if not finite(old) then fail('unsupported_parameter','Parameter unavailable on current photo') end
+            Controller.resetToDefault(parameter)
+            if not poll(function()return finite(Controller.getValue(parameter))end) then fail('readback_failed','Reset parameter value unavailable') end
+            extra.parameter=parameter;extra.previousValue=old;extra.value=Controller.getValue(parameter);extra.defaultValueIndependentlyVerified=false;verification='native_reset_value_observed'
+        else
+            if req.group=='crop' then
+                -- resetCrop returned without clearing native crop bounds in 15.2.
+                -- Use the same documented catalog crop fields as lr_crop.
+                local entered=false
+                catalog:withWriteAccessDo('MCP Reset Crop',function()
+                    guard();entered=true
+                    photo:applyDevelopSettings({CropTop=0,CropBottom=1,CropLeft=0,CropRight=1,CropAngle=0,HasCrop=false})
+                end,{timeout=5})
+                if not entered then fail('write_timeout','Catalog write access was not acquired')end
+                extra.backend='catalog_crop_fields'
+            else Controller[method]() end
+            local function cleared()
+                local s=raw(photo)
+                if req.group=='crop' then return (s.CropLeft==0 and s.CropRight==1 and s.CropTop==0 and s.CropBottom==1 and (s.CropAngle or 0)==0) end
+                if req.group=='transforms' then
+                    for _,k in ipairs({'PerspectiveVertical','PerspectiveHorizontal','PerspectiveRotate','PerspectiveAspect','PerspectiveX','PerspectiveY','PerspectiveUpright'}) do if s[k]~=nil and s[k]~=0 then return false end end
+                    return s.PerspectiveScale==nil or s.PerspectiveScale==100
+                end
+                local keys=req.group=='masking' and {'MaskGroupBasedCorrections'} or {'RedEyeInfo','RedEyeCorrections'}
+                for _,k in ipairs(keys) do if s[k]~=nil and (type(s[k])~='table' or next(s[k])~=nil) then return false end end
+                return true
+            end
+            if not poll(cleared) then fail('reset_unverified','Reset group did not clear; inspect before retrying') end
+            extra.group=req.group;verification='group_readback'
+        end
+        local after=raw(photo);extra.changedKeys={}
+        for k,v in pairs(previous) do if not equal(v,after[k]) then extra.changedKeys[#extra.changedKeys+1]=k end end
+        for k in pairs(after) do if previous[k]==nil then extra.changedKeys[#extra.changedKeys+1]=k end end
+        table.sort(extra.changedKeys)
+    end
+    guard();local data=geometry(photo);data.catalogPath=path;data.verification=verification
+    for k,v in pairs(extra) do data[k]=v end
+    return {success=true,data=data}
+end
+
 local function handle(req)
+    if geometryCommands[req.command] then return geometryHandle(req) end
     if appearanceCommands[req.command] then return appearance(req) end
     if req.command=="set_curve" then curvePoints(req.points) end
     if req.command=="add_point_color" then validateSwatch(req.swatch,true) end
@@ -446,6 +566,9 @@ function Fine.capabilities()
         result[name]=type(Controller[name])=="function"
     end
     local photo=Application.activeCatalog():getTargetPhoto()
+    result.geometry={}
+    for _,name in ipairs({"rotateLeft","rotateRight","quickDevelopCropAspect"})do result.geometry[name]=photo and type(photo[name])=="function" or false end
+    for _,name in ipairs({"resetToDefault","resetCrop","resetTransforms","resetMasking","resetRedeye"})do result.geometry[name]=type(Controller[name])=="function" end
     result.appearance={profileEnumeration='observed_photos_and_sdk_presets',
         getDevelopSettings=photo and type(photo.getDevelopSettings)=='function' or false,
         applyDevelopSettings=photo and type(photo.applyDevelopSettings)=='function' or false,
