@@ -35,7 +35,7 @@ from library_tools import library_tools, LIBRARY_COMMANDS, DELIVERY_COMMANDS
 
 REQ_FILE = os.environ.get("LR_MCP_REQ", "/tmp/lr_mcp_req.json")
 RES_FILE = os.environ.get("LR_MCP_RES", "/tmp/lr_mcp_res.json")
-SERVER_VERSION = "2.9.0"
+SERVER_VERSION = "2.10.0"
 PROTOCOL_VERSION = 2
 _IPC_LOCK = threading.Lock()
 TIMEOUT = 10.0   # seconds to wait for Lua to respond

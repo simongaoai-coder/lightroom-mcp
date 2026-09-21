@@ -1,13 +1,15 @@
 """Development-only library/export transport simulator; native Lua is tested separately."""
 from copy import deepcopy
 from pathlib import Path
+from library_tools import BASIC_FIELDS, CAPTURE_FIELDS, READ_FIELDS
 
 
 class MockLibrary:
     def __init__(self,backend):
         self.backend=backend;self.current='mock-photo-1';self.selected=[self.current]
         self.photos={f'mock-photo-{i}':{'photoId':f'mock-photo-{i}','filename':name,'path':'/photos/'+name,
-          'metadata':{'rating':0,'pickStatus':0,'title':'','caption':'','colorNameForLabel':'none'},'keywords':[]}
+          'metadata':{'rating':0,'pickStatus':0,'title':'','caption':'','colorNameForLabel':'none','shutterSpeed':1/125,
+            'aperture':2.8,'isoSpeedRating':400,'focalLength':50,'flash':False,'exposureBias':0},'keywords':[]}
           for i,name in enumerate(backend.photos,1)}
         self.keywords={};self.collections={};self.jobs={}
 
@@ -61,7 +63,13 @@ class MockLibrary:
         elif cmd=='select_photos':
             self.selected=req['photoIds'];self.current=req.get('activePhotoId',self.selected[0]);data={'activePhotoId':self.current,'photos':[self.photos[i] for i in self.selected]}
         elif cmd=='get_metadata':
-            data['photos']=[deepcopy(self.photos[i]) for i in target_ids]
+            fields=req.get('fields') or {'basic':BASIC_FIELDS,'capture':CAPTURE_FIELDS,'all':READ_FIELDS}[req.get('fieldGroup','basic')]
+            data['photos']=[]
+            for i in target_ids:
+                row=deepcopy(self.photos[i]);values=row['metadata']
+                row['metadata']={k:values[k] for k in fields if values.get(k) is not None}
+                row['missingFields']=[k for k in fields if values.get(k) is None]
+                data['photos'].append(row)
         elif cmd=='set_metadata':
             for i in target_ids:
                 self.photos[i]['metadata'].update(req.get('values',{}))

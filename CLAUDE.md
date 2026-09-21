@@ -488,3 +488,17 @@ settings contract; it supersedes older descriptions above of global setValue,
   stop batch failures and never claim full-preset readback or automatic rollback.
 - Read docs/library-expansion.md and its native verification record. Production Lua
   tests: library_expansion_fixture.lua / test_library_expansion_lua.py.
+
+
+## Shooting metadata (2.10.0)
+
+- Main/Python/Library are 2.10.0; 104 tools total. get_metadata adds fieldGroup
+  basic/capture/all, exclusive with fields; omitted options preserve basic defaults.
+- Shooting numeric/Boolean/structured fields use raw getters; display-only shooting
+  fields use formatted getters. Never parse localized exposure text or invent EXIF.
+- Missing nil values go to missingFields; getter exceptions go to fieldErrors and
+  do not erase successful fields. Preserve false and zero. New fields are read-only.
+- Cocoa timestamps use the 2001 epoch; ISO8601 values remain unchanged. bitDepth
+  requires SDK 12.1; older getter failures are explicit, not missing-value claims.
+- See docs/capture-metadata.md and production Lua / isolated IPC tests in
+  test_library_lua.py and test_library_tools.py. Native validation remains pending.

@@ -10,7 +10,16 @@ LIBRARY_COMMANDS={f'lr_{n}':n for n in (
 )}
 DELIVERY_COMMANDS={f'lr_{n}':n for n in ('export_photos','get_export_status','cancel_export')}
 TEXT_FIELDS='title caption creator copyright rightsUsageTerms headline location city stateProvince country isoCountryCode label'.split()
-READ_FIELDS=TEXT_FIELDS+['rating','pickStatus','colorNameForLabel','gps','gpsAltitude','fileFormat','cameraMake','cameraModel','lens','dateTimeOriginal','isVirtualCopy','copyName']
+BASIC_FIELDS='rating pickStatus colorNameForLabel title caption creator copyright'.split()
+# Documented LrPhoto shooting metadata; raw numbers/structures stay unformatted.
+CAPTURE_FIELDS=('cameraMake cameraModel cameraSerialNumber lens shutterSpeed aperture '
+ 'isoSpeedRating focalLength focalLength35mm exposureBias flash exposure brightnessValue '
+ 'exposureProgram meteringMode subjectDistance artist software dateTimeOriginal '
+ 'dateTimeDigitized dateTime dateTimeOriginalISO8601 dateTimeDigitizedISO8601 dateTimeISO8601 '
+ 'gps gpsAltitude gpsImgDirection fileFormat fileSize dimensions croppedDimensions '
+ 'width height aspectRatio isCropped bitDepth').split()
+READ_FIELDS=list(dict.fromkeys(TEXT_FIELDS+['rating','pickStatus','colorNameForLabel',
+ 'isVirtualCopy','copyName']+CAPTURE_FIELDS))
 
 
 def library_tools():
@@ -49,7 +58,7 @@ def library_tools():
  ('get_selection','Read active photo UUID and paginated selected-photo summaries, including catalog path.',{**guard,**paging},[]),
  ('search_photos','Search using bounded nested all/any/none (AND/OR/NOR) filters and camera/lens/ISO/edit-state criteria, optionally restricted to collectionId. Returns stable UUID-sorted pages without changing selection. Date bounds are exclusive.',{**guard,**paging,'filters':filters,'collectionId':local_id},[]),
  ('select_photos','Select explicit photo UUIDs and verify selection. activePhotoId defaults to the first. reveal=true (default) opens Library and All Photographs; existing view filters may still hide photos.',{**guard,'photoIds':ids,'activePhotoId':ident,'reveal':{'type':'boolean','default':True}},['photoIds']),
- ('get_metadata','Read specified metadata fields and keyword IDs for current, selected or explicit photos. Missing fields are listed separately.',{**targets,'fields':{'type':'array','items':{'type':'string','enum':READ_FIELDS},'minItems':1,'uniqueItems':True}},[]),
+ ('get_metadata','Read metadata and keywords for current, selected or explicit photos. Use fieldGroup=capture for SDK shooting metadata, all for all supported fields, or explicit fields (exclusive with fieldGroup). Default is basic. Numeric values retain SDK units: shutter seconds, focal length mm, exposure bias EV, timestamps seconds since 2001-01-01 UTC. Display-only text is localized. Absent values are missingFields; getter failures are fieldErrors, never invented values.',{**targets,'fieldGroup':{'type':'string','enum':['basic','capture','all']},'fields':{'type':'array','items':{'type':'string','enum':READ_FIELDS},'minItems':1,'uniqueItems':True}},[]),
  ('set_metadata','Set whitelisted catalog metadata and verify each photo. clearFields explicitly clears values (needed for GPS). This does not force XMP writes. Explicit photoIds and scope cannot be combined.',{**targets,'values':{'type':'object','properties':metadata,'additionalProperties':False},'clearFields':{'type':'array','items':{'type':'string','enum':list(metadata)},'uniqueItems':True}},[]),
  ('list_keywords','List keyword hierarchy with numeric IDs and synonyms; query is literal name/path text.',{**guard,**paging,'query':{'type':'string'}},[]),
  ('create_keyword','Create a keyword, optionally under parentId. A same-name sibling is returned without changing its attributes.',{**guard,'name':name,'parentId':local_id,'synonyms':{'type':'array','items':name,'uniqueItems':True},'includeOnExport':{'type':'boolean','default':True}},['name']),
@@ -83,4 +92,4 @@ def library_tools():
  ('get_export_status','Read export job status and paginated per-photo output paths/errors. Jobs belong to this plugin session; unknown IDs do not prove that no files were written.',{**paging,'jobId':ident},['jobId']),
  ('cancel_export','Request cooperative cancellation between photos. An in-flight rendition can finish; completed files remain.',{'jobId':ident},['jobId']),
  ]
- return [types.Tool(name='lr_'+n,description=d,inputSchema={'type':'object','properties':p,'required':r,'additionalProperties':False,'definitions':{'searchFilter':filter_definition}}) for n,d,p,r in specs]
+ return [types.Tool(name='lr_'+n,description=d,inputSchema={'type':'object','properties':p,'required':r,'additionalProperties':False,'definitions':{'searchFilter':filter_definition},**({'not':{'required':['fields','fieldGroup']}} if n=='get_metadata' else {})}) for n,d,p,r in specs]

@@ -63,7 +63,12 @@ getters for numeric/structural fields; localized numeric strings are not parsed.
 The SDK's unlabelled `gray`/`grey` state is normalized to `none`. Empty metadata
 maps remain JSON objects even when every requested field is absent. Default fields are rating, pick status, label color,
 title, caption, creator and copyright. Optional `fields` allows supported camera,
-file-format, date, virtual-copy and location metadata too.
+file-format, date, virtual-copy and location metadata too. As of 2.10.0,
+`fieldGroup: "capture"` reads the complete supported shooting field set and
+`fieldGroup: "all"` reads all supported fields. Groups and explicit fields are
+mutually exclusive. Getter exceptions appear in per-photo `fieldErrors`, distinct
+from absent values in `missingFields`; successful fields still return. See
+[Shooting metadata](capture-metadata.md) for the full field list and units.
 
 `lr_set_metadata` takes `values` and/or `clearFields`. Writable fields:
 

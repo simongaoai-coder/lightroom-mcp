@@ -290,6 +290,17 @@ lookup, current target-collection navigation/toggling, guarded virtual-copy rena
 removal, and metadata-preset enumeration/application. See
 [Library expansion](docs/library-expansion.md) for exact scope and SDK limits.
 
+## Shooting metadata (2.10)
+
+`lr_get_metadata` now supports `fieldGroup: "capture"` for complete SDK-exposed
+shooting metadata: shutter, aperture, ISO, focal lengths, exposure/flash, camera
+serial, metering/program, timestamps, GPS and image dimensions. Numeric values
+retain SDK units; display-only fields retain localized text. `fieldGroup: "all"`
+reads every supported field; explicit `fields` remains available. Existing default
+fields are unchanged. Missing values and getter errors are reported separately.
+See [Shooting metadata](docs/capture-metadata.md) for fields, units and validation
+limits. Python and plugin versions are 2.10.0; the tool count remains **104**.
+
 ## Available tools
 
 | Tool                      | What it does                                                  |

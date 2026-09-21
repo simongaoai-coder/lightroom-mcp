@@ -159,3 +159,94 @@ def test_source_refresh_finishes_before_selection_and_is_not_repeated(sdk):
  assert state.selected=='b' and state.sourceWrites==1
  assert call('select_photos',photoIds=['a'])['success']
  assert state.selected=='a' and state.sourceWrites==1
+
+
+def test_capture_metadata_uses_sdk_types_and_correct_getters(sdk):
+ lua,state,photos,call=sdk
+ lua.execute('''
+ local raw=photos.a.getRawMetadata
+ local formatted=photos.a.getFormattedMetadata
+ local numeric={shutterSpeed=true,aperture=true,isoSpeedRating=true,focalLength=true,
+   focalLength35mm=true,exposureBias=true,flash=true,dateTimeOriginalISO8601=true,
+   dimensions=true,gpsImgDirection=true}
+ local display={exposure=true,brightnessValue=true,exposureProgram=true,meteringMode=true,
+   subjectDistance=true,cameraSerialNumber=true,artist=true,software=true}
+ function photos.a:getRawMetadata(k)
+   if display[k] then error('Display-only field requested as raw: '..k) end
+   return raw(self,k)
+ end
+ function photos.a:getFormattedMetadata(k)
+   if numeric[k] then error('Raw field requested as display text: '..k) end
+   return formatted(self,k)
+ end
+ photos.a.meta.shutterSpeed=1/125;photos.a.meta.aperture=2.8
+ photos.a.meta.isoSpeedRating=400;photos.a.meta.focalLength=50;photos.a.meta.focalLength35mm=75
+ photos.a.meta.exposureBias=0;photos.a.meta.flash=false
+ photos.a.meta.dateTimeOriginalISO8601='2026-09-21T00:30:00+08:00'
+ photos.a.meta.dimensions={width=6000,height=4000};photos.a.meta.gpsImgDirection=0
+ photos.a.meta.exposureProgram='光圈优先';photos.a.meta.meteringMode='图案'
+ photos.a.meta.exposure='1/125 秒 (f/2.8)';photos.a.meta.brightnessValue='3 EV'
+ photos.a.meta.subjectDistance='3.98 m';photos.a.meta.cameraSerialNumber='001234'
+ photos.a.meta.artist='摄影师';photos.a.meta.software='相机固件'
+ ''')
+ r=call('get_metadata',fieldGroup='capture')['data']['photos'][1]
+ m=r['metadata']
+ assert r['fieldErrors'] is None
+ assert m['shutterSpeed']==pytest.approx(1/125) and m['aperture']==2.8
+ assert m['isoSpeedRating']==400 and m['focalLength35mm']==75
+ assert m['flash'] is False and m['exposureBias']==0 and m['gpsImgDirection']==0
+ assert m['cameraSerialNumber']=='001234' and m['meteringMode']=='图案'
+ assert m['subjectDistance']=='3.98 m' and m['dimensions']['width']==6000
+ assert m['dateTimeOriginalISO8601']=='2026-09-21T00:30:00+08:00'
+ assert 'gps' in list(r['missingFields'].values())
+ assert state.writes==0 and state.selected=='a' and state.module=='library'
+
+
+def test_capture_missing_and_failed_fields_are_distinct(sdk):
+ lua,state,_,call=sdk
+ lua.execute('''
+ local original=photos.a.getRawMetadata
+ function photos.a:getRawMetadata(k)
+   if k=='bitDepth' then error('unsupported on this SDK') end
+   return original(self,k)
+ end
+ photos.a.meta.flash=false
+ ''')
+ r=call('get_metadata',photoIds=['a','b'],fields=['flash','bitDepth','shutterSpeed'])['data']['photos']
+ assert r[1]['metadata']['flash'] is False
+ assert list(r[1]['missingFields'].values())==['shutterSpeed']
+ assert r[1]['fieldErrors'][1]['field']=='bitDepth'
+ assert r[1]['fieldErrors'][1]['code']=='metadata_read_failed'
+ assert 'unsupported on this SDK' in r[1]['fieldErrors'][1]['error']
+ assert set(r[2]['missingFields'].values())=={'flash','bitDepth','shutterSpeed'}
+ assert r[2]['fieldErrors'] is None and state.writes==0
+
+
+def test_metadata_groups_defaults_and_python_lua_field_parity(sdk):
+ from library_tools import READ_FIELDS,CAPTURE_FIELDS,BASIC_FIELDS
+ _,state,_,call=sdk
+ for group,expected in [('basic',BASIC_FIELDS),('capture',CAPTURE_FIELDS),('all',READ_FIELDS)]:
+  row=call('get_metadata',fieldGroup=group)['data']['photos'][1]
+  assert set(row['metadata'].keys())|set(row['missingFields'].values())==set(expected)
+  assert row['fieldErrors'] is None
+ row=call('get_metadata')['data']['photos'][1]
+ assert set(row['metadata'].keys())|set(row['missingFields'].values())==set(BASIC_FIELDS)
+ assert state.writes==0
+
+
+@pytest.mark.parametrize('args',[
+ {'fieldGroup':'unknown'},{'fieldGroup':'capture','fields':['flash']},
+ {'fields':[]},{'fields':['flash','flash']},{'fields':['undocumentedMakerNote']},
+])
+def test_invalid_capture_requests_never_write(sdk,args):
+ _,state,_,call=sdk
+ assert call('get_metadata',**args)['code']=='invalid_arguments'
+ assert state.writes==0
+
+
+@pytest.mark.parametrize('field', ['shutterSpeed','isoSpeedRating','cameraSerialNumber','bitDepth'])
+def test_shooting_metadata_cannot_be_written_or_cleared(sdk,field):
+ _,state,_,call=sdk
+ assert call('set_metadata',values={field:100})['code']=='invalid_arguments'
+ assert call('set_metadata',clearFields=[field])['code']=='invalid_arguments'
+ assert state.writes==0

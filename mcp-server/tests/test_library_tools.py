@@ -48,3 +48,27 @@ def test_library_and_delivery_tools_registered():
  tools={t.name for t in asyncio.run(server.list_tools())}
  assert set(LIBRARY_COMMANDS)|set(DELIVERY_COMMANDS)<=tools
  assert len(tools)==104
+
+
+@pytest.mark.parametrize('tool,args',[
+ ('lr_get_metadata',{'fieldGroup':'capture','fields':['flash']}),
+ ('lr_get_metadata',{'fieldGroup':'unknown'}),
+ ('lr_get_metadata',{'fields':['undocumentedMakerNote']}),
+ ('lr_set_metadata',{'values':{'isoSpeedRating':800}}),
+ ('lr_set_metadata',{'clearFields':['shutterSpeed']}),
+])
+def test_capture_validation_before_ipc(monkeypatch,tool,args):
+ monkeypatch.setattr(server,'send_to_lightroom',lambda *a,**kw:pytest.fail('Invalid transport'))
+ assert call(tool,**args)['code']=='invalid_arguments'
+
+
+def test_capture_metadata_over_file_ipc(mock_lr):
+ rows=call('lr_get_metadata',photoIds=['mock-photo-1','mock-photo-2'],fieldGroup='capture')['data']['photos']
+ assert len(rows)==2
+ for row in rows:
+  assert row['metadata']['shutterSpeed']==pytest.approx(1/125)
+  assert row['metadata']['isoSpeedRating']==400
+  assert row['metadata']['flash'] is False and row['metadata']['exposureBias']==0
+  assert 'cameraSerialNumber' in row['missingFields']
+ assert call('lr_get_metadata',fields=['flash'])['data']['photos'][0]['metadata']=={'flash':False}
+ assert 'shutterSpeed' not in call('lr_get_metadata')['data']['photos'][0]['metadata']

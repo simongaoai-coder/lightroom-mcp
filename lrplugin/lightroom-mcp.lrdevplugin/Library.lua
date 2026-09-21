@@ -3,7 +3,7 @@ local Application=import "LrApplication"
 local View=import "LrApplicationView"
 local Tasks=import "LrTasks"
 local Date=import "LrDate"
-local Library={VERSION="2.9.0",commands={get_selection=true,search_photos=true,select_photos=true,
+local Library={VERSION="2.10.0",commands={get_selection=true,search_photos=true,select_photos=true,
     get_metadata=true,set_metadata=true,list_keywords=true,create_keyword=true,update_keyword=true,
     update_photo_keywords=true,list_collections=true,create_collection=true,update_collection=true,
     update_collection_photos=true,delete_collection=true}}
@@ -229,6 +229,31 @@ for k in string.gmatch("fileFormat cameraMake cameraModel lens dateTimeOriginal 
 -- IPTC text is exposed by getFormattedMetadata, even though its writer is
 -- setRawMetadata. Raw getters only support the documented numeric/structural keys.
 local formattedFields={cameraMake=true,cameraModel=true,lens=true,copyName=true}
+local captureFields={}
+for k in string.gmatch("cameraMake cameraModel cameraSerialNumber lens shutterSpeed aperture isoSpeedRating focalLength focalLength35mm exposureBias flash exposure brightnessValue exposureProgram meteringMode subjectDistance artist software dateTimeOriginal dateTimeDigitized dateTime dateTimeOriginalISO8601 dateTimeDigitizedISO8601 dateTimeISO8601 gps gpsAltitude gpsImgDirection fileFormat fileSize dimensions croppedDimensions width height aspectRatio isCropped bitDepth","%S+") do
+    captureFields[#captureFields+1]=k;readable[k]=true
+end
+for k in string.gmatch("cameraSerialNumber exposure brightnessValue exposureProgram meteringMode subjectDistance artist software","%S+") do formattedFields[k]=true end
+local function requestedMetadataFields(req)
+    if req.fields~=nil and req.fieldGroup~=nil then fail("invalid_arguments","Use fields or fieldGroup, not both") end
+    local fields=req.fields
+    if req.fieldGroup=="capture" then fields=captureFields
+    elseif req.fieldGroup=="all" then
+        fields={};for k in pairs(readable) do fields[#fields+1]=k end;table.sort(fields)
+    elseif req.fieldGroup~=nil and req.fieldGroup~="basic" then fail("invalid_arguments","Unknown metadata fieldGroup") end
+    if fields~=nil then
+        if type(fields)~="table" or #fields==0 then fail("invalid_arguments","fields must be a non-empty array") end
+        local seen,count={},0
+        for i,key in pairs(fields) do
+            if type(i)~="number" or i%1~=0 or i<1 or i>#fields or type(key)~="string" or not readable[key] or seen[key] then
+                fail("invalid_arguments","Invalid or duplicate metadata field")
+            end
+            seen[key]=true;count=count+1
+        end
+        if count~=#fields then fail("invalid_arguments","fields must be a dense array") end
+    end
+    return fields
+end
 local function readMetadata(photo,key)
     if stringFields[key] or formattedFields[key] then return photo:getFormattedMetadata(key) end
     local value=photo:getRawMetadata(key)
@@ -241,18 +266,23 @@ local function normalize(key,value)
     if key=="colorNameForLabel" then return colorName(value) end
     return value
 end
-local function metadata(photo,fields)
+local function metadata(photo,fields,tolerateErrors)
     fields=fields or {"rating","pickStatus","colorNameForLabel","title","caption","creator","copyright"}
     if type(fields)~="table" or #fields==0 then fail("invalid_arguments","fields must be a non-empty array") end
-    local values,missing=setmetatable({}, {__jsontype="object"}),{}
+    local values,missing,errors=setmetatable({}, {__jsontype="object"}),{},{}
     for _,key in ipairs(fields) do
         if not readable[key] then fail("invalid_arguments","Unsupported metadata field: "..tostring(key)) end
-        local value=readMetadata(photo,key)
-        if value==nil then missing[#missing+1]=key else values[key]=value end
+        local ok,value=Tasks.pcall(function() return readMetadata(photo,key) end)
+        if not ok then
+            -- Preset preflight/readback must still fail on a getter error.
+            if not tolerateErrors then error(value,0) end
+            errors[#errors+1]={field=key,code="metadata_read_failed",error=tostring(value)}
+        elseif value==nil then missing[#missing+1]=key else values[key]=value end
     end
     local keywords={}
     for _,kw in ipairs(photo:getRawMetadata("keywords") or {}) do keywords[#keywords+1]={keywordId=kw.localIdentifier,name=kw:getName()} end
     local row=summary(photo);row.metadata=values;row.missingFields=missing;row.keywords=keywords
+    if #errors>0 then row.fieldErrors=errors end
     return row
 end
 local function metadataPlan(req)
@@ -626,8 +656,11 @@ local function handle(req,c)
         for _,p in ipairs(photos) do data.photos[#data.photos+1]=summary(p) end
         return {success=true,data=data}
     elseif cmd=="get_metadata" then
+        local fields=requestedMetadataFields(req)
         local data={photos={}}
-        for _,p in ipairs(targets(c,req)) do data.photos[#data.photos+1]=metadata(p,req.fields) end
+        for _,p in ipairs(targets(c,req)) do
+            check(c);data.photos[#data.photos+1]=metadata(p,fields,true);check(c)
+        end
         return {success=true,data=data}
     elseif cmd=="set_metadata" then
         local plan=metadataPlan(req);local photos=targets(c,req)
