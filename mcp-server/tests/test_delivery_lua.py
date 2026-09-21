@@ -105,7 +105,7 @@ def test_equivalent_parent_paths_are_canonicalized(sdk):
  ({'longEdge':1400},'longEdge',1400,1400,None),
  ({'shortEdge':800},'shortEdge',800,800,None),
  ({'width':1200,'height':900},'wh',900,1200,None),
- ({'megapixels':2.5},'megapixels',0,0,2.5),
+ ({'megapixels':2.5},'longEdge',1936,1936,None),
 ])
 def test_native_resize_settings_and_effective_status(sdk,args,mode,height,width,mp):
  lua,s,c,path=sdk
@@ -116,7 +116,7 @@ def test_native_resize_settings_and_effective_status(sdk,args,mode,height,width,
  assert native.LR_size_megapixels==mp and native.LR_size_units=='pixels' and native.LR_size_doNotEnlarge is False
  assert native.LR_size_doConstrain==bool(args)
  status=c('get_export_status',jobId='3'*32)['data']
- assert status['resize']['mode']==(mode if args else 'none')
+ assert status['resize']['mode']==('megapixels' if 'megapixels' in args else mode if args else 'none')
 
 
 @pytest.mark.parametrize('args',[
@@ -197,3 +197,41 @@ def test_utf8_name_byte_limit_before_creating_folder(sdk):
  assert c('export_photos',jobId='d'*32,destination=str(path),naming={'mode':'custom_sequence','customText':'旅'*60})['success']
  lua.globals().runAsync()
  assert c('get_export_status',jobId='d'*32)['data']['status']=='completed'
+
+
+@pytest.mark.parametrize('mp,edge',[(.01,122),(.5,866),(.9,1162),(1.5,1500),(2.5,1936)])
+@pytest.mark.parametrize('dimensions',[(6000,4000),(4000,6000)])
+def test_fractional_megapixels_use_pixel_sizing(sdk,mp,edge,dimensions):
+ lua,s,c,path=sdk
+ lua.globals().photos.a.meta.croppedDimensions=lua.table_from(dict(zip(['width','height'],dimensions)))
+ assert c('export_photos',jobId='e'*32,destination=str(path),megapixels=mp)['success']
+ lua.globals().runAsync()
+ native=s.lastExportSettings
+ assert native.LR_size_resizeType=='longEdge' and native.LR_size_megapixels is None
+ assert native.LR_size_maxHeight==edge
+ result=c('get_export_status',jobId='e'*32)['data']['results'][1]['effectiveResize']
+ assert result['requestedMegapixels']==mp and result['value']==edge
+
+
+def test_megapixels_uses_current_crop_and_respects_no_enlarge(sdk):
+ lua,s,c,path=sdk
+ photo=lua.globals().photos.a
+ photo.meta.croppedDimensions=lua.table_from({'width':400,'height':400})
+ c('export_photos',jobId='f'*32,destination=str(path),megapixels=1.5)
+ lua.globals().runAsync()
+ assert s.lastExportSettings.LR_size_maxHeight==400
+ assert c('get_export_status',jobId='f'*32)['data']['results'][1]['effectiveResize']['limitedBySource']
+ c('export_photos',jobId='0'*32,destination=str(path),megapixels=1.5,doNotEnlarge=False)
+ lua.globals().runAsync();assert s.lastExportSettings.LR_size_maxHeight==1225
+ # Re-read immediately before rendering if cropping changed after submission.
+ c('export_photos',jobId='1'*32,destination=str(path),megapixels=.5,doNotEnlarge=False)
+ photo.meta.croppedDimensions=lua.table_from({'width':6000,'height':4000})
+ lua.globals().runAsync();assert s.lastExportSettings.LR_size_maxHeight==866
+
+
+@pytest.mark.parametrize('dims',[None,{'width':0,'height':100},{'width':float('nan'),'height':100},{'width':100}, {'width':1000000,'height':1}])
+def test_bad_mp_dimensions_preflight_without_output(sdk,dims):
+ lua,s,c,path=sdk
+ lua.globals().photos.a.meta.croppedDimensions=lua.table_from(dims) if dims else None
+ r=c('export_photos',jobId='2'*32,destination=str(path),megapixels=1000,doNotEnlarge=False)
+ assert not r['success'] and not list(path.iterdir()) and len(s['async'])==0

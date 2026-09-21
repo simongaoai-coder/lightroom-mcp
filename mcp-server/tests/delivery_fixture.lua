@@ -1,3 +1,4 @@
+for _,photo in pairs(photos) do photo.meta.croppedDimensions={width=6000,height=4000} end
 local oldImport=import
 function import(name)
     if name=='LrFileUtils' then return {exists=py_exists,createAllDirectories=py_mkdir,resolveAllAliases=py_resolve} end

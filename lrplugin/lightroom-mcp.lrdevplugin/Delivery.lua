@@ -5,7 +5,7 @@ local Paths=import "LrPathUtils"
 local ExportSession=import "LrExportSession"
 local Date=import "LrDate"
 local Library=require "Library"
-local Delivery={VERSION="2.14.0",commands={export_photos=true,get_export_status=true,cancel_export=true}}
+local Delivery={VERSION="2.14.1",commands={export_photos=true,get_export_status=true,cancel_export=true}}
 _lrMcpDeliveryJobs=_lrMcpDeliveryJobs or {}
 local jobs=_lrMcpDeliveryJobs
 local fail=Library.fail
@@ -88,6 +88,29 @@ end
 local function canonical(path)
     return Paths.standardizePath(Files.resolveAllAliases(path)):gsub("[/\\]+$", "")
 end
+-- LR 15.2 truncates LR_size_megapixels to an integer. Resolve MP through
+-- cropped aspect ratio and native pixel sizing instead; orientation swaps do
+-- not affect max(width,height)/min(width,height).
+local function effectiveResize(photo,req,resize)
+    if resize.mode~='megapixels' then return Library.clone(resize) end
+    local d=photo:getRawMetadata('croppedDimensions')
+    if type(d)~='table' or not finite(d.width,1,1000000000) or not finite(d.height,1,1000000000) then
+        fail('dimensions_unavailable','Megapixel sizing needs numeric croppedDimensions; no uncropped fallback is used')
+    end
+    local longest,shortest=math.max(d.width,d.height),math.min(d.width,d.height)
+    local pixels=resize.value*1000000
+    local requested=math.floor(math.sqrt(pixels*(longest/shortest))+.5)
+    local edge=requested
+    if req.doNotEnlarge~=false then edge=math.min(edge,math.floor(longest+.5)) end
+    if not integer(edge,1,65000) then
+        fail('unsupported_dimensions','Megapixel target requires a pixel edge outside 1-65000',
+            {requestedMegapixels=resize.value,derivedLongEdge=edge})
+    end
+    return {mode='longEdge',value=edge,requestedMegapixels=resize.value,
+        sourceCroppedDimensions={width=d.width,height=d.height},
+        limitedBySource=edge<requested,calculation='cropped_aspect_ratio',
+        note='Pixel-rounded target, not independently decoded output dimensions'}
+end
 local function settings(req,folder,index,resize,naming)
     local format=req.format or "JPEG"
     local sequence=(naming.sequenceStart or 1)+index-1
@@ -125,6 +148,7 @@ local function start(req)
         if photo:getRawMetadata("isVideo") then fail("unsupported_photo","Video export is outside this tool") end
         if type(photo.checkPhotoAvailability)~="function" then fail("unsupported_api","Photo availability check is unavailable") end
         if not photo:checkPhotoAvailability() then fail("photo_unavailable","Original photo is offline; no export started",{photoId=photo:getRawMetadata("uuid")}) end
+        effectiveResize(photo,req,resize) -- validate all MP targets before creating a folder
     end
     Library.check(c)
     local folder=Paths.child(req.destination,"LR-MCP-export-"..req.jobId)
@@ -145,7 +169,9 @@ local function start(req)
                 local item={photoId=photo:getRawMetadata("uuid"),status="rendering"};job.results[#job.results+1]=item
                 local success,problem=Tasks.pcall(function()
                     -- One native session per photo bounds cancellation to one active render.
-                    local session=ExportSession{photosToExport={photo},exportSettings=settings(options,folder,index,resize,naming)}
+                    item.effectiveResize=effectiveResize(photo,options,resize)
+                    Library.check(c,true)
+                    local session=ExportSession{photosToExport={photo},exportSettings=settings(options,folder,index,item.effectiveResize,naming)}
                     local count=0
                     for _,rendition in session:renditions() do
                         count=count+1
@@ -198,5 +224,5 @@ function Delivery.handle(req)
     if ok then return result end
     return type(result)=="table" and result or {success=false,code="sdk_error",error=tostring(result)}
 end
-function Delivery.capabilities() return {nativeExport=true,formats={"JPEG","TIFF"},jobsSurvivePluginReload=false,cancellation="between_photos",resizeModes={"none","longEdge","shortEdge","wh","megapixels"},jpegSizeLimit=true,namingModes={"original","original_sequence","custom_sequence"}} end
+function Delivery.capabilities() return {nativeExport=true,formats={"JPEG","TIFF"},jobsSurvivePluginReload=false,cancellation="between_photos",resizeModes={"none","longEdge","shortEdge","wh","megapixels"},jpegSizeLimit=true,megapixelBackend="cropped_aspect_to_long_edge",namingModes={"original","original_sequence","custom_sequence"}} end
 return Delivery

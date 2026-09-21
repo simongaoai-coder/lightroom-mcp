@@ -143,7 +143,7 @@ class _State:
             if cmd in MASK_COMMANDS.values():
                 return self.mask_state.handle({k: v for k, v in req.items() if k not in {"requestId", "expectedPluginVersion"}})
             if cmd == "ping":
-                return {"success": True, "message": "Mock LR Bridge running", "version": "2.14.0", "protocolVersion": 2}
+                return {"success": True, "message": "Mock LR Bridge running", "version": "2.14.1", "protocolVersion": 2}
 
             if cmd == "get_settings":
                 return {

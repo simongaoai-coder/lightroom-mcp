@@ -348,7 +348,10 @@ original names, original-plus-sequence, or custom text plus sequence. Sequence
 start/padding and extension case are configurable. Existing longEdge, fixed quality
 and default original-name/four-digit-sequence behavior are preserved. Size limits
 and fixed quality are mutually exclusive. See [Export options](docs/export-sizing-and-naming.md).
-Version **2.14.0**, still **112 tools**; native validation of these options is pending.
+Version **2.14.1**, still **112 tools**. Fractional megapixels are resolved from each
+photo's cropped aspect ratio into native pixel sizing, avoiding Lightroom 15.2's
+integer-MP behavior. Sub-1/fractional MP, portrait/crop cases, enlargement and combined
+size limits passed [native fix verification](docs/2026-09-21-megapixel-fix.md).
 
 ## Available tools
 

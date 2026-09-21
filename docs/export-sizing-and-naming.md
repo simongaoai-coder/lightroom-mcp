@@ -1,6 +1,6 @@
-# Export sizing, JPEG size limits and naming (2.14.0)
+# Export sizing, JPEG size limits and naming (2.14.1)
 
-Main/Python/Delivery are 2.14.0. The existing lr_export_photos tool is extended;
+Main/Python/Delivery are 2.14.1. The existing lr_export_photos tool is extended;
 the total stays at 112 tools. Plugin and MCP process must be updated together.
 
 ## Resize modes
@@ -13,7 +13,7 @@ constraint. All dimensions refer to the rendered, edited/cropped image.
 | longEdge: 2400 | Limit the longer edge to 2400 pixels; existing option preserved |
 | shortEdge: 1080 | Limit the shorter edge to 1080 pixels |
 | width: 1600, height: 1200 | Fit within this width/height bounding box, preserving aspect ratio |
-| megapixels: 4.5 | Resize using Lightroom's native megapixel option |
+| megapixels: 4.5 | Target total pixels using each photo’s cropped aspect ratio |
 
 Pixel arguments are integers 1-65000; megapixels is a finite number 0.01-1000.
 Width and height must appear together. Modes cannot be combined. These are tool
@@ -22,9 +22,22 @@ bounds, not a guarantee every dimension/file is renderable by every SDK version.
 `doNotEnlarge` stays true by default. A smaller source can therefore remain smaller
 than the requested dimensions/megapixels. Bounding-box sizing does not crop, stretch
 or promise an exact width AND height. `resolution` remains DPI (default 240) and
-is separate from pixel dimensions. Native SDK keys are LR_size_resizeType,
-LR_size_maxWidth/maxHeight and LR_size_megapixels; long/short-edge bounds use
-maxHeight as documented, regardless of source orientation.
+is separate from pixel dimensions. Native SDK pixel keys are LR_size_resizeType and LR_size_maxWidth/maxHeight.
+Long/short-edge bounds use maxHeight as documented, regardless of orientation.
+
+In 2.14.1, megapixels is converted per photo to a rounded pixel long edge:
+`round(sqrt(megapixels * 1,000,000 * longerCropEdge / shorterCropEdge))`.
+The native long-edge renderer then preserves the aspect ratio. This avoids the
+observed LR 15.2 truncation of LR_size_megapixels. Integer output pixels imply
+rounding; megapixels is a target, not an exact pixel-count guarantee.
+
+Only numeric SDK croppedDimensions are used; unknown/invalid crop dimensions
+reject an MP job before any output folder is created. Dimensions are read again
+immediately before each render to account for edits after submission. With
+doNotEnlarge=true, the computed edge is capped at the source cropped long edge.
+A derived edge outside 1-65000 is rejected. Each result reports effectiveResize
+(mode=longEdge, value, requestedMegapixels, sourceCroppedDimensions and
+limitedBySource). These are planning observations, not decoded output measurements.
 
 ## JPEG maximum file size
 
@@ -108,10 +121,13 @@ all resize mappings, sequence continuity, Unicode/unsafe names, collision handli
 unchanged defaults, and actual byte-limit boundaries (including retained oversized
 files), plus isolated IPC contracts. The SDK double does not render real images.
 
-**Native 2.14 validation is pending**: verify actual landscape/portrait dimensions,
-doNotEnlarge, megapixel rounding, custom names/extension case and achievable versus
-impossible JPEG limits on Lightroom. No live catalog was modified for this change.
-The plugin verifies output path/bytes, not decoded image dimensions or ICC contents.
+**Native 2.14.1 verification passed on Lightroom 15.2** for fractional/sub-1 MP,
+landscape/portrait and cropped inputs, enlargement/no-enlargement, JPEG/TIFF and a
+combined size-cap/naming case. See [megapixel fix verification](2026-09-21-megapixel-fix.md).
+The [2.14.0 report](2026-09-21-export-214-verification.md) retains the original failure
+and other export-option results. The plugin verifies output path/bytes, not decoded
+image dimensions or ICC contents; the acceptance harness independently decoded files.
+
 
 Source: bundled Adobe *Lightroom Classic SDK Programmers Guide*, pp. 61-63 and
 66-67 (naming and size/quality properties). The documented size limit is a native

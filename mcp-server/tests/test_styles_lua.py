@@ -161,7 +161,7 @@ def test_real_server_dispatch(sdk):
     # Supply unrelated modules as stubs; exercise real new modules and JSON wire.
     for name in ['Fine','Healing','Previews','Delivery','Masking']:
         modules[name]=lua.table_from({'commands':lua.table_from({})})
-    module=load('Server');version='2.14.0'
+    module=load('Server');version='2.14.1'
     def wire(command,**args):
         return json.loads(module.handleRequest(json.dumps({'command':command,'expectedPluginVersion':version,**args})))
     r=wire('save_style',name='saved',groups=['grain'])

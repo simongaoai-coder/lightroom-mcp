@@ -1,0 +1,2603 @@
+{
+  "ping": {
+    "versionsVersion": "2.13.0",
+    "requestId": "07861a43537f4c8f918cb3c3bf893602",
+    "developVersion": "2.13.0",
+    "protocolVersion": 2,
+    "pluginPath": "/Users/gsm/Library/Application Support/Adobe/Lightroom/Modules/lightroom-mcp.lrdevplugin",
+    "deliveryVersion": "2.14.1",
+    "previewsVersion": "2.11.0",
+    "libraryVersion": "2.10.0",
+    "healingVersion": "2.4.2",
+    "version": "2.14.1",
+    "fineVersion": "2.8.0",
+    "capabilities": {
+      "numericParameters": [
+        "ShadowTint",
+        "RedHue",
+        "RedSaturation",
+        "GreenHue",
+        "GreenSaturation",
+        "BlueHue",
+        "BlueSaturation",
+        "LuminanceNoiseReductionContrast",
+        "PostCropVignetteStyle",
+        "PostCropVignetteHighlightContrast",
+        "LensProfileDistortionScale",
+        "LensProfileVignettingScale",
+        "LensManualDistortionAmount",
+        "CurveRefineSaturation",
+        "PresetAmount",
+        "ProfileAmount",
+        "Exposure",
+        "Contrast",
+        "Highlights",
+        "Shadows",
+        "Whites",
+        "Blacks",
+        "Brightness",
+        "Recovery",
+        "FillLight",
+        "Clarity",
+        "Texture",
+        "Dehaze",
+        "Vibrance",
+        "Saturation",
+        "Temperature",
+        "Tint",
+        "ParametricDarks",
+        "ParametricLights",
+        "ParametricShadows",
+        "ParametricHighlights",
+        "ParametricShadowSplit",
+        "ParametricMidtoneSplit",
+        "ParametricHighlightSplit",
+        "HueAdjustmentRed",
+        "HueAdjustmentOrange",
+        "HueAdjustmentYellow",
+        "HueAdjustmentGreen",
+        "HueAdjustmentAqua",
+        "HueAdjustmentBlue",
+        "HueAdjustmentPurple",
+        "HueAdjustmentMagenta",
+        "SaturationAdjustmentRed",
+        "SaturationAdjustmentOrange",
+        "SaturationAdjustmentYellow",
+        "SaturationAdjustmentGreen",
+        "SaturationAdjustmentAqua",
+        "SaturationAdjustmentBlue",
+        "SaturationAdjustmentPurple",
+        "SaturationAdjustmentMagenta",
+        "LuminanceAdjustmentRed",
+        "LuminanceAdjustmentOrange",
+        "LuminanceAdjustmentYellow",
+        "LuminanceAdjustmentGreen",
+        "LuminanceAdjustmentAqua",
+        "LuminanceAdjustmentBlue",
+        "LuminanceAdjustmentPurple",
+        "LuminanceAdjustmentMagenta",
+        "Sharpness",
+        "SharpenRadius",
+        "SharpenDetail",
+        "SharpenEdgeMasking",
+        "LuminanceSmoothing",
+        "LuminanceNoiseReductionDetail",
+        "ColorNoiseReduction",
+        "ColorNoiseReductionDetail",
+        "ColorNoiseReductionSmoothness",
+        "LensProfileEnable",
+        "AutoLateralCA",
+        "VignetteAmount",
+        "VignetteMidpoint",
+        "PerspectiveVertical",
+        "PerspectiveHorizontal",
+        "PerspectiveRotate",
+        "PerspectiveScale",
+        "PerspectiveAspect",
+        "PerspectiveX",
+        "PerspectiveY",
+        "PerspectiveUpright",
+        "CropAngle",
+        "CropTop",
+        "CropBottom",
+        "CropLeft",
+        "CropRight",
+        "PostCropVignetteAmount",
+        "PostCropVignetteMidpoint",
+        "PostCropVignetteFeather",
+        "PostCropVignetteRoundness",
+        "GrainAmount",
+        "GrainSize",
+        "GrainFrequency",
+        "ColorGradeBlending",
+        "ColorGradeGlobalHue",
+        "ColorGradeGlobalLum",
+        "ColorGradeGlobalSat",
+        "ColorGradeHighlightLum",
+        "ColorGradeMidtoneHue",
+        "ColorGradeMidtoneLum",
+        "ColorGradeMidtoneSat",
+        "ColorGradeShadowLum",
+        "GrayMixerRed",
+        "GrayMixerOrange",
+        "GrayMixerYellow",
+        "GrayMixerGreen",
+        "GrayMixerAqua",
+        "GrayMixerBlue",
+        "GrayMixerPurple",
+        "GrayMixerMagenta",
+        "SplitToningBalance",
+        "SplitToningHighlightHue",
+        "SplitToningHighlightSaturation",
+        "SplitToningShadowHue",
+        "SplitToningShadowSaturation",
+        "DefringeGreenAmount",
+        "DefringeGreenHueHi",
+        "DefringeGreenHueLo",
+        "DefringePurpleAmount",
+        "DefringePurpleHueHi",
+        "DefringePurpleHueLo",
+        "LensBlurActive",
+        "LensBlurAmount",
+        "LensBlurCatEye",
+        "LensBlurFocalRange",
+        "LensBlurHighlightsBoost"
+      ],
+      "note": "API presence is not a guarantee of support on every photo. Use get_settings for photo-specific mappings.",
+      "photoAPIs": {
+        "getDevelopSettings": true,
+        "applyDevelopSettings": true,
+        "requestJpegThumbnail": true
+      },
+      "settingsBackend": "LrPhoto.applyDevelopSettings",
+      "healing": {
+        "moveSelectedSpot": true,
+        "setSelectedSpotIndex": true,
+        "setRemovePanelPreferences": true,
+        "getSelectedSpotType": true,
+        "deleteSelectedSpot": true,
+        "aiJobCompletion": "native_call_returned",
+        "updateAISettings": true,
+        "getSelectedSpotIndex": true,
+        "goToRemove": true,
+        "refreshSelectedSpot": true,
+        "countAllSpots": true,
+        "programmaticStrokeCreation": false,
+        "deleteAllEmptyMasks": true,
+        "setSelectedSpotType": true,
+        "resetHealing": true,
+        "setSelectedSpotParams": true,
+        "gotoNextVariation": true,
+        "getAllSpots": true,
+        "getSelectedSpotParams": true,
+        "gotoPreviousVariation": true,
+        "getRemovePanelPreferences": true
+      },
+      "delivery": {
+        "formats": [
+          "JPEG",
+          "TIFF"
+        ],
+        "jpegSizeLimit": true,
+        "namingModes": [
+          "original",
+          "original_sequence",
+          "custom_sequence"
+        ],
+        "cancellation": "between_photos",
+        "nativeExport": true,
+        "resizeModes": [
+          "none",
+          "longEdge",
+          "shortEdge",
+          "wh",
+          "megapixels"
+        ],
+        "megapixelBackend": "cropped_aspect_to_long_edge",
+        "jobsSurvivePluginReload": false
+      },
+      "previews": {
+        "retainedJobs": 20,
+        "cancellation": "between_photos",
+        "sessionJobs": true,
+        "photoSelected": true,
+        "verification": "smartPreviewInfo",
+        "photoAPIs": {
+          "buildSmartPreview": true,
+          "deleteSmartPreview": true,
+          "checkPhotoAvailability": true
+        }
+      },
+      "library": {
+        "createKeyword": true,
+        "findPhotos": true,
+        "getFolders": true,
+        "findPhotoByUuid": true,
+        "setSelectedPhotos": true,
+        "setActiveSources": true,
+        "getCurrentViewFilter": true,
+        "createSmartCollection": true,
+        "setViewFilter": true,
+        "getActiveSources": true,
+        "createCollection": true,
+        "getFolderByPath": true,
+        "createCollectionSet": true,
+        "getKeywords": true
+      },
+      "versions": {
+        "application": {
+          "developPresetFolders": true,
+          "getDevelopPresetsForPlugin": true
+        },
+        "photoSelected": true,
+        "catalog": {
+          "createVirtualCopies": true,
+          "setSelectedPhotos": true
+        },
+        "photo": {
+          "deleteDevelopSnapshot": true,
+          "pasteSettings": true,
+          "createDevelopSnapshot": true,
+          "copySettings": true,
+          "updateAISettings": true,
+          "applyDevelopSnapshot": true,
+          "getDevelopSnapshots": true,
+          "applyDevelopPreset": true
+        }
+      },
+      "controllerAPIs": {
+        "createNewMask": true,
+        "getSelectedMask": true,
+        "resetAllDevelopAdjustments": true,
+        "deleteMaskTool": true,
+        "setEnhance": false,
+        "getRange": true,
+        "setLensBlurBokeh": true,
+        "selectMaskTool": true,
+        "setLensBlurFocalRangeFromSubject": false,
+        "setAutoTone": true,
+        "getAllMasks": true,
+        "getValue": true,
+        "selectMask": true,
+        "goToMasking": true,
+        "deleteMask": true,
+        "getSelectedMaskTool": true,
+        "setValue": true
+      },
+      "photoSelected": true,
+      "fine": {
+        "toggleHideMaskTool": true,
+        "getProcessVersion": true,
+        "toggleInvertMaskTool": true,
+        "setAutoWhiteBalance": true,
+        "appearance": {
+          "profileEnumeration": "observed_photos_and_sdk_presets",
+          "getDevelopSettings": true,
+          "quickDevelopSetTreatment": true,
+          "applyDevelopSettings": true,
+          "quickDevelopSetWhiteBalance": true
+        },
+        "invertMask": true,
+        "addToCurrentMask": true,
+        "addPointColorSwatch": true,
+        "deletePointColorSwatch": true,
+        "subtractFromCurrentMask": true,
+        "setProcessVersion": true,
+        "toggleHideMask": true,
+        "getSelectedPointColorSwatchIndex": true,
+        "duplicateAndInvertMask": true,
+        "selectPointColorSwatch": true,
+        "updateSelectedPointColorSwatch": true,
+        "geometry": {
+          "resetToDefault": true,
+          "rotateLeft": true,
+          "resetCrop": true,
+          "rotateRight": true,
+          "resetMasking": true,
+          "resetTransforms": true,
+          "resetRedeye": true,
+          "quickDevelopCropAspect": true
+        },
+        "intersectWithCurrentMask": true
+      }
+    },
+    "lightroomVersion": "15.2",
+    "success": true,
+    "maskingVersion": "2.2.2",
+    "server": {
+      "version": "2.14.1",
+      "path": "/Users/gsm/Developer/Personal-Projects/02-Long-Term/lightroom-mcp/mcp-server/server.py",
+      "toolCount": 112,
+      "tools": [
+        "lr_list_masks",
+        "lr_get_selected_mask",
+        "lr_select_mask",
+        "lr_delete_mask",
+        "lr_delete_mask_tool",
+        "lr_list_snapshots",
+        "lr_create_snapshot",
+        "lr_apply_snapshot",
+        "lr_delete_snapshot",
+        "lr_list_virtual_copies",
+        "lr_create_virtual_copies",
+        "lr_select_virtual_copy",
+        "lr_list_presets",
+        "lr_apply_preset",
+        "lr_auto_white_balance",
+        "lr_get_curve",
+        "lr_set_curve",
+        "lr_list_point_colors",
+        "lr_add_point_color",
+        "lr_update_point_color",
+        "lr_delete_point_color",
+        "lr_combine_mask",
+        "lr_set_mask_visibility",
+        "lr_invert_mask",
+        "lr_duplicate_inverted_mask",
+        "lr_set_mask_tool_inverted",
+        "lr_get_selection",
+        "lr_search_photos",
+        "lr_select_photos",
+        "lr_get_metadata",
+        "lr_set_metadata",
+        "lr_list_keywords",
+        "lr_create_keyword",
+        "lr_update_keyword",
+        "lr_update_photo_keywords",
+        "lr_list_collections",
+        "lr_create_collection",
+        "lr_update_collection",
+        "lr_update_collection_photos",
+        "lr_delete_collection",
+        "lr_move_keyword",
+        "lr_list_keyword_photos",
+        "lr_move_collection",
+        "lr_show_target_collection",
+        "lr_toggle_target_collection",
+        "lr_rename_virtual_copy",
+        "lr_remove_virtual_copy",
+        "lr_list_metadata_presets",
+        "lr_apply_metadata_preset",
+        "lr_export_photos",
+        "lr_get_export_status",
+        "lr_cancel_export",
+        "lr_open_remove",
+        "lr_list_spots",
+        "lr_get_selected_spot",
+        "lr_select_spot",
+        "lr_update_spot",
+        "lr_set_spot_type",
+        "lr_move_spot",
+        "lr_refresh_spot",
+        "lr_delete_spot",
+        "lr_cycle_spot_variation",
+        "lr_get_remove_preferences",
+        "lr_set_remove_preferences",
+        "lr_reset_healing",
+        "lr_update_ai_settings",
+        "lr_get_ai_update_status",
+        "lr_cancel_ai_update",
+        "lr_cleanup_empty_masks",
+        "lr_get_process_version",
+        "lr_set_process_version",
+        "lr_get_appearance",
+        "lr_set_treatment",
+        "lr_set_white_balance",
+        "lr_list_profiles",
+        "lr_set_profile",
+        "lr_get_geometry",
+        "lr_rotate_photo",
+        "lr_set_crop_aspect",
+        "lr_reset_adjustments",
+        "lr_get_navigation",
+        "lr_list_folders",
+        "lr_list_folder_photos",
+        "lr_set_sources",
+        "lr_show_view",
+        "lr_navigate_photos",
+        "lr_set_view_filter",
+        "lr_copy_settings",
+        "lr_paste_settings",
+        "lr_get_history_state",
+        "lr_undo",
+        "lr_redo",
+        "lr_get_smart_previews",
+        "lr_build_smart_previews",
+        "lr_delete_smart_previews",
+        "lr_get_smart_preview_job",
+        "lr_cancel_smart_preview_job",
+        "lr_batch_adjust_relative",
+        "lr_save_style",
+        "lr_preflight_settings",
+        "lr_apply_settings",
+        "lr_get_settings",
+        "lr_auto_tone",
+        "lr_reset",
+        "lr_ping",
+        "lr_export_preview",
+        "lr_batch_apply_settings",
+        "lr_crop",
+        "lr_lens_blur",
+        "lr_enhance",
+        "lr_add_mask",
+        "lr_update_mask"
+      ]
+    },
+    "compatible": true
+  },
+  "selectionBefore": {
+    "offset": 0,
+    "total": 1,
+    "hasMore": false,
+    "activePhotoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+    "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+    "photos": [
+      {
+        "copyName": "MCP 20260921 自动验收 1",
+        "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1037.ARW",
+        "filename": "_DSC1037.ARW",
+        "isVirtualCopy": true,
+        "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+        "rating": 5,
+        "colorNameForLabel": "none",
+        "pickStatus": 0
+      }
+    ]
+  },
+  "navigationBefore": {
+    "offset": 0,
+    "total": 1,
+    "filterPresets": [
+      {
+        "name": "Camera Info",
+        "presetId": "AA3F9B24-337A-4DF5-A60B-2709C90BD554"
+      },
+      {
+        "name": "Default Columns",
+        "presetId": "6277E12D-FA51-4872-934E-5B14A91889BD"
+      },
+      {
+        "name": "Exposure Info",
+        "presetId": "56A24080-5EE7-4700-903F-9881DC72BFE9"
+      },
+      {
+        "name": "Filters Off",
+        "presetId": "32983D2E-E1F3-47C6-A74C-15E3D3FA06E4"
+      },
+      {
+        "name": "Flagged",
+        "presetId": "4DCC28BF-BAF4-43F8-8956-4584FA18520D"
+      },
+      {
+        "name": "Location Columns",
+        "presetId": "E30E1A00-B808-4CB4-8DF0-02A279A18DF5"
+      },
+      {
+        "name": "Rated",
+        "presetId": "44AB3522-FCD5-42B3-BDB8-302FDAEF8EE8"
+      },
+      {
+        "name": "Unrated",
+        "presetId": "D0F48510-7810-41F8-A98A-613B4AEC1022"
+      }
+    ],
+    "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+    "viewFilter": {
+      "export": "<nil>",
+      "ratingOp": ">=",
+      "whichCopies": "<nil>",
+      "comments": "<nil>",
+      "label5": false,
+      "label2": false,
+      "searchStringActive": false,
+      "label1": false,
+      "minRating": 0,
+      "columnBrowserActive": false,
+      "likes": "<nil>",
+      "gpsLocation": false,
+      "edit": "<nil>",
+      "filtersActive": false,
+      "label3": false,
+      "labelOp": "any",
+      "searchTarget": "all",
+      "searchString": "",
+      "noLabel": false,
+      "customLabel": false,
+      "label4": false,
+      "searchOp": "all",
+      "stack": "<nil>",
+      "columnBrowserDesc": [
+        {
+          "criteria": "dateHierarchy"
+        },
+        {
+          "criteria": "camera"
+        },
+        {
+          "criteria": "lens"
+        },
+        {
+          "criteria": "label"
+        }
+      ],
+      "pick": "<nil>"
+    },
+    "sources": [
+      {
+        "id": "entire_library",
+        "kind": "catalog"
+      }
+    ],
+    "activePhotoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+    "hasMore": false,
+    "module": "library",
+    "photos": [
+      {
+        "copyName": "MCP 20260921 自动验收 1",
+        "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1037.ARW",
+        "filename": "_DSC1037.ARW",
+        "isVirtualCopy": true,
+        "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+        "rating": 5,
+        "colorNameForLabel": "none",
+        "pickStatus": 0
+      }
+    ],
+    "filterPresetName": "Filters Off",
+    "mainViewReadbackAvailable": false
+  },
+  "originals": [
+    {
+      "copyName": "",
+      "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1049.ARW",
+      "filename": "_DSC1049.ARW",
+      "isVirtualCopy": false,
+      "photoId": "6A644F6A-E754-4788-A73E-6D7B1C03CAC6",
+      "rating": 5,
+      "colorNameForLabel": "none",
+      "pickStatus": 0
+    },
+    {
+      "copyName": "",
+      "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1042.ARW",
+      "filename": "_DSC1042.ARW",
+      "isVirtualCopy": false,
+      "photoId": "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+      "rating": 0,
+      "colorNameForLabel": "none",
+      "pickStatus": 0
+    },
+    {
+      "copyName": "",
+      "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1044.ARW",
+      "filename": "_DSC1044.ARW",
+      "isVirtualCopy": false,
+      "photoId": "9D5D3A27-F8BE-4212-90B0-85ACD64E7435",
+      "rating": 0,
+      "colorNameForLabel": "none",
+      "pickStatus": 0
+    },
+    {
+      "copyName": "",
+      "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1039.ARW",
+      "filename": "_DSC1039.ARW",
+      "isVirtualCopy": false,
+      "photoId": "ADE6F802-3F9C-472F-A3BE-AF46F9CD4602",
+      "rating": 0,
+      "colorNameForLabel": "none",
+      "pickStatus": 0
+    },
+    {
+      "copyName": "",
+      "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1043.ARW",
+      "filename": "_DSC1043.ARW",
+      "isVirtualCopy": false,
+      "photoId": "B56CC7D2-2A95-4918-9926-D48A888D1751",
+      "rating": 0,
+      "colorNameForLabel": "none",
+      "pickStatus": 0
+    },
+    {
+      "copyName": "",
+      "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1037.ARW",
+      "filename": "_DSC1037.ARW",
+      "isVirtualCopy": false,
+      "photoId": "B89CF565-C22A-4BA7-86EE-EF3CDF519EFD",
+      "rating": 5,
+      "colorNameForLabel": "none",
+      "pickStatus": 0
+    }
+  ],
+  "portraitId": "4566B38A-E068-415B-8796-137E7E7BCD97",
+  "smallId": "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8",
+  "snapshotId": "90815906-0ACC-4933-B45B-D03B6BD2745E",
+  "cases": [
+    {
+      "label": "mp_0.01",
+      "options": {
+        "megapixels": 0.01
+      },
+      "photoIds": [
+        "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+        "4566B38A-E068-415B-8796-137E7E7BCD97"
+      ],
+      "start": {
+        "success": true,
+        "data": {
+          "naming": {
+            "sequenceStart": 1,
+            "sequenceDigits": 4,
+            "extensionCase": "lowercase",
+            "mode": "original_sequence"
+          },
+          "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-3fad49dc97b9452183a3ca7cd1e65174",
+          "cancelRequested": false,
+          "status": "queued",
+          "format": "JPEG",
+          "failed": 0,
+          "quality": 90,
+          "offset": 0,
+          "total": 2,
+          "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+          "resize": {
+            "value": 0.01,
+            "mode": "megapixels"
+          },
+          "completed": 0,
+          "notStarted": 2,
+          "hasMore": false,
+          "jobId": "3fad49dc97b9452183a3ca7cd1e65174",
+          "createdAt": 811678616.70921,
+          "results": []
+        },
+        "requestId": "aa2d92b2cea546b093c4c6f1881f272c",
+        "jobId": "3fad49dc97b9452183a3ca7cd1e65174"
+      },
+      "job": {
+        "naming": {
+          "sequenceStart": 1,
+          "sequenceDigits": 4,
+          "extensionCase": "lowercase",
+          "mode": "original_sequence"
+        },
+        "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-3fad49dc97b9452183a3ca7cd1e65174",
+        "cancelRequested": false,
+        "status": "completed",
+        "format": "JPEG",
+        "failed": 0,
+        "quality": 90,
+        "offset": 0,
+        "total": 2,
+        "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+        "resize": {
+          "value": 0.01,
+          "mode": "megapixels"
+        },
+        "completed": 2,
+        "notStarted": 0,
+        "finishedAt": 811678618.24186,
+        "hasMore": false,
+        "jobId": "3fad49dc97b9452183a3ca7cd1e65174",
+        "createdAt": 811678616.70921,
+        "results": [
+          {
+            "bytes": 35898,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-3fad49dc97b9452183a3ca7cd1e65174/_DSC1042-0001.jpg",
+            "success": true,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": false,
+              "requestedMegapixels": 0.01,
+              "value": 122,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 4000,
+                "width": 6000
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+            "status": "completed"
+          },
+          {
+            "bytes": 36203,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-3fad49dc97b9452183a3ca7cd1e65174/_DSC1042-0002.jpg",
+            "success": true,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": false,
+              "requestedMegapixels": 0.01,
+              "value": 122,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 6000,
+                "width": 4000
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "4566B38A-E068-415B-8796-137E7E7BCD97",
+            "status": "completed"
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-3fad49dc97b9452183a3ca7cd1e65174/_DSC1042-0001.jpg",
+          "name": "_DSC1042-0001.jpg",
+          "bytes": 35898,
+          "format": "JPEG",
+          "size": [
+            122,
+            81
+          ],
+          "displaySize": [
+            122,
+            81
+          ],
+          "mode": "RGB",
+          "sha256": "21e87ab8a546e6601873416f7e773c80cd42a2ba538ea06dffc1a1da43507079",
+          "actualMegapixels": 0.009882,
+          "pixelError": 118.0
+        },
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-3fad49dc97b9452183a3ca7cd1e65174/_DSC1042-0002.jpg",
+          "name": "_DSC1042-0002.jpg",
+          "bytes": 36203,
+          "format": "JPEG",
+          "size": [
+            81,
+            122
+          ],
+          "displaySize": [
+            81,
+            122
+          ],
+          "mode": "RGB",
+          "sha256": "41697a57597f61525fbb3edd409aebe5bc1bc5189185a8ac83b676310f212d72",
+          "actualMegapixels": 0.009882,
+          "pixelError": 118.0
+        }
+      ],
+      "verified": true
+    },
+    {
+      "label": "mp_0.5",
+      "options": {
+        "megapixels": 0.5
+      },
+      "photoIds": [
+        "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+        "4566B38A-E068-415B-8796-137E7E7BCD97"
+      ],
+      "start": {
+        "success": true,
+        "data": {
+          "naming": {
+            "sequenceStart": 1,
+            "sequenceDigits": 4,
+            "extensionCase": "lowercase",
+            "mode": "original_sequence"
+          },
+          "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-d4ccfb6f229142c9916d5ff394b7ffb6",
+          "cancelRequested": false,
+          "status": "queued",
+          "format": "JPEG",
+          "failed": 0,
+          "quality": 90,
+          "offset": 0,
+          "total": 2,
+          "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+          "resize": {
+            "value": 0.5,
+            "mode": "megapixels"
+          },
+          "completed": 0,
+          "notStarted": 2,
+          "hasMore": false,
+          "jobId": "d4ccfb6f229142c9916d5ff394b7ffb6",
+          "createdAt": 811678619.05599,
+          "results": []
+        },
+        "requestId": "f59617490f5241edac5f93e2f1dc3c9b",
+        "jobId": "d4ccfb6f229142c9916d5ff394b7ffb6"
+      },
+      "job": {
+        "naming": {
+          "sequenceStart": 1,
+          "sequenceDigits": 4,
+          "extensionCase": "lowercase",
+          "mode": "original_sequence"
+        },
+        "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-d4ccfb6f229142c9916d5ff394b7ffb6",
+        "cancelRequested": false,
+        "status": "completed",
+        "format": "JPEG",
+        "failed": 0,
+        "quality": 90,
+        "offset": 0,
+        "total": 2,
+        "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+        "resize": {
+          "value": 0.5,
+          "mode": "megapixels"
+        },
+        "completed": 2,
+        "notStarted": 0,
+        "finishedAt": 811678621.1007,
+        "hasMore": false,
+        "jobId": "d4ccfb6f229142c9916d5ff394b7ffb6",
+        "createdAt": 811678619.05599,
+        "results": [
+          {
+            "bytes": 248897,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-d4ccfb6f229142c9916d5ff394b7ffb6/_DSC1042-0001.jpg",
+            "success": true,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": false,
+              "requestedMegapixels": 0.5,
+              "value": 866,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 4000,
+                "width": 6000
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+            "status": "completed"
+          },
+          {
+            "bytes": 249832,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-d4ccfb6f229142c9916d5ff394b7ffb6/_DSC1042-0002.jpg",
+            "success": true,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": false,
+              "requestedMegapixels": 0.5,
+              "value": 866,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 6000,
+                "width": 4000
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "4566B38A-E068-415B-8796-137E7E7BCD97",
+            "status": "completed"
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-d4ccfb6f229142c9916d5ff394b7ffb6/_DSC1042-0001.jpg",
+          "name": "_DSC1042-0001.jpg",
+          "bytes": 248897,
+          "format": "JPEG",
+          "size": [
+            866,
+            577
+          ],
+          "displaySize": [
+            866,
+            577
+          ],
+          "mode": "RGB",
+          "sha256": "5cfd2aaa8eb7a61154a085576f3335d69abf540d7374635dec9fa900d591acb6",
+          "actualMegapixels": 0.499682,
+          "pixelError": 318.0
+        },
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-d4ccfb6f229142c9916d5ff394b7ffb6/_DSC1042-0002.jpg",
+          "name": "_DSC1042-0002.jpg",
+          "bytes": 249832,
+          "format": "JPEG",
+          "size": [
+            577,
+            866
+          ],
+          "displaySize": [
+            577,
+            866
+          ],
+          "mode": "RGB",
+          "sha256": "3d6bcf61be5e9e06bb5ac69b7b1914f82722b4f73628bc19dedd2b32e8d0c5d1",
+          "actualMegapixels": 0.499682,
+          "pixelError": 318.0
+        }
+      ],
+      "verified": true
+    },
+    {
+      "label": "mp_0.9",
+      "options": {
+        "megapixels": 0.9
+      },
+      "photoIds": [
+        "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+        "4566B38A-E068-415B-8796-137E7E7BCD97"
+      ],
+      "start": {
+        "success": true,
+        "data": {
+          "naming": {
+            "sequenceStart": 1,
+            "sequenceDigits": 4,
+            "extensionCase": "lowercase",
+            "mode": "original_sequence"
+          },
+          "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-a8f5cd2ba76646dc81221ee96afbc6a4",
+          "cancelRequested": false,
+          "status": "queued",
+          "format": "JPEG",
+          "failed": 0,
+          "quality": 90,
+          "offset": 0,
+          "total": 2,
+          "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+          "resize": {
+            "value": 0.9,
+            "mode": "megapixels"
+          },
+          "completed": 0,
+          "notStarted": 2,
+          "hasMore": false,
+          "jobId": "a8f5cd2ba76646dc81221ee96afbc6a4",
+          "createdAt": 811678621.29138,
+          "results": []
+        },
+        "requestId": "ef89956932894ed0a91c288cc8fd7f82",
+        "jobId": "a8f5cd2ba76646dc81221ee96afbc6a4"
+      },
+      "job": {
+        "naming": {
+          "sequenceStart": 1,
+          "sequenceDigits": 4,
+          "extensionCase": "lowercase",
+          "mode": "original_sequence"
+        },
+        "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-a8f5cd2ba76646dc81221ee96afbc6a4",
+        "cancelRequested": false,
+        "status": "completed",
+        "format": "JPEG",
+        "failed": 0,
+        "quality": 90,
+        "offset": 0,
+        "total": 2,
+        "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+        "resize": {
+          "value": 0.9,
+          "mode": "megapixels"
+        },
+        "completed": 2,
+        "notStarted": 0,
+        "finishedAt": 811678622.83909,
+        "hasMore": false,
+        "jobId": "a8f5cd2ba76646dc81221ee96afbc6a4",
+        "createdAt": 811678621.29138,
+        "results": [
+          {
+            "bytes": 366186,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-a8f5cd2ba76646dc81221ee96afbc6a4/_DSC1042-0001.jpg",
+            "success": true,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": false,
+              "requestedMegapixels": 0.9,
+              "value": 1162,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 4000,
+                "width": 6000
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+            "status": "completed"
+          },
+          {
+            "bytes": 367845,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-a8f5cd2ba76646dc81221ee96afbc6a4/_DSC1042-0002.jpg",
+            "success": true,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": false,
+              "requestedMegapixels": 0.9,
+              "value": 1162,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 6000,
+                "width": 4000
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "4566B38A-E068-415B-8796-137E7E7BCD97",
+            "status": "completed"
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-a8f5cd2ba76646dc81221ee96afbc6a4/_DSC1042-0001.jpg",
+          "name": "_DSC1042-0001.jpg",
+          "bytes": 366186,
+          "format": "JPEG",
+          "size": [
+            1162,
+            775
+          ],
+          "displaySize": [
+            1162,
+            775
+          ],
+          "mode": "RGB",
+          "sha256": "1c2b0c267422b667f156729cc2006ea201ace85f47e6aebd4a071c3900609713",
+          "actualMegapixels": 0.90055,
+          "pixelError": 550.0
+        },
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-a8f5cd2ba76646dc81221ee96afbc6a4/_DSC1042-0002.jpg",
+          "name": "_DSC1042-0002.jpg",
+          "bytes": 367845,
+          "format": "JPEG",
+          "size": [
+            775,
+            1162
+          ],
+          "displaySize": [
+            775,
+            1162
+          ],
+          "mode": "RGB",
+          "sha256": "133ba382296f72fce77d68a70bf04916c7ed4fc0b3aac8e10c26443e94b641ca",
+          "actualMegapixels": 0.90055,
+          "pixelError": 550.0
+        }
+      ],
+      "verified": true
+    },
+    {
+      "label": "mp_1",
+      "options": {
+        "megapixels": 1
+      },
+      "photoIds": [
+        "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+        "4566B38A-E068-415B-8796-137E7E7BCD97"
+      ],
+      "start": {
+        "success": true,
+        "data": {
+          "naming": {
+            "sequenceStart": 1,
+            "sequenceDigits": 4,
+            "extensionCase": "lowercase",
+            "mode": "original_sequence"
+          },
+          "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-9f39385bf6934e33aba15986e85b0eb9",
+          "cancelRequested": false,
+          "status": "queued",
+          "format": "JPEG",
+          "failed": 0,
+          "quality": 90,
+          "offset": 0,
+          "total": 2,
+          "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+          "resize": {
+            "value": 1,
+            "mode": "megapixels"
+          },
+          "completed": 0,
+          "notStarted": 2,
+          "hasMore": false,
+          "jobId": "9f39385bf6934e33aba15986e85b0eb9",
+          "createdAt": 811678623.39665,
+          "results": []
+        },
+        "requestId": "ac2942661d994f909d29cfd27b876cba",
+        "jobId": "9f39385bf6934e33aba15986e85b0eb9"
+      },
+      "job": {
+        "naming": {
+          "sequenceStart": 1,
+          "sequenceDigits": 4,
+          "extensionCase": "lowercase",
+          "mode": "original_sequence"
+        },
+        "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-9f39385bf6934e33aba15986e85b0eb9",
+        "cancelRequested": false,
+        "status": "completed",
+        "format": "JPEG",
+        "failed": 0,
+        "quality": 90,
+        "offset": 0,
+        "total": 2,
+        "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+        "resize": {
+          "value": 1,
+          "mode": "megapixels"
+        },
+        "completed": 2,
+        "notStarted": 0,
+        "finishedAt": 811678625.43809,
+        "hasMore": false,
+        "jobId": "9f39385bf6934e33aba15986e85b0eb9",
+        "createdAt": 811678623.39665,
+        "results": [
+          {
+            "bytes": 394948,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-9f39385bf6934e33aba15986e85b0eb9/_DSC1042-0001.jpg",
+            "success": true,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": false,
+              "requestedMegapixels": 1,
+              "value": 1225,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 4000,
+                "width": 6000
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+            "status": "completed"
+          },
+          {
+            "bytes": 396566,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-9f39385bf6934e33aba15986e85b0eb9/_DSC1042-0002.jpg",
+            "success": true,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": false,
+              "requestedMegapixels": 1,
+              "value": 1225,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 6000,
+                "width": 4000
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "4566B38A-E068-415B-8796-137E7E7BCD97",
+            "status": "completed"
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-9f39385bf6934e33aba15986e85b0eb9/_DSC1042-0001.jpg",
+          "name": "_DSC1042-0001.jpg",
+          "bytes": 394948,
+          "format": "JPEG",
+          "size": [
+            1225,
+            817
+          ],
+          "displaySize": [
+            1225,
+            817
+          ],
+          "mode": "RGB",
+          "sha256": "b3e1478a8f76aed3c9945fa3f1a105e872cd1f8b4a446223c6ed9e3e0bc3eb6f",
+          "actualMegapixels": 1.000825,
+          "pixelError": 825.0
+        },
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-9f39385bf6934e33aba15986e85b0eb9/_DSC1042-0002.jpg",
+          "name": "_DSC1042-0002.jpg",
+          "bytes": 396566,
+          "format": "JPEG",
+          "size": [
+            817,
+            1225
+          ],
+          "displaySize": [
+            817,
+            1225
+          ],
+          "mode": "RGB",
+          "sha256": "303a9b1a76388e617012405a6db18c42f8f4f85fa8ab931a4e7cd08423aeb4f0",
+          "actualMegapixels": 1.000825,
+          "pixelError": 825.0
+        }
+      ],
+      "verified": true
+    },
+    {
+      "label": "mp_1.5",
+      "options": {
+        "megapixels": 1.5
+      },
+      "photoIds": [
+        "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+        "4566B38A-E068-415B-8796-137E7E7BCD97"
+      ],
+      "start": {
+        "success": true,
+        "data": {
+          "naming": {
+            "sequenceStart": 1,
+            "sequenceDigits": 4,
+            "extensionCase": "lowercase",
+            "mode": "original_sequence"
+          },
+          "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-2f1b42d1a6aa4e1fa5c6fd41f64eab32",
+          "cancelRequested": false,
+          "status": "queued",
+          "format": "JPEG",
+          "failed": 0,
+          "quality": 90,
+          "offset": 0,
+          "total": 2,
+          "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+          "resize": {
+            "value": 1.5,
+            "mode": "megapixels"
+          },
+          "completed": 0,
+          "notStarted": 2,
+          "hasMore": false,
+          "jobId": "2f1b42d1a6aa4e1fa5c6fd41f64eab32",
+          "createdAt": 811678626.12018,
+          "results": []
+        },
+        "requestId": "c46ebe85924a4ef298bc7833517eae69",
+        "jobId": "2f1b42d1a6aa4e1fa5c6fd41f64eab32"
+      },
+      "job": {
+        "naming": {
+          "sequenceStart": 1,
+          "sequenceDigits": 4,
+          "extensionCase": "lowercase",
+          "mode": "original_sequence"
+        },
+        "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-2f1b42d1a6aa4e1fa5c6fd41f64eab32",
+        "cancelRequested": false,
+        "status": "completed",
+        "format": "JPEG",
+        "failed": 0,
+        "quality": 90,
+        "offset": 0,
+        "total": 2,
+        "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+        "resize": {
+          "value": 1.5,
+          "mode": "megapixels"
+        },
+        "completed": 2,
+        "notStarted": 0,
+        "finishedAt": 811678630.74864,
+        "hasMore": false,
+        "jobId": "2f1b42d1a6aa4e1fa5c6fd41f64eab32",
+        "createdAt": 811678626.12018,
+        "results": [
+          {
+            "bytes": 522317,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-2f1b42d1a6aa4e1fa5c6fd41f64eab32/_DSC1042-0001.jpg",
+            "success": true,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": false,
+              "requestedMegapixels": 1.5,
+              "value": 1500,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 4000,
+                "width": 6000
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+            "status": "completed"
+          },
+          {
+            "bytes": 525237,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-2f1b42d1a6aa4e1fa5c6fd41f64eab32/_DSC1042-0002.jpg",
+            "success": true,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": false,
+              "requestedMegapixels": 1.5,
+              "value": 1500,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 6000,
+                "width": 4000
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "4566B38A-E068-415B-8796-137E7E7BCD97",
+            "status": "completed"
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-2f1b42d1a6aa4e1fa5c6fd41f64eab32/_DSC1042-0001.jpg",
+          "name": "_DSC1042-0001.jpg",
+          "bytes": 522317,
+          "format": "JPEG",
+          "size": [
+            1500,
+            1000
+          ],
+          "displaySize": [
+            1500,
+            1000
+          ],
+          "mode": "RGB",
+          "sha256": "3c66391dc91d690bf09b118d98b8a8e6e1c919efe8c136755d457525a481221a",
+          "actualMegapixels": 1.5,
+          "pixelError": 0.0
+        },
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-2f1b42d1a6aa4e1fa5c6fd41f64eab32/_DSC1042-0002.jpg",
+          "name": "_DSC1042-0002.jpg",
+          "bytes": 525237,
+          "format": "JPEG",
+          "size": [
+            1000,
+            1500
+          ],
+          "displaySize": [
+            1000,
+            1500
+          ],
+          "mode": "RGB",
+          "sha256": "1d658e13ff67fa29fb20f0ebddeb6be600ab30b73eb6e162a5c8b6a9cb79caf6",
+          "actualMegapixels": 1.5,
+          "pixelError": 0.0
+        }
+      ],
+      "verified": true
+    },
+    {
+      "label": "mp_2",
+      "options": {
+        "megapixels": 2
+      },
+      "photoIds": [
+        "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+        "4566B38A-E068-415B-8796-137E7E7BCD97"
+      ],
+      "start": {
+        "success": true,
+        "data": {
+          "naming": {
+            "sequenceStart": 1,
+            "sequenceDigits": 4,
+            "extensionCase": "lowercase",
+            "mode": "original_sequence"
+          },
+          "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-fa694e81c4e44c0c8718f6d735bb24d1",
+          "cancelRequested": false,
+          "status": "queued",
+          "format": "JPEG",
+          "failed": 0,
+          "quality": 90,
+          "offset": 0,
+          "total": 2,
+          "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+          "resize": {
+            "value": 2,
+            "mode": "megapixels"
+          },
+          "completed": 0,
+          "notStarted": 2,
+          "hasMore": false,
+          "jobId": "fa694e81c4e44c0c8718f6d735bb24d1",
+          "createdAt": 811678631.08677,
+          "results": []
+        },
+        "requestId": "ce7243cede91465081ac2ae062434ea6",
+        "jobId": "fa694e81c4e44c0c8718f6d735bb24d1"
+      },
+      "job": {
+        "naming": {
+          "sequenceStart": 1,
+          "sequenceDigits": 4,
+          "extensionCase": "lowercase",
+          "mode": "original_sequence"
+        },
+        "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-fa694e81c4e44c0c8718f6d735bb24d1",
+        "cancelRequested": false,
+        "status": "completed",
+        "format": "JPEG",
+        "failed": 0,
+        "quality": 90,
+        "offset": 0,
+        "total": 2,
+        "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+        "resize": {
+          "value": 2,
+          "mode": "megapixels"
+        },
+        "completed": 2,
+        "notStarted": 0,
+        "finishedAt": 811678633.63433,
+        "hasMore": false,
+        "jobId": "fa694e81c4e44c0c8718f6d735bb24d1",
+        "createdAt": 811678631.08677,
+        "results": [
+          {
+            "bytes": 653755,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-fa694e81c4e44c0c8718f6d735bb24d1/_DSC1042-0001.jpg",
+            "success": true,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": false,
+              "requestedMegapixels": 2,
+              "value": 1732,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 4000,
+                "width": 6000
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+            "status": "completed"
+          },
+          {
+            "bytes": 657657,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-fa694e81c4e44c0c8718f6d735bb24d1/_DSC1042-0002.jpg",
+            "success": true,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": false,
+              "requestedMegapixels": 2,
+              "value": 1732,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 6000,
+                "width": 4000
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "4566B38A-E068-415B-8796-137E7E7BCD97",
+            "status": "completed"
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-fa694e81c4e44c0c8718f6d735bb24d1/_DSC1042-0001.jpg",
+          "name": "_DSC1042-0001.jpg",
+          "bytes": 653755,
+          "format": "JPEG",
+          "size": [
+            1732,
+            1155
+          ],
+          "displaySize": [
+            1732,
+            1155
+          ],
+          "mode": "RGB",
+          "sha256": "dfb42af55976dd5c75cf877c9729dfb51a78bdebf02f0849d5dab680f2944dd1",
+          "actualMegapixels": 2.00046,
+          "pixelError": 460.0
+        },
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-fa694e81c4e44c0c8718f6d735bb24d1/_DSC1042-0002.jpg",
+          "name": "_DSC1042-0002.jpg",
+          "bytes": 657657,
+          "format": "JPEG",
+          "size": [
+            1155,
+            1732
+          ],
+          "displaySize": [
+            1155,
+            1732
+          ],
+          "mode": "RGB",
+          "sha256": "ae93b7225b368bb3d148bad63663efa4a9d6fc455f49909ebf265fd6d9d5748f",
+          "actualMegapixels": 2.00046,
+          "pixelError": 460.0
+        }
+      ],
+      "verified": true
+    },
+    {
+      "label": "mp_2.5",
+      "options": {
+        "megapixels": 2.5
+      },
+      "photoIds": [
+        "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+        "4566B38A-E068-415B-8796-137E7E7BCD97"
+      ],
+      "start": {
+        "success": true,
+        "data": {
+          "naming": {
+            "sequenceStart": 1,
+            "sequenceDigits": 4,
+            "extensionCase": "lowercase",
+            "mode": "original_sequence"
+          },
+          "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-37b2fcc994784638b813c910280fbef3",
+          "cancelRequested": false,
+          "status": "queued",
+          "format": "JPEG",
+          "failed": 0,
+          "quality": 90,
+          "offset": 0,
+          "total": 2,
+          "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+          "resize": {
+            "value": 2.5,
+            "mode": "megapixels"
+          },
+          "completed": 0,
+          "notStarted": 2,
+          "hasMore": false,
+          "jobId": "37b2fcc994784638b813c910280fbef3",
+          "createdAt": 811678633.83922,
+          "results": []
+        },
+        "requestId": "8a19e6b002484a949c66caa54c5ce6c2",
+        "jobId": "37b2fcc994784638b813c910280fbef3"
+      },
+      "job": {
+        "naming": {
+          "sequenceStart": 1,
+          "sequenceDigits": 4,
+          "extensionCase": "lowercase",
+          "mode": "original_sequence"
+        },
+        "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-37b2fcc994784638b813c910280fbef3",
+        "cancelRequested": false,
+        "status": "completed",
+        "format": "JPEG",
+        "failed": 0,
+        "quality": 90,
+        "offset": 0,
+        "total": 2,
+        "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+        "resize": {
+          "value": 2.5,
+          "mode": "megapixels"
+        },
+        "completed": 2,
+        "notStarted": 0,
+        "finishedAt": 811678635.87096,
+        "hasMore": false,
+        "jobId": "37b2fcc994784638b813c910280fbef3",
+        "createdAt": 811678633.83922,
+        "results": [
+          {
+            "bytes": 780965,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-37b2fcc994784638b813c910280fbef3/_DSC1042-0001.jpg",
+            "success": true,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": false,
+              "requestedMegapixels": 2.5,
+              "value": 1936,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 4000,
+                "width": 6000
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+            "status": "completed"
+          },
+          {
+            "bytes": 785574,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-37b2fcc994784638b813c910280fbef3/_DSC1042-0002.jpg",
+            "success": true,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": false,
+              "requestedMegapixels": 2.5,
+              "value": 1936,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 6000,
+                "width": 4000
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "4566B38A-E068-415B-8796-137E7E7BCD97",
+            "status": "completed"
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-37b2fcc994784638b813c910280fbef3/_DSC1042-0001.jpg",
+          "name": "_DSC1042-0001.jpg",
+          "bytes": 780965,
+          "format": "JPEG",
+          "size": [
+            1936,
+            1291
+          ],
+          "displaySize": [
+            1936,
+            1291
+          ],
+          "mode": "RGB",
+          "sha256": "42e607ee48319b5aaf4b35c66b77befbd13dabae7f12490905f950d2dc84a204",
+          "actualMegapixels": 2.499376,
+          "pixelError": 624.0
+        },
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-37b2fcc994784638b813c910280fbef3/_DSC1042-0002.jpg",
+          "name": "_DSC1042-0002.jpg",
+          "bytes": 785574,
+          "format": "JPEG",
+          "size": [
+            1291,
+            1936
+          ],
+          "displaySize": [
+            1291,
+            1936
+          ],
+          "mode": "RGB",
+          "sha256": "35a0cd58286b8e5f19937c4ceee9b4fb1b610e4ee83b2feefcd25e5b59032b81",
+          "actualMegapixels": 2.499376,
+          "pixelError": 624.0
+        }
+      ],
+      "verified": true
+    },
+    {
+      "label": "mp_4",
+      "options": {
+        "megapixels": 4
+      },
+      "photoIds": [
+        "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+        "4566B38A-E068-415B-8796-137E7E7BCD97"
+      ],
+      "start": {
+        "success": true,
+        "data": {
+          "naming": {
+            "sequenceStart": 1,
+            "sequenceDigits": 4,
+            "extensionCase": "lowercase",
+            "mode": "original_sequence"
+          },
+          "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-abb6d096b69245dcaf195948fa049da5",
+          "cancelRequested": false,
+          "status": "queued",
+          "format": "JPEG",
+          "failed": 0,
+          "quality": 90,
+          "offset": 0,
+          "total": 2,
+          "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+          "resize": {
+            "value": 4,
+            "mode": "megapixels"
+          },
+          "completed": 0,
+          "notStarted": 2,
+          "hasMore": false,
+          "jobId": "abb6d096b69245dcaf195948fa049da5",
+          "createdAt": 811678636.0611,
+          "results": []
+        },
+        "requestId": "c704c0e999fd444e9b6655975cfbd6c7",
+        "jobId": "abb6d096b69245dcaf195948fa049da5"
+      },
+      "job": {
+        "naming": {
+          "sequenceStart": 1,
+          "sequenceDigits": 4,
+          "extensionCase": "lowercase",
+          "mode": "original_sequence"
+        },
+        "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-abb6d096b69245dcaf195948fa049da5",
+        "cancelRequested": false,
+        "status": "completed",
+        "format": "JPEG",
+        "failed": 0,
+        "quality": 90,
+        "offset": 0,
+        "total": 2,
+        "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+        "resize": {
+          "value": 4,
+          "mode": "megapixels"
+        },
+        "completed": 2,
+        "notStarted": 0,
+        "finishedAt": 811678638.09369,
+        "hasMore": false,
+        "jobId": "abb6d096b69245dcaf195948fa049da5",
+        "createdAt": 811678636.0611,
+        "results": [
+          {
+            "bytes": 887316,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-abb6d096b69245dcaf195948fa049da5/_DSC1042-0001.jpg",
+            "success": true,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": false,
+              "requestedMegapixels": 4,
+              "value": 2449,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 4000,
+                "width": 6000
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+            "status": "completed"
+          },
+          {
+            "bytes": 893372,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-abb6d096b69245dcaf195948fa049da5/_DSC1042-0002.jpg",
+            "success": true,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": false,
+              "requestedMegapixels": 4,
+              "value": 2449,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 6000,
+                "width": 4000
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "4566B38A-E068-415B-8796-137E7E7BCD97",
+            "status": "completed"
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-abb6d096b69245dcaf195948fa049da5/_DSC1042-0001.jpg",
+          "name": "_DSC1042-0001.jpg",
+          "bytes": 887316,
+          "format": "JPEG",
+          "size": [
+            2449,
+            1633
+          ],
+          "displaySize": [
+            2449,
+            1633
+          ],
+          "mode": "RGB",
+          "sha256": "755ead09045e5e3bc5c21a151ae7ff4777f3017abf37e1836a540217e7b92fab",
+          "actualMegapixels": 3.999217,
+          "pixelError": 783.0
+        },
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-abb6d096b69245dcaf195948fa049da5/_DSC1042-0002.jpg",
+          "name": "_DSC1042-0002.jpg",
+          "bytes": 893372,
+          "format": "JPEG",
+          "size": [
+            1633,
+            2449
+          ],
+          "displaySize": [
+            1633,
+            2449
+          ],
+          "mode": "RGB",
+          "sha256": "2bd2be8c1093aa525019b3f496c1496e2695d514f03e638cc297ecced875d00d",
+          "actualMegapixels": 3.999217,
+          "pixelError": 783.0
+        }
+      ],
+      "verified": true
+    },
+    {
+      "label": "crop_square",
+      "options": {
+        "megapixels": 1.5
+      },
+      "photoIds": [
+        "4566B38A-E068-415B-8796-137E7E7BCD97"
+      ],
+      "start": {
+        "success": true,
+        "data": {
+          "naming": {
+            "sequenceStart": 1,
+            "sequenceDigits": 4,
+            "extensionCase": "lowercase",
+            "mode": "original_sequence"
+          },
+          "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-a40e394f7cab4f25974b39a17f550c93",
+          "cancelRequested": false,
+          "status": "queued",
+          "format": "JPEG",
+          "failed": 0,
+          "quality": 90,
+          "offset": 0,
+          "total": 1,
+          "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+          "resize": {
+            "value": 1.5,
+            "mode": "megapixels"
+          },
+          "completed": 0,
+          "notStarted": 1,
+          "hasMore": false,
+          "jobId": "a40e394f7cab4f25974b39a17f550c93",
+          "createdAt": 811678639.22978,
+          "results": []
+        },
+        "requestId": "47a781478e9245d1acab5f375f6739a2",
+        "jobId": "a40e394f7cab4f25974b39a17f550c93"
+      },
+      "job": {
+        "naming": {
+          "sequenceStart": 1,
+          "sequenceDigits": 4,
+          "extensionCase": "lowercase",
+          "mode": "original_sequence"
+        },
+        "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-a40e394f7cab4f25974b39a17f550c93",
+        "cancelRequested": false,
+        "status": "completed",
+        "format": "JPEG",
+        "failed": 0,
+        "quality": 90,
+        "offset": 0,
+        "total": 1,
+        "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+        "resize": {
+          "value": 1.5,
+          "mode": "megapixels"
+        },
+        "completed": 1,
+        "notStarted": 0,
+        "finishedAt": 811678641.7932,
+        "hasMore": false,
+        "jobId": "a40e394f7cab4f25974b39a17f550c93",
+        "createdAt": 811678639.22978,
+        "results": [
+          {
+            "bytes": 537184,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-a40e394f7cab4f25974b39a17f550c93/_DSC1042-0001.jpg",
+            "success": true,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": false,
+              "requestedMegapixels": 1.5,
+              "value": 1225,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 4000,
+                "width": 4000
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "4566B38A-E068-415B-8796-137E7E7BCD97",
+            "status": "completed"
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-a40e394f7cab4f25974b39a17f550c93/_DSC1042-0001.jpg",
+          "name": "_DSC1042-0001.jpg",
+          "bytes": 537184,
+          "format": "JPEG",
+          "size": [
+            1225,
+            1225
+          ],
+          "displaySize": [
+            1225,
+            1225
+          ],
+          "mode": "RGB",
+          "sha256": "d16fc1c07b576700597349557660f4f5d540be01e66c4a8687b38f9fef843bf9",
+          "actualMegapixels": 1.500625,
+          "pixelError": 625.0
+        }
+      ],
+      "verified": true
+    },
+    {
+      "label": "crop_wide",
+      "options": {
+        "megapixels": 1.5
+      },
+      "photoIds": [
+        "4566B38A-E068-415B-8796-137E7E7BCD97"
+      ],
+      "start": {
+        "success": true,
+        "data": {
+          "naming": {
+            "sequenceStart": 1,
+            "sequenceDigits": 4,
+            "extensionCase": "lowercase",
+            "mode": "original_sequence"
+          },
+          "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-ba765ea9160846c1b309c1ae426589ad",
+          "cancelRequested": false,
+          "status": "queued",
+          "format": "JPEG",
+          "failed": 0,
+          "quality": 90,
+          "offset": 0,
+          "total": 1,
+          "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+          "resize": {
+            "value": 1.5,
+            "mode": "megapixels"
+          },
+          "completed": 0,
+          "notStarted": 1,
+          "hasMore": false,
+          "jobId": "ba765ea9160846c1b309c1ae426589ad",
+          "createdAt": 811678642.17478,
+          "results": []
+        },
+        "requestId": "5ed576e643f747aeab3124089e29e0d8",
+        "jobId": "ba765ea9160846c1b309c1ae426589ad"
+      },
+      "job": {
+        "naming": {
+          "sequenceStart": 1,
+          "sequenceDigits": 4,
+          "extensionCase": "lowercase",
+          "mode": "original_sequence"
+        },
+        "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-ba765ea9160846c1b309c1ae426589ad",
+        "cancelRequested": false,
+        "status": "completed",
+        "format": "JPEG",
+        "failed": 0,
+        "quality": 90,
+        "offset": 0,
+        "total": 1,
+        "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+        "resize": {
+          "value": 1.5,
+          "mode": "megapixels"
+        },
+        "completed": 1,
+        "notStarted": 0,
+        "finishedAt": 811678643.68527,
+        "hasMore": false,
+        "jobId": "ba765ea9160846c1b309c1ae426589ad",
+        "createdAt": 811678642.17478,
+        "results": [
+          {
+            "bytes": 479474,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-ba765ea9160846c1b309c1ae426589ad/_DSC1042-0001.jpg",
+            "success": true,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": false,
+              "requestedMegapixels": 1.5,
+              "value": 1732,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 2400,
+                "width": 4800
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "4566B38A-E068-415B-8796-137E7E7BCD97",
+            "status": "completed"
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-ba765ea9160846c1b309c1ae426589ad/_DSC1042-0001.jpg",
+          "name": "_DSC1042-0001.jpg",
+          "bytes": 479474,
+          "format": "JPEG",
+          "size": [
+            1732,
+            866
+          ],
+          "displaySize": [
+            1732,
+            866
+          ],
+          "mode": "RGB",
+          "sha256": "df89e22057ba6496f395d61249dff0c7a71a6debe66b9626c11e04bd94adb9c8",
+          "actualMegapixels": 1.499912,
+          "pixelError": 88.0
+        }
+      ],
+      "verified": true
+    },
+    {
+      "label": "no_enlarge",
+      "options": {
+        "megapixels": 2.5
+      },
+      "photoIds": [
+        "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8"
+      ],
+      "start": {
+        "success": true,
+        "data": {
+          "naming": {
+            "sequenceStart": 1,
+            "sequenceDigits": 4,
+            "extensionCase": "lowercase",
+            "mode": "original_sequence"
+          },
+          "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-2a18527d8160408e88b8fe666966600b",
+          "cancelRequested": false,
+          "status": "queued",
+          "format": "JPEG",
+          "failed": 0,
+          "quality": 90,
+          "offset": 0,
+          "total": 1,
+          "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+          "resize": {
+            "value": 2.5,
+            "mode": "megapixels"
+          },
+          "completed": 0,
+          "notStarted": 1,
+          "hasMore": false,
+          "jobId": "2a18527d8160408e88b8fe666966600b",
+          "createdAt": 811678644.31946,
+          "results": []
+        },
+        "requestId": "1c92c3fae7594ba88db69f83837590e4",
+        "jobId": "2a18527d8160408e88b8fe666966600b"
+      },
+      "job": {
+        "naming": {
+          "sequenceStart": 1,
+          "sequenceDigits": 4,
+          "extensionCase": "lowercase",
+          "mode": "original_sequence"
+        },
+        "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-2a18527d8160408e88b8fe666966600b",
+        "cancelRequested": false,
+        "status": "completed",
+        "format": "JPEG",
+        "failed": 0,
+        "quality": 90,
+        "offset": 0,
+        "total": 1,
+        "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+        "resize": {
+          "value": 2.5,
+          "mode": "megapixels"
+        },
+        "completed": 1,
+        "notStarted": 0,
+        "finishedAt": 811678644.82487,
+        "hasMore": false,
+        "jobId": "2a18527d8160408e88b8fe666966600b",
+        "createdAt": 811678644.31946,
+        "results": [
+          {
+            "bytes": 471759,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-2a18527d8160408e88b8fe666966600b/MCP_ACCEPT_20260921_NO_EXIF-0001.jpg",
+            "success": true,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": true,
+              "requestedMegapixels": 2.5,
+              "value": 1400,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 933,
+                "width": 1400
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8",
+            "status": "completed"
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-2a18527d8160408e88b8fe666966600b/MCP_ACCEPT_20260921_NO_EXIF-0001.jpg",
+          "name": "MCP_ACCEPT_20260921_NO_EXIF-0001.jpg",
+          "bytes": 471759,
+          "format": "JPEG",
+          "size": [
+            1400,
+            933
+          ],
+          "displaySize": [
+            1400,
+            933
+          ],
+          "mode": "RGB",
+          "sha256": "2b2bd48863485882fbb8748d03214af8c99c203c71ca6e817bfa377b8a147736"
+        }
+      ],
+      "verified": true
+    },
+    {
+      "label": "allow_enlarge",
+      "options": {
+        "megapixels": 2.5,
+        "doNotEnlarge": false
+      },
+      "photoIds": [
+        "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8"
+      ],
+      "start": {
+        "success": true,
+        "data": {
+          "naming": {
+            "sequenceStart": 1,
+            "sequenceDigits": 4,
+            "extensionCase": "lowercase",
+            "mode": "original_sequence"
+          },
+          "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-eda30186b3a44b33b935df7f84fb757c",
+          "cancelRequested": false,
+          "status": "queued",
+          "format": "JPEG",
+          "failed": 0,
+          "quality": 90,
+          "offset": 0,
+          "total": 1,
+          "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+          "resize": {
+            "value": 2.5,
+            "mode": "megapixels"
+          },
+          "completed": 0,
+          "notStarted": 1,
+          "hasMore": false,
+          "jobId": "eda30186b3a44b33b935df7f84fb757c",
+          "createdAt": 811678645.19424,
+          "results": []
+        },
+        "requestId": "f3b55d80ad39415ca401ead495379098",
+        "jobId": "eda30186b3a44b33b935df7f84fb757c"
+      },
+      "job": {
+        "naming": {
+          "sequenceStart": 1,
+          "sequenceDigits": 4,
+          "extensionCase": "lowercase",
+          "mode": "original_sequence"
+        },
+        "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-eda30186b3a44b33b935df7f84fb757c",
+        "cancelRequested": false,
+        "status": "completed",
+        "format": "JPEG",
+        "failed": 0,
+        "quality": 90,
+        "offset": 0,
+        "total": 1,
+        "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+        "resize": {
+          "value": 2.5,
+          "mode": "megapixels"
+        },
+        "completed": 1,
+        "notStarted": 0,
+        "finishedAt": 811678645.7054,
+        "hasMore": false,
+        "jobId": "eda30186b3a44b33b935df7f84fb757c",
+        "createdAt": 811678645.19424,
+        "results": [
+          {
+            "bytes": 740382,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-eda30186b3a44b33b935df7f84fb757c/MCP_ACCEPT_20260921_NO_EXIF-0001.jpg",
+            "success": true,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": false,
+              "requestedMegapixels": 2.5,
+              "value": 1937,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 933,
+                "width": 1400
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8",
+            "status": "completed"
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-eda30186b3a44b33b935df7f84fb757c/MCP_ACCEPT_20260921_NO_EXIF-0001.jpg",
+          "name": "MCP_ACCEPT_20260921_NO_EXIF-0001.jpg",
+          "bytes": 740382,
+          "format": "JPEG",
+          "size": [
+            1937,
+            1291
+          ],
+          "displaySize": [
+            1937,
+            1291
+          ],
+          "mode": "RGB",
+          "sha256": "f3ed38c2176b549f2fe8633051bf2af18b7d71248ab2b66a460867234f3a69ae",
+          "actualMegapixels": 2.500667,
+          "pixelError": 667.0
+        }
+      ],
+      "verified": true
+    },
+    {
+      "label": "tiff_fractional",
+      "options": {
+        "megapixels": 1.5,
+        "format": "TIFF",
+        "bitDepth": 8
+      },
+      "photoIds": [
+        "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412"
+      ],
+      "start": {
+        "success": true,
+        "data": {
+          "naming": {
+            "sequenceStart": 1,
+            "sequenceDigits": 4,
+            "extensionCase": "lowercase",
+            "mode": "original_sequence"
+          },
+          "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-76cdf5b23d9c4eb5bfe0b1172324d9fd",
+          "cancelRequested": false,
+          "status": "queued",
+          "format": "TIFF",
+          "failed": 0,
+          "offset": 0,
+          "total": 1,
+          "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+          "resize": {
+            "value": 1.5,
+            "mode": "megapixels"
+          },
+          "completed": 0,
+          "notStarted": 1,
+          "hasMore": false,
+          "jobId": "76cdf5b23d9c4eb5bfe0b1172324d9fd",
+          "createdAt": 811678646.09992,
+          "results": []
+        },
+        "requestId": "af1386a15fa34a2599e4c30f4fd641ce",
+        "jobId": "76cdf5b23d9c4eb5bfe0b1172324d9fd"
+      },
+      "job": {
+        "naming": {
+          "sequenceStart": 1,
+          "sequenceDigits": 4,
+          "extensionCase": "lowercase",
+          "mode": "original_sequence"
+        },
+        "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-76cdf5b23d9c4eb5bfe0b1172324d9fd",
+        "cancelRequested": false,
+        "status": "completed",
+        "format": "TIFF",
+        "failed": 0,
+        "offset": 0,
+        "total": 1,
+        "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+        "resize": {
+          "value": 1.5,
+          "mode": "megapixels"
+        },
+        "completed": 1,
+        "notStarted": 0,
+        "finishedAt": 811678647.10989,
+        "hasMore": false,
+        "jobId": "76cdf5b23d9c4eb5bfe0b1172324d9fd",
+        "createdAt": 811678646.09992,
+        "results": [
+          {
+            "bytes": 1768730,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-76cdf5b23d9c4eb5bfe0b1172324d9fd/_DSC1042-0001.tif",
+            "success": true,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": false,
+              "requestedMegapixels": 1.5,
+              "value": 1500,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 4000,
+                "width": 6000
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+            "status": "completed"
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-76cdf5b23d9c4eb5bfe0b1172324d9fd/_DSC1042-0001.tif",
+          "name": "_DSC1042-0001.tif",
+          "bytes": 1768730,
+          "format": "TIFF",
+          "size": [
+            1500,
+            1000
+          ],
+          "displaySize": [
+            1500,
+            1000
+          ],
+          "mode": "RGB",
+          "sha256": "c240053abf7ef1bf136f562d1afc303ccaab0ba35c862700737ce9672c2201d4",
+          "actualMegapixels": 1.5,
+          "pixelError": 0.0
+        }
+      ],
+      "verified": true
+    },
+    {
+      "label": "size_and_name",
+      "options": {
+        "megapixels": 0.9,
+        "maxFileSizeKB": 100,
+        "naming": {
+          "mode": "custom_sequence",
+          "customText": "小数修复",
+          "sequenceStart": 7,
+          "sequenceDigits": 3,
+          "extensionCase": "uppercase"
+        }
+      },
+      "photoIds": [
+        "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412"
+      ],
+      "start": {
+        "success": true,
+        "data": {
+          "maxFileSizeKB": 100,
+          "naming": {
+            "sequenceDigits": 3,
+            "sequenceStart": 7,
+            "mode": "custom_sequence",
+            "extensionCase": "uppercase",
+            "customText": "小数修复"
+          },
+          "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-1e79ea87da6a4f948c41c46e0a531c72",
+          "cancelRequested": false,
+          "status": "queued",
+          "format": "JPEG",
+          "failed": 0,
+          "offset": 0,
+          "total": 1,
+          "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+          "resize": {
+            "value": 0.9,
+            "mode": "megapixels"
+          },
+          "completed": 0,
+          "notStarted": 1,
+          "hasMore": false,
+          "jobId": "1e79ea87da6a4f948c41c46e0a531c72",
+          "createdAt": 811678647.56974,
+          "results": []
+        },
+        "requestId": "ad0333a3d0314389b8cb16b0db94a0fc",
+        "jobId": "1e79ea87da6a4f948c41c46e0a531c72"
+      },
+      "job": {
+        "maxFileSizeKB": 100,
+        "naming": {
+          "sequenceDigits": 3,
+          "sequenceStart": 7,
+          "mode": "custom_sequence",
+          "extensionCase": "uppercase",
+          "customText": "小数修复"
+        },
+        "outputDirectory": "/private/tmp/lr-mp-fix-live/exports/LR-MCP-export-1e79ea87da6a4f948c41c46e0a531c72",
+        "cancelRequested": false,
+        "status": "completed",
+        "format": "JPEG",
+        "failed": 0,
+        "offset": 0,
+        "total": 1,
+        "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+        "resize": {
+          "value": 0.9,
+          "mode": "megapixels"
+        },
+        "completed": 1,
+        "notStarted": 0,
+        "finishedAt": 811678648.08124,
+        "hasMore": false,
+        "jobId": "1e79ea87da6a4f948c41c46e0a531c72",
+        "createdAt": 811678647.56974,
+        "results": [
+          {
+            "bytes": 98611,
+            "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-1e79ea87da6a4f948c41c46e0a531c72/小数修复-007.JPG",
+            "maxBytes": 102400,
+            "effectiveResize": {
+              "note": "Pixel-rounded target, not independently decoded output dimensions",
+              "limitedBySource": false,
+              "requestedMegapixels": 0.9,
+              "value": 1162,
+              "mode": "longEdge",
+              "sourceCroppedDimensions": {
+                "height": 4000,
+                "width": 6000
+              },
+              "calculation": "cropped_aspect_ratio"
+            },
+            "photoId": "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+            "status": "completed",
+            "sizeLimitMet": true,
+            "success": true
+          }
+        ]
+      },
+      "files": [
+        {
+          "path": "/tmp/lr-mp-fix-live/exports/LR-MCP-export-1e79ea87da6a4f948c41c46e0a531c72/小数修复-007.JPG",
+          "name": "小数修复-007.JPG",
+          "bytes": 98611,
+          "format": "JPEG",
+          "size": [
+            1162,
+            775
+          ],
+          "displaySize": [
+            1162,
+            775
+          ],
+          "mode": "RGB",
+          "sha256": "afa4bc1c7012affa603bdee5aacb8b7efa65d6441a5e9573f7a29463822fac6c",
+          "actualMegapixels": 0.90055,
+          "pixelError": 550.0
+        }
+      ],
+      "verified": true
+    }
+  ],
+  "passed": true,
+  "restorationDifferences": {
+    "6A644F6A-E754-4788-A73E-6D7B1C03CAC6": {},
+    "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412": {},
+    "9D5D3A27-F8BE-4212-90B0-85ACD64E7435": {},
+    "ADE6F802-3F9C-472F-A3BE-AF46F9CD4602": {},
+    "B56CC7D2-2A95-4918-9926-D48A888D1751": {},
+    "B89CF565-C22A-4BA7-86EE-EF3CDF519EFD": {},
+    "4566B38A-E068-415B-8796-137E7E7BCD97": {},
+    "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8": {}
+  },
+  "selectionAfter": {
+    "offset": 0,
+    "total": 1,
+    "hasMore": false,
+    "activePhotoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+    "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+    "photos": [
+      {
+        "copyName": "MCP 20260921 自动验收 1",
+        "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1037.ARW",
+        "filename": "_DSC1037.ARW",
+        "isVirtualCopy": true,
+        "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+        "rating": 5,
+        "colorNameForLabel": "none",
+        "pickStatus": 0
+      }
+    ]
+  },
+  "navigationAfter": {
+    "offset": 0,
+    "total": 1,
+    "filterPresets": [
+      {
+        "name": "Camera Info",
+        "presetId": "AA3F9B24-337A-4DF5-A60B-2709C90BD554"
+      },
+      {
+        "name": "Default Columns",
+        "presetId": "6277E12D-FA51-4872-934E-5B14A91889BD"
+      },
+      {
+        "name": "Exposure Info",
+        "presetId": "56A24080-5EE7-4700-903F-9881DC72BFE9"
+      },
+      {
+        "name": "Filters Off",
+        "presetId": "32983D2E-E1F3-47C6-A74C-15E3D3FA06E4"
+      },
+      {
+        "name": "Flagged",
+        "presetId": "4DCC28BF-BAF4-43F8-8956-4584FA18520D"
+      },
+      {
+        "name": "Location Columns",
+        "presetId": "E30E1A00-B808-4CB4-8DF0-02A279A18DF5"
+      },
+      {
+        "name": "Rated",
+        "presetId": "44AB3522-FCD5-42B3-BDB8-302FDAEF8EE8"
+      },
+      {
+        "name": "Unrated",
+        "presetId": "D0F48510-7810-41F8-A98A-613B4AEC1022"
+      }
+    ],
+    "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+    "viewFilter": {
+      "export": "<nil>",
+      "ratingOp": ">=",
+      "whichCopies": "<nil>",
+      "comments": "<nil>",
+      "label5": false,
+      "label2": false,
+      "searchStringActive": false,
+      "label1": false,
+      "minRating": 0,
+      "columnBrowserActive": false,
+      "likes": "<nil>",
+      "gpsLocation": false,
+      "edit": "<nil>",
+      "filtersActive": false,
+      "label3": false,
+      "labelOp": "any",
+      "searchTarget": "all",
+      "searchString": "",
+      "noLabel": false,
+      "customLabel": false,
+      "label4": false,
+      "searchOp": "all",
+      "stack": "<nil>",
+      "columnBrowserDesc": [
+        {
+          "criteria": "dateHierarchy"
+        },
+        {
+          "criteria": "camera"
+        },
+        {
+          "criteria": "lens"
+        },
+        {
+          "criteria": "label"
+        }
+      ],
+      "pick": "<nil>"
+    },
+    "sources": [
+      {
+        "id": "entire_library",
+        "kind": "catalog"
+      }
+    ],
+    "activePhotoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+    "hasMore": false,
+    "module": "library",
+    "photos": [
+      {
+        "copyName": "MCP 20260921 自动验收 1",
+        "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1037.ARW",
+        "filename": "_DSC1037.ARW",
+        "isVirtualCopy": true,
+        "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+        "rating": 5,
+        "colorNameForLabel": "none",
+        "pickStatus": 0
+      }
+    ],
+    "filterPresetName": "Filters Off",
+    "mainViewReadbackAvailable": false
+  }
+}

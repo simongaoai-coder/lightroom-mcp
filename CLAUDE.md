@@ -596,3 +596,16 @@ settings contract; it supersedes older descriptions above of global setValue,
   before filesystem/task mutation. Existing default names, quality and sizing kept.
 - SDK double tests verify settings/filenames/byte boundaries, not native image
   encoding/dimensions. See docs/export-sizing-and-naming.md; native tests pending.
+
+
+## Megapixel fix (2.14.1)
+
+- Main/Python/Delivery are 2.14.1. Native LR 15.2 truncated fractional
+  LR_size_megapixels and failed below 1 MP. Convert MP to a pixel long edge using
+  numeric croppedDimensions and sqrt(pixelCount * long/short), rounded to pixels.
+- Use native longEdge mode for both integer/fractional MP; never fall back to
+  original dimensions if cropped dimensions are missing. Validate the whole batch
+  before folder creation; re-read dimensions per photo immediately before render.
+- Preserve doNotEnlarge: cap at cropped source edge; reject computed edges outside
+  1-65000. Report effectiveResize separately from requested job.resize; it is not
+  independent output-dimension verification. Live checks must decode actual files.
