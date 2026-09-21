@@ -33,10 +33,11 @@ from appearance_tools import appearance_tools, APPEARANCE_COMMANDS
 from healing_tools import healing_tools, HEALING_COMMANDS
 from library_tools import library_tools, LIBRARY_COMMANDS, DELIVERY_COMMANDS
 from workflow_tools import workflow_tools, PREVIEW_COMMANDS, RELATIVE_COMMANDS
+from style_tools import style_tools, target_properties, TARGET_TOOLS, STYLE_COMMANDS
 
 REQ_FILE = os.environ.get("LR_MCP_REQ", "/tmp/lr_mcp_req.json")
 RES_FILE = os.environ.get("LR_MCP_RES", "/tmp/lr_mcp_res.json")
-SERVER_VERSION = "2.11.0"
+SERVER_VERSION = "2.12.0"
 PROTOCOL_VERSION = 2
 _IPC_LOCK = threading.Lock()
 TIMEOUT = 10.0   # seconds to wait for Lua to respond
@@ -154,7 +155,7 @@ def send_to_lightroom(command: dict, timeout: float = TIMEOUT) -> dict:
 
 
 def validate_settings(arguments):
-    if not isinstance(arguments, dict) or set(arguments) - {"settings", "expectedPhotoId"}:
+    if not isinstance(arguments, dict) or set(arguments) - {"settings", "expectedPhotoId", "expectedCatalogPath", "scope", "photoIds"}:
         return "Expected settings and optional expectedPhotoId"
     settings = arguments.get("settings")
     if not isinstance(settings, dict) or not settings:
@@ -176,7 +177,7 @@ def validate_settings(arguments):
 
 @app.list_tools()
 async def list_tools() -> list[types.Tool]:
-    tools = management_tools() + version_tools() + fine_tools() + library_tools() + healing_tools() + appearance_tools() + navigation_tools() + history_tools() + workflow_tools() + [
+    tools = management_tools() + version_tools() + fine_tools() + library_tools() + healing_tools() + appearance_tools() + navigation_tools() + history_tools() + workflow_tools() + style_tools() + [
         types.Tool(
             name="lr_apply_settings",
             description=(
@@ -433,7 +434,7 @@ async def list_tools() -> list[types.Tool]:
             tool.inputSchema["properties"]["includeRaw"] = {"type": "boolean", "default": False}
             tool.description = "Read catalog numeric settings, photo ID, process version, actual parameter mappings and unavailable parameters. includeRaw also returns the full SDK settings table (read-only, potentially large)."
         if tool.name in {"lr_apply_settings", "lr_batch_apply_settings"}:
-            tool.description = "Apply absolute numeric develop values using the same per-photo catalog mapping for single and batch edits. Names are case-insensitive. Use lr_get_settings to discover available parameters. Values are verified after writing; inspect per-photo results on failure. Temperature/Tint units depend on RAW versus rendered files. Only the current selection is targeted. Color Grading highlight/shadow hue and saturation use SplitToningHighlightHue/Saturation and SplitToningShadowHue/Saturation; balance is SplitToningBalance. For additive edits use lr_batch_adjust_relative."
+            tool.description = "Apply absolute numeric develop values using the same per-photo catalog mapping for single and batch edits. Names are case-insensitive. Use lr_get_settings to discover available parameters. Values are verified after writing; inspect per-photo results on failure. Temperature/Tint units depend on RAW versus rendered files. Color Grading highlight/shadow hue and saturation use SplitToningHighlightHue/Saturation and SplitToningShadowHue/Saturation; balance is SplitToningBalance. For additive edits use lr_batch_adjust_relative."
         if tool.name == "lr_ping":
             tool.description = "Inspect running plugin path/version, Lightroom version, SDK API availability, and this MCP process's tool names/version. Does not modify photos."
     for tool in tools:
@@ -441,6 +442,11 @@ async def list_tools() -> list[types.Tool]:
     for tool in tools:
         if tool.name in {"lr_add_mask", "lr_update_mask", "lr_get_selected_mask"}:
             tool.description += " Additional local numeric controls: Hue, Amount, Grain, RefineSaturation; availability/ranges depend on the current SDK/photo."
+    for tool in tools:
+        if tool.name in TARGET_TOOLS:
+            tool.inputSchema['properties'].update(target_properties('selected' if tool.name == 'lr_batch_apply_settings' else 'current'))
+            tool.inputSchema['not'] = {'required': ['photoIds', 'scope']}
+            tool.description += ' Targets: photoIds (1-200 UUIDs) OR scope=current/selected; IDs do not change UI selection. Entire batch preflight, stop on first failure, no rollback. Explicit targets return per-photo results. expectedPhotoId guards the active UI photo, not each target.'
     return tools
 
 
@@ -475,6 +481,9 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
         result = send_to_lightroom(payload, timeout=120.0)
         if job_id:
             result["jobId"] = job_id
+
+    elif name in STYLE_COMMANDS:
+        result = send_to_lightroom({"command": STYLE_COMMANDS[name], **arguments}, timeout=120.0)
 
     elif name in PREVIEW_COMMANDS or name in RELATIVE_COMMANDS:
         payload = {"command": (PREVIEW_COMMANDS | RELATIVE_COMMANDS)[name], **arguments}

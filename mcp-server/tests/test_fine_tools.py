@@ -47,4 +47,4 @@ def test_mask_fine_controls_over_ipc(mock_lr):
 def test_registered_fine_commands():
  names={t.name for t in asyncio.run(server.list_tools())}
  assert set(FINE_COMMANDS)|set(MASK_FINE_COMMANDS)<=names
- assert len(names)==110
+ assert len(names)==111

@@ -3,7 +3,7 @@ local Application = import "LrApplication"
 local Controller = import "LrDevelopController"
 local Tasks = import "LrTasks"
 local Date = import "LrDate"
-local Develop = {VERSION="2.11.0"}
+local Develop = {VERSION="2.12.0"}
 local PARAMETERS = {
     -- Additional documented numeric controls
     "ShadowTint", "RedHue", "RedSaturation", "GreenHue", "GreenSaturation", "BlueHue", "BlueSaturation",
@@ -184,31 +184,47 @@ end
 local function apply(req, batch)
     local catalog = Application.activeCatalog()
     local target = catalog:getTargetPhoto()
-    if not target then fail("no_photo", "No photo selected") end
-    checkTarget(target, req.expectedPhotoId)
+    if not target and not req.photoIds then fail("no_photo", "No photo selected") end
+    if not req.photoIds then checkTarget(target, req.expectedPhotoId) end
     local normalized = normalize(req.settings)
     local photos = batch and catalog:getTargetPhotos() or {target}
+    local context,Library
+    if req.photoIds~=nil or req.scope~=nil or req.expectedCatalogPath~=nil then
+        Library=require 'Library';context=Library.context(req)
+        local targeting=Library.clone(req)
+        if batch and targeting.photoIds==nil and targeting.scope==nil then targeting.scope='selected' end
+        photos=Library.targets(context,targeting)
+    end
+    local function guard()
+        if context then
+            Library.check(context)
+            for _,p in ipairs(photos) do if catalog:findPhotoByUuid(photoId(p))~=p then fail('photo_not_found','Target photo disappeared') end end
+        else checkTarget(target,req.expectedPhotoId) end
+    end
     if not photos or #photos == 0 then fail("no_photo", "No photos selected") end
+    if #photos>200 then fail('batch_too_large','At most 200 photos per call') end
     -- Preflight the complete batch before any write. Capture photo objects so UI
     -- changes cannot redirect later edits to an unrelated photo.
     local plans = {}
     for _, photo in ipairs(photos) do plans[#plans+1] = plan(photo, normalized) end
-    checkTarget(target, req.expectedPhotoId)
+    guard()
     local results, applied = {}, 0
     for _, item in ipairs(plans) do
         local result = {photoId=item.photoId, success=false}
         results[#results+1] = result
         local ok, err = Tasks.pcall(function()
-            checkTarget(target, req.expectedPhotoId)
+            guard()
             local entered = false
             catalog:withWriteAccessDo("MCP Develop Settings", function()
                 entered = true
-                checkTarget(target, req.expectedPhotoId)
+                guard()
+                result.writeAttempted=true
                 item.photo:applyDevelopSettings(item.settings, "MCP Develop Settings")
             end, {timeout=5})
             if not entered then fail("write_timeout", "Catalog write access was not acquired") end
             local deadline = Date.currentTime() + 3
             repeat
+                guard()
                 local matches, values = readback(item, normalized)
                 result.settings = values
                 if matches then result.success = true; return end
@@ -219,8 +235,9 @@ local function apply(req, batch)
         if not ok then
             result.code = type(err) == "table" and err.code or "sdk_error"
             result.error = type(err) == "table" and err.error or tostring(err)
+            result.outcomeUnknown=result.writeAttempted==true
             -- No rollback promise: some values may have changed before an SDK failure.
-            local readOK, _, values = Tasks.pcall(function() return readback(item, normalized) end)
+            local readOK, _, values = Tasks.pcall(function() guard();return readback(item, normalized) end)
             if readOK then result.settings = values end
             break
         end
@@ -230,7 +247,7 @@ local function apply(req, batch)
     return {success=success, code=not success and "partial_failure" or nil,
         error=not success and "Stopped after a failed photo; inspect per-photo results before retrying" or nil,
         applied=applied, failed=success and 0 or 1, notAttempted=#plans-#results,
-        data={photoId=photoId(target), settings=not batch and results[1].settings or nil, results=results}}
+        data={photoId=target and photoId(target) or nil, catalogPath=context and context.path or nil, settings=#plans==1 and results[1].settings or nil, results=results}}
 end
 local function get(req)
     local photo = Application.activeCatalog():getTargetPhoto()
@@ -340,6 +357,33 @@ local function relative(req)
         error=not success and 'Stopped on first failure; no rollback or automatic retry' or nil,
         applied=applied,failed=success and 0 or 1,notAttempted=#plans-#results,
         data={catalogPath=c.path,results=results,deltas=deltas,verification='numeric_readback'}}
+end
+
+function Develop.captureStyle(photo,names,curve)
+    if photo:getRawMetadata('isVideo') then fail('unsupported_photo','Styles require a photo') end
+    local raw=snapshot(photo);local settings={}
+    if type(raw.ProcessVersion)~='string' then fail('settings_unavailable','Process version unavailable') end
+    for _,requested in ipairs(names) do
+        local name=index[requested:lower()]
+        local key=name and resolve(name,raw)
+        if not key then fail('unsupported_parameter','Unavailable style parameter: '..requested) end
+        settings[key]=raw[key]
+    end
+    if settings.Temperature~=nil or settings.Tint~=nil or settings.IncrementalTemperature~=nil or settings.IncrementalTint~=nil then
+        settings.WhiteBalance='Custom'
+    end
+    if curve then
+        for _,key in ipairs({'ToneCurvePV2012','ToneCurvePV2012Red','ToneCurvePV2012Green','ToneCurvePV2012Blue'}) do
+            local points=raw[key]
+            if type(points)~='table' or #points<4 or #points>64 or #points%2~=0 then fail('unsupported_curve','Unavailable RGB point curve: '..key) end
+            settings[key]={}
+            for i,v in ipairs(points) do
+                if not finite(v) or v<0 or v>255 or (i%2==1 and i>1 and v<=points[i-2]) then fail('unsupported_curve','Invalid point curve') end
+                settings[key][i]=v
+            end
+        end
+    end
+    return settings,raw.ProcessVersion
 end
 
 function Develop.capabilities()

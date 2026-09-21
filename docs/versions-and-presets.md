@@ -118,3 +118,11 @@ Snapshot ID distinctions and Develop context are also discussed in Adobe's
 
 As of 2.4.0, the optional per-photo AI update runs in its own catalog write
 gate, as required by the SDK. This is separate from the preset application gate.
+
+
+## Update in 2.12.0
+
+Native plugin presets can now be saved with lr_save_style and reused through the
+existing list/apply tools. lr_apply_preset accepts explicit photoIds and catalog
+guards; its production handler is now Batch.lua. See
+[Saved styles and explicit targets](saved-styles-and-targets.md).

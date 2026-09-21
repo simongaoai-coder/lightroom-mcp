@@ -310,6 +310,19 @@ Color Grading documentation now groups the existing `SplitToning` controls with
 the other color wheels. See [preview and relative workflows](docs/preview-and-relative.md)
 and [color grading](docs/color-grading.md) for examples and verification limits.
 
+## Saved styles and explicit batch targets (2.12)
+
+`lr_save_style` captures explicitly selected numeric parameters or color-grading,
+RGB point-curve and grain groups as persistent native plugin presets. Reuse their
+IDs through `lr_list_presets` and `lr_apply_preset`. Duplicate names are rejected;
+saved-style process/WB compatibility and readback are checked.
+
+Numeric settings, preset application, treatment, named white balance and rotation
+now accept `photoIds` or `scope`, without changing UI selection. Existing defaults
+remain: current photo, except `lr_batch_apply_settings` defaults to selected.
+See [Saved styles and targets](docs/saved-styles-and-targets.md) for contracts and
+native-validation limits. Version **2.12.0**, **111 tools**.
+
 ## Available tools
 
 | Tool                      | What it does                                                  |
@@ -339,7 +352,8 @@ and [color grading](docs/color-grading.md) for examples and verification limits.
 | `lr_create_virtual_copies` | Create named copies of the current or selected photos |
 | `lr_select_virtual_copy` | Switch to a master/copy in the current family |
 | `lr_list_presets` | Search and paginate SDK-visible develop presets |
-| `lr_apply_preset` | Apply a preset by UUID to the current or selected photos |
+| `lr_apply_preset` | Apply a preset by UUID to current, selected or explicit photos |
+| `lr_save_style` | Persist explicitly selected settings as a hidden plugin preset |
 | `lr_combine_mask` | Add, subtract or intersect a new component on an explicit mask |
 | `lr_set_mask_visibility` | Set hidden state of a mask or child tool |
 | `lr_invert_mask` | Invert a whole mask once |

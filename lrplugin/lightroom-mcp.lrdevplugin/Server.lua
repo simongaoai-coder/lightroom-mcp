@@ -13,7 +13,7 @@ local LrLogger            = import "LrLogger"
 local REQ_FILE      = "/tmp/lr_mcp_req.json"
 local RES_FILE      = "/tmp/lr_mcp_res.json"
 local POLL_INTERVAL = 0.05  -- seconds
-local VERSION       = "2.11.0"  -- keep in sync with Info.lua VERSION
+local VERSION       = "2.12.0"  -- keep in sync with Info.lua VERSION
 
 -- ── Bundled JSON encoder/decoder (no LrJSON dependency) ─────────────────────
 local function jsonEncodeValue(val)
@@ -285,6 +285,7 @@ local Library = require "Library"
 local Delivery = require "Delivery"
 local Healing = require "Healing"
 local Previews = require "Previews"
+local Batch = require "Batch"
 
 -- Valid bokeh shapes for Lens Blur
 local BOKEH_TYPES = {
@@ -382,7 +383,10 @@ local function dispatch(req)
     local cmd = req.command
     local response = {}
 
-    if Previews.commands[cmd] then
+    if cmd=='save_style' or cmd=='apply_preset' or
+        ((cmd=='set_treatment' or cmd=='set_white_balance' or cmd=='rotate_photo') and (req.photoIds~=nil or req.scope~=nil)) then
+        return Batch.handle(req)
+    elseif Previews.commands[cmd] then
         return Previews.handle(req)
     elseif Healing.commands[cmd] then
         return Healing.handle(req)

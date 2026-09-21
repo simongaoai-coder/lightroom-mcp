@@ -30,6 +30,12 @@ class MockVersions:
             page = items[offset:offset+limit]
             return {'success': True, 'data': {'presets': page, 'total': len(items), 'offset': offset,
                                              'hasMore': offset+len(page) < len(items)}}
+        if cmd == 'save_style':
+            if any(p['name'].lower() == req['name'].lower() and p['pluginOwned'] for p in self.presets):
+                return self.error('style_exists')
+            entry = {'presetId': f'style-{len(self.presets)}', 'name': req['name'], 'folder': 'Lightroom MCP', 'pluginOwned': True}
+            self.presets.append(entry)
+            return {'success': True, 'data': {**entry, 'persistent': True}}
         if cmd == 'create_snapshot':
             entries = self.snapshots.setdefault(self.photo_id, {})
             existing = next((s for s in entries.values() if s['name'] == req['name']), None)

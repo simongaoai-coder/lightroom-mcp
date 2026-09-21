@@ -523,3 +523,20 @@ settings contract; it supersedes older descriptions above of global setValue,
   keys. Do not introduce undocumented ColorGradeHighlightHue aliases as raw keys.
 - Production Lua / IPC coverage: test_workflow_lua.py and test_workflow_tools.py.
   See docs/preview-and-relative.md and docs/color-grading.md. Native tests pending.
+
+
+## Saved styles and unified targets (2.12.0)
+
+- Main/Python/Develop/Batch/Styles are 2.12.0; 111 tools. Styles saves explicit
+  numeric parameters/groups through native addDevelopPresetForPlugin, never a raw
+  whole-settings dump. LrPrefs stores the manifest/compatibility guards across sessions.
+- Duplicate names fail; unverified native saves remain blocked. Check native preset
+  contents against the complete saved native manifest on later applies. No guessed
+  native-key aliases. Matching process version and WB-unit types required.
+- Server dispatches apply_preset/save_style to Batch. Explicit treatment/WB/rotation
+  requests also use Batch; implicit single-photo calls retain Fine response shape.
+- Six tools share photoIds OR scope plus catalog/photo guards. Numeric batch tool
+  retains selected default. Preflight all targets, stop on failure, never auto-retry
+  or change selection. UI-only tools do not inherit these targeting options.
+- Tests: test_styles_lua.py / test_style_tools.py. Native persistence/rendering
+  verification pending. Read docs/saved-styles-and-targets.md for exact limits.

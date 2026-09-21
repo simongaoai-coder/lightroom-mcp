@@ -23,6 +23,7 @@ from healing_tools import HEALING_COMMANDS
 from library_tools import LIBRARY_COMMANDS, DELIVERY_COMMANDS
 from workflow_tools import PREVIEW_COMMANDS, RELATIVE_COMMANDS
 from mock_workflows import MockWorkflows
+from style_tools import STYLE_COMMANDS, TARGET_TOOLS
 from fine_tools import FINE_COMMANDS, MASK_FINE_COMMANDS
 from version_tools import VERSION_COMMANDS
 from mask_tools import MASK_COMMANDS
@@ -115,6 +116,14 @@ class _State:
     def handle(self, req: dict) -> dict:
         cmd = req.get("command")
         with self._lock:
+            if cmd == 'save_style':
+                return self.version_state.handle(req)
+            if 'lr_' + cmd in TARGET_TOOLS and ('photoIds' in req or 'scope' in req):
+                ids = self.library_state.targets(req)
+                if any(pid not in self.library_state.photos for pid in ids):
+                    return {'success': False, 'code': 'photo_not_found'}
+                return {'success': True, 'applied': len(ids), 'failed': 0, 'notAttempted': 0,
+                        'data': {'results': [{'photoId': pid, 'success': True} for pid in ids]}}
             if cmd in PREVIEW_COMMANDS.values() or cmd in RELATIVE_COMMANDS.values():
                 return self.workflow_state.handle(req)
             if cmd in HISTORY_COMMANDS.values():
@@ -132,7 +141,7 @@ class _State:
             if cmd in MASK_COMMANDS.values():
                 return self.mask_state.handle({k: v for k, v in req.items() if k not in {"requestId", "expectedPluginVersion"}})
             if cmd == "ping":
-                return {"success": True, "message": "Mock LR Bridge running", "version": "2.11.0", "protocolVersion": 2}
+                return {"success": True, "message": "Mock LR Bridge running", "version": "2.12.0", "protocolVersion": 2}
 
             if cmd == "get_settings":
                 return {
