@@ -3,7 +3,7 @@ local Application = import "LrApplication"
 local Controller = import "LrDevelopController"
 local Tasks = import "LrTasks"
 local Date = import "LrDate"
-local Develop = {VERSION="2.0.0"}
+local Develop = {VERSION="2.11.0"}
 local PARAMETERS = {
     -- Additional documented numeric controls
     "ShadowTint", "RedHue", "RedSaturation", "GreenHue", "GreenSaturation", "BlueHue", "BlueSaturation",
@@ -56,7 +56,7 @@ local PARAMETERS = {
     -- B&W Mix
     "GrayMixerRed", "GrayMixerOrange", "GrayMixerYellow", "GrayMixerGreen",
     "GrayMixerAqua", "GrayMixerBlue", "GrayMixerPurple", "GrayMixerMagenta",
-    -- Split Toning (legacy but still functional)
+    -- Color Grading highlights/shadows and balance retain SDK SplitToning names.
     "SplitToningBalance",
     "SplitToningHighlightHue", "SplitToningHighlightSaturation",
     "SplitToningShadowHue", "SplitToningShadowSaturation",
@@ -248,6 +248,100 @@ local function get(req)
         settings=settings, parameterKeys=mapping, unavailableParameters=unavailable,
         rawSettings=req.includeRaw and raw or nil}}
 end
+-- Exact per-photo deltas on the existing catalog-backed numeric API. Quick
+-- Develop's small/large buttons have different semantics and are not used here.
+local relativeNames={}
+for name in string.gmatch('Exposure Contrast Highlights Shadows Whites Blacks Clarity Texture Dehaze Vibrance Saturation Temperature Tint','%S+') do relativeNames[name]=true end
+local function relative(req)
+    local Library=require 'Library'
+    local c=Library.context(req);local photos=Library.targets(c,req)
+    local deltas=normalize(req.deltas)
+    for name in pairs(deltas) do if not relativeNames[name] then fail('unsupported_parameter','Not an additive parameter: '..name) end end
+    local plans,units={},{}
+    for _,photo in ipairs(photos) do
+        Library.check(c)
+        local raw=snapshot(photo)
+        if not finite(raw.Exposure2012) or (tonumber(raw.ProcessVersion) and tonumber(raw.ProcessVersion)<6.6) then fail('unsupported_process_version','Relative adjustments require modern process settings (Exposure2012)') end
+        local before,target,keys={},{},{}
+        for name,delta in pairs(deltas) do
+            local key=resolve(name,raw)
+            if not key or not finite(raw[key]) then fail('unsupported_parameter','No numeric mapping for '..name) end
+            local unit=(name=='Temperature' or name=='Tint') and key or name
+            if units[name] and units[name]~=unit then fail('mixed_parameter_units','Split RAW and rendered white-balance adjustments into separate batches') end
+            units[name]=unit
+            local low,high=-100,100
+            if name=='Exposure' then low,high=-5,5
+            elseif name=='Temperature' and key=='Temperature' then low,high=2000,50000
+            elseif name=='Tint' and key=='Tint' then low,high=-150,150 end
+            before[name]=raw[key];target[name]=raw[key]+delta;keys[name]=key
+            if not finite(target[name]) or target[name]<low or target[name]>high then
+                fail('out_of_range','Relative target outside supported range; no clamping',
+                    {photoId=photoId(photo),parameter=name,before=raw[key],target=target[name],minimum=low,maximum=high})
+            end
+        end
+        local item=plan(photo,target)
+        -- A zero WB delta must not switch Auto/As Shot to Custom when another
+        -- parameter is changed in the same request.
+        for name,delta in pairs(deltas) do if delta==0 then item.settings[keys[name]]=nil end end
+        if (deltas.Temperature or 0)==0 and (deltas.Tint or 0)==0 then item.settings.WhiteBalance=nil end
+        item.before=before;item.target=target;item.parameterKeys=keys
+        item.processVersion=raw.ProcessVersion;item.whiteBalance=raw.WhiteBalance
+        plans[#plans+1]=item
+    end
+    Library.check(c)
+    local results,applied={},0
+    for _,item in ipairs(plans) do
+        local row={photoId=item.photoId,success=false,before=item.before,target=item.target,parameterKeys=item.parameterKeys}
+        results[#results+1]=row
+        local ok,err=Tasks.pcall(function()
+            local entered=false
+            c.catalog:withWriteAccessDo('MCP Relative Adjustments',function()
+                Library.check(c)
+                if c.catalog:findPhotoByUuid(item.photoId)~=item.photo then fail('photo_not_found','Target photo no longer exists') end
+                local now=item.photo:getDevelopSettings()
+                if now.ProcessVersion~=item.processVersion or
+                   ((deltas.Temperature or deltas.Tint) and now.WhiteBalance~=item.whiteBalance) then
+                    fail('settings_changed','Process version or white balance changed after preflight')
+                end
+                local changed=false
+                for name,key in pairs(item.parameterKeys) do
+                    if not finite(now[key]) or math.abs(now[key]-item.before[name])>.0001 then fail('settings_changed','Target values changed after preflight') end
+                    if item.target[name]~=item.before[name] then changed=true end
+                end
+                entered=true
+                if changed then
+                    row.writeAttempted=true
+                    item.photo:applyDevelopSettings(item.settings,'MCP Relative Adjustments')
+                end
+                row.status=changed and 'applied' or 'unchanged'
+            end,{timeout=5})
+            if not entered then fail('write_timeout','Catalog write access was not acquired') end
+            local deadline=Date.currentTime()+3
+            repeat
+                Library.check(c)
+                local matches,values=readback(item,item.target);row.after=values
+                if matches then row.success=true;return end
+                Tasks.sleep(.05)
+            until Date.currentTime()>=deadline
+            fail('readback_failed','Relative target was not retained; inspect actual values before retrying')
+        end)
+        if not ok then
+            row.code=type(err)=='table' and err.code or 'sdk_error'
+            row.error=type(err)=='table' and err.error or tostring(err)
+            row.outcomeUnknown=row.writeAttempted==true
+            local readOK,_,values=Tasks.pcall(function() Library.check(c);return readback(item,item.target) end)
+            if readOK then row.after=values end
+            break
+        end
+        applied=applied+1
+    end
+    local success=applied==#plans
+    return {success=success,code=not success and 'partial_failure' or nil,
+        error=not success and 'Stopped on first failure; no rollback or automatic retry' or nil,
+        applied=applied,failed=success and 0 or 1,notAttempted=#plans-#results,
+        data={catalogPath=c.path,results=results,deltas=deltas,verification='numeric_readback'}}
+end
+
 function Develop.capabilities()
     local apis = {}
     for _, name in ipairs({"setValue", "getValue", "getRange", "setAutoTone", "resetAllDevelopAdjustments",
@@ -269,6 +363,7 @@ end
 function Develop.handle(req)
     local ok, result = Tasks.pcall(function()
         if req.command == "get_settings" then return get(req) end
+        if req.command == "batch_adjust_relative" then return relative(req) end
         return apply(req, req.command == "batch_apply_settings")
     end)
     if ok then return result end

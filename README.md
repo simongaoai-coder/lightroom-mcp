@@ -301,6 +301,15 @@ fields are unchanged. Missing values and getter errors are reported separately.
 See [Shooting metadata](docs/capture-metadata.md) for fields, units and validation
 limits. Python and plugin versions are 2.10.0; the tool count remains **104**.
 
+## Smart previews and relative batch adjustments (2.11)
+
+Six tools bring the total to **110**. Inspect original availability and smart
+previews, create/delete previews through cancellable session jobs, and apply
+explicit per-photo deltas without flattening differences between photos.
+Color Grading documentation now groups the existing `SplitToning` controls with
+the other color wheels. See [preview and relative workflows](docs/preview-and-relative.md)
+and [color grading](docs/color-grading.md) for examples and verification limits.
+
 ## Available tools
 
 | Tool                      | What it does                                                  |
@@ -360,6 +369,12 @@ limits. Python and plugin versions are 2.10.0; the tool count remains **104**.
 | `lr_export_photos` | Start a native JPEG/TIFF file export job |
 | `lr_get_export_status` | Read progress and actual per-photo output paths |
 | `lr_cancel_export` | Cancel between photos, retaining completed files |
+| `lr_get_smart_previews` | Read preview presence and original availability |
+| `lr_build_smart_previews` | Start native smart-preview creation job |
+| `lr_delete_smart_previews` | Start native smart-preview deletion job |
+| `lr_get_smart_preview_job` | Inspect progress and per-photo results |
+| `lr_cancel_smart_preview_job` | Request cancellation between photos |
+| `lr_batch_adjust_relative` | Add deltas to each photo's own settings |
 
 ---
 
@@ -439,22 +454,24 @@ limits. Python and plugin versions are 2.10.0; the tool count remains **104**.
 | ColorGradeMidtoneSat   | 0–100       |
 | ColorGradeHighlightLum | -100 to 100 |
 | ColorGradeShadowLum    | -100 to 100 |
+| SplitToningHighlightHue | 0–360 |
+| SplitToningHighlightSaturation | 0–100 |
+| SplitToningShadowHue | 0–360 |
+| SplitToningShadowSaturation | 0–100 |
+| SplitToningBalance | -100 to 100 |
+
+The SDK retains `SplitToning` names for the current Color Grading highlight/shadow
+hue, saturation and balance controls. They are not limited to the old Split Toning
+panel. `ColorGradeHighlightHue/Sat`, `ColorGradeShadowHue/Sat` and
+`ColorGradeBalance` are not registered native keys. Balance shifts the relative
+influence of shadows/highlights; blending controls overlap. See
+[Color grading verification](docs/color-grading.md).
 
 **B&W Mix** (append Red / Orange / Yellow / Green / Aqua / Blue / Purple / Magenta)
 
 | Parameter   | Range       |
 | ----------- | ----------- |
 | GrayMixer\* | -100 to 100 |
-
-**Split Toning**
-
-| Parameter                      | Range       |
-| ------------------------------ | ----------- |
-| SplitToningBalance             | -100 to 100 |
-| SplitToningHighlightHue        | 0–360       |
-| SplitToningHighlightSaturation | 0–100       |
-| SplitToningShadowHue           | 0–360       |
-| SplitToningShadowSaturation    | 0–100       |
 
 **Defringe**
 

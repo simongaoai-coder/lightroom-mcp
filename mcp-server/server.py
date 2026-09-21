@@ -32,10 +32,11 @@ from navigation_tools import navigation_tools, GEOMETRY_COMMANDS, NAVIGATION_COM
 from appearance_tools import appearance_tools, APPEARANCE_COMMANDS
 from healing_tools import healing_tools, HEALING_COMMANDS
 from library_tools import library_tools, LIBRARY_COMMANDS, DELIVERY_COMMANDS
+from workflow_tools import workflow_tools, PREVIEW_COMMANDS, RELATIVE_COMMANDS
 
 REQ_FILE = os.environ.get("LR_MCP_REQ", "/tmp/lr_mcp_req.json")
 RES_FILE = os.environ.get("LR_MCP_RES", "/tmp/lr_mcp_res.json")
-SERVER_VERSION = "2.10.0"
+SERVER_VERSION = "2.11.0"
 PROTOCOL_VERSION = 2
 _IPC_LOCK = threading.Lock()
 TIMEOUT = 10.0   # seconds to wait for Lua to respond
@@ -112,7 +113,7 @@ def _exchange(command: dict, timeout: float) -> dict:
     except (FileNotFoundError, ValueError):
         pass
     return {"success": False, "code": "timeout", "requestId": request_id,
-            "outcomeUnknown": command.get("command") not in {"ping", "get_settings", "list_presets", "list_snapshots", "list_virtual_copies", "get_curve", "list_point_colors", "get_selection", "search_photos", "get_metadata", "list_keywords", "list_collections", "get_export_status", "list_spots", "get_selected_spot", "get_remove_preferences", "get_ai_update_status", "get_appearance", "list_profiles", "get_geometry", "get_navigation", "list_folders", "list_folder_photos", "get_history_state", "get_process_version", "list_keyword_photos", "list_metadata_presets"},
+            "outcomeUnknown": command.get("command") not in {"ping", "get_settings", "list_presets", "list_snapshots", "list_virtual_copies", "get_curve", "list_point_colors", "get_selection", "search_photos", "get_metadata", "list_keywords", "list_collections", "get_export_status", "list_spots", "get_selected_spot", "get_remove_preferences", "get_ai_update_status", "get_appearance", "list_profiles", "get_geometry", "get_navigation", "list_folders", "list_folder_photos", "get_history_state", "get_process_version", "list_keyword_photos", "list_metadata_presets", "get_smart_previews", "get_smart_preview_job"},
             "error": "Lightroom did not respond in time. An accepted operation may still finish; read back state before retrying."}
 
 
@@ -175,7 +176,7 @@ def validate_settings(arguments):
 
 @app.list_tools()
 async def list_tools() -> list[types.Tool]:
-    tools = management_tools() + version_tools() + fine_tools() + library_tools() + healing_tools() + appearance_tools() + navigation_tools() + history_tools() + [
+    tools = management_tools() + version_tools() + fine_tools() + library_tools() + healing_tools() + appearance_tools() + navigation_tools() + history_tools() + workflow_tools() + [
         types.Tool(
             name="lr_apply_settings",
             description=(
@@ -194,10 +195,10 @@ async def list_tools() -> list[types.Tool]:
                 "PerspectiveScale (50-150), PerspectiveAspect (-100 to 100), "
                 "PerspectiveX/Y (-100 to 100), PerspectiveUpright (0=off,1=auto,2=level,3=vertical,4=full). "
                 "Color Grading: ColorGradeBlending (0-100), "
-                "ColorGradeGlobalHue/Lum/Sat, ColorGradeMidtoneHue/Lum/Sat (Hue 0-360, Lum/Sat -100 to 100), "
+                "ColorGradeGlobalHue/Lum/Sat, ColorGradeMidtoneHue/Lum/Sat (Hue 0-360, Sat 0-100, Lum -100 to 100), "
                 "ColorGradeHighlightLum (-100 to 100), ColorGradeShadowLum (-100 to 100). "
                 "B&W Mix: GrayMixerRed/Orange/Yellow/Green/Aqua/Blue/Purple/Magenta (-100 to 100). "
-                "Split Toning: SplitToningBalance (-100 to 100), SplitToningHighlightHue/Saturation, SplitToningShadowHue/Saturation. "
+                "Color Grading highlights/shadows: SplitToningBalance (-100 to 100), SplitToningHighlightHue/Saturation, SplitToningShadowHue/Saturation. "
                 "Defringe: DefringeGreenAmount/HueHi/HueLo, DefringePurpleAmount/HueHi/HueLo (0-100)."
             ),
             inputSchema={
@@ -432,7 +433,7 @@ async def list_tools() -> list[types.Tool]:
             tool.inputSchema["properties"]["includeRaw"] = {"type": "boolean", "default": False}
             tool.description = "Read catalog numeric settings, photo ID, process version, actual parameter mappings and unavailable parameters. includeRaw also returns the full SDK settings table (read-only, potentially large)."
         if tool.name in {"lr_apply_settings", "lr_batch_apply_settings"}:
-            tool.description = "Apply absolute numeric develop values using the same per-photo catalog mapping for single and batch edits. Names are case-insensitive. Use lr_get_settings to discover available parameters. Values are verified after writing; inspect per-photo results on failure. Temperature/Tint units depend on RAW versus rendered files. Only the current selection is targeted."
+            tool.description = "Apply absolute numeric develop values using the same per-photo catalog mapping for single and batch edits. Names are case-insensitive. Use lr_get_settings to discover available parameters. Values are verified after writing; inspect per-photo results on failure. Temperature/Tint units depend on RAW versus rendered files. Only the current selection is targeted. Color Grading highlight/shadow hue and saturation use SplitToningHighlightHue/Saturation and SplitToningShadowHue/Saturation; balance is SplitToningBalance. For additive edits use lr_batch_adjust_relative."
         if tool.name == "lr_ping":
             tool.description = "Inspect running plugin path/version, Lightroom version, SDK API availability, and this MCP process's tool names/version. Does not modify photos."
     for tool in tools:
@@ -474,6 +475,15 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
         result = send_to_lightroom(payload, timeout=120.0)
         if job_id:
             result["jobId"] = job_id
+
+    elif name in PREVIEW_COMMANDS or name in RELATIVE_COMMANDS:
+        payload = {"command": (PREVIEW_COMMANDS | RELATIVE_COMMANDS)[name], **arguments}
+        job_id = uuid.uuid4().hex if name in {"lr_build_smart_previews", "lr_delete_smart_previews"} else None
+        if job_id:
+            payload["jobId"] = job_id
+        result = send_to_lightroom(payload, timeout=120.0)
+        if job_id:
+            result["jobId"] = job_id  # Reconcile uncertain starts via the job query.
 
     elif name in LIBRARY_COMMANDS or name in NAVIGATION_COMMANDS:
         result = send_to_lightroom({"command": (LIBRARY_COMMANDS | NAVIGATION_COMMANDS)[name], **arguments}, timeout=120.0)

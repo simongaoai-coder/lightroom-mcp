@@ -181,22 +181,24 @@ See [docs/mask-management.md](docs/mask-management.md) for the complete contract
 | ColorGradeMidtoneSat   | 0–100       |
 | ColorGradeHighlightLum | -100 to 100 |
 | ColorGradeShadowLum    | -100 to 100 |
+| SplitToningHighlightHue | 0–360 |
+| SplitToningHighlightSaturation | 0–100 |
+| SplitToningShadowHue | 0–360 |
+| SplitToningShadowSaturation | 0–100 |
+| SplitToningBalance | -100 to 100 |
+
+The SDK retains `SplitToning` names for the current Color Grading highlight/shadow
+hue, saturation and balance controls. They are not limited to the old Split Toning
+panel. `ColorGradeHighlightHue/Sat`, `ColorGradeShadowHue/Sat` and
+`ColorGradeBalance` are not registered native keys. Balance shifts the relative
+influence of shadows/highlights; blending controls overlap. See
+[Color grading verification](docs/color-grading.md).
 
 **B&W Mix** (suffix: Red/Orange/Yellow/Green/Aqua/Blue/Purple/Magenta)
 
 | Parameter   | Range       |
 | ----------- | ----------- |
 | GrayMixer\* | -100 to 100 |
-
-**Split Toning**
-
-| Parameter                      | Range       |
-| ------------------------------ | ----------- |
-| SplitToningBalance             | -100 to 100 |
-| SplitToningHighlightHue        | 0–360       |
-| SplitToningHighlightSaturation | 0–100       |
-| SplitToningShadowHue           | 0–360       |
-| SplitToningShadowSaturation    | 0–100       |
 
 **Defringe**
 
@@ -502,3 +504,22 @@ settings contract; it supersedes older descriptions above of global setValue,
   requires SDK 12.1; older getter failures are explicit, not missing-value claims.
 - See docs/capture-metadata.md and production Lua / isolated IPC tests in
   test_library_lua.py and test_library_tools.py. Native validation remains pending.
+
+
+## Preview and relative workflows (2.11.0)
+
+- Main/Python/Develop/Previews are 2.11.0; 110 tools. Library retains 2.10.0.
+- Previews.lua owns five workflow_tools.py preview commands. Frozen photo objects,
+  per-photo SDK methods, no manual file deletion, no catalog write gate. Preflight
+  entire batches, then recheck catalog/photo and offline protection during jobs.
+- Empty smartPreviewInfo means absent; nil or malformed metadata is unknown.
+  Verify native return values and preview-state readback. Cancellation is between
+  photos; jobs are module-session-only, latest 20 retained. Never reload mid-job.
+- Develop handles batch_adjust_relative using existing catalog mappings, not Quick
+  Develop button steps. Bounded tone/WB deltas, modern process only; mixed RAW/
+  rendered WB units rejected. Preflight all, check baselines under write access,
+  stop on first failure, no retry/rollback/clamping. Return before/target/after.
+- Color Grading uses existing SplitToning highlight/shadow hue/saturation/balance
+  keys. Do not introduce undocumented ColorGradeHighlightHue aliases as raw keys.
+- Production Lua / IPC coverage: test_workflow_lua.py and test_workflow_tools.py.
+  See docs/preview-and-relative.md and docs/color-grading.md. Native tests pending.

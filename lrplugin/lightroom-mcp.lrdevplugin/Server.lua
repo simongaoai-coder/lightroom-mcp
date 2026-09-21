@@ -13,7 +13,7 @@ local LrLogger            = import "LrLogger"
 local REQ_FILE      = "/tmp/lr_mcp_req.json"
 local RES_FILE      = "/tmp/lr_mcp_res.json"
 local POLL_INTERVAL = 0.05  -- seconds
-local VERSION       = "2.10.0"  -- keep in sync with Info.lua VERSION
+local VERSION       = "2.11.0"  -- keep in sync with Info.lua VERSION
 
 -- ── Bundled JSON encoder/decoder (no LrJSON dependency) ─────────────────────
 local function jsonEncodeValue(val)
@@ -284,6 +284,7 @@ local Fine = require "Fine"
 local Library = require "Library"
 local Delivery = require "Delivery"
 local Healing = require "Healing"
+local Previews = require "Previews"
 
 -- Valid bokeh shapes for Lens Blur
 local BOKEH_TYPES = {
@@ -381,7 +382,9 @@ local function dispatch(req)
     local cmd = req.command
     local response = {}
 
-    if Healing.commands[cmd] then
+    if Previews.commands[cmd] then
+        return Previews.handle(req)
+    elseif Healing.commands[cmd] then
         return Healing.handle(req)
     elseif Library.commands[cmd] then
         return Library.handle(req)
@@ -404,6 +407,8 @@ local function dispatch(req)
         response.libraryVersion = Library.VERSION
         response.healingVersion = Healing.VERSION
         response.capabilities.healing = Healing.capabilities()
+        response.previewsVersion = Previews.VERSION
+        response.capabilities.previews = Previews.capabilities()
         response.deliveryVersion = Delivery.VERSION
         response.capabilities.library = Library.capabilities()
         response.capabilities.delivery = Delivery.capabilities()
@@ -412,7 +417,7 @@ local function dispatch(req)
         response.pluginPath = _PLUGIN.path
         response.protocolVersion = 2
 
-    elseif cmd == "apply_settings" or cmd == "get_settings" or cmd == "batch_apply_settings" then
+    elseif cmd == "apply_settings" or cmd == "get_settings" or cmd == "batch_apply_settings" or cmd == "batch_adjust_relative" then
         response = Develop.handle(req)
 
     elseif cmd == "auto_tone" then
