@@ -1,0 +1,21 @@
+{
+  "baseline": "/tmp/lr-accept-20260921/render-fix/LR-MCP-export-b4369c0a29424ee4aa9b21340349ecb5/_DSC1037-0001.jpg",
+  "daylight": "/tmp/lr-accept-20260921/render-fix/LR-MCP-export-adb78ffa50634e67b686bb0bb80e4b35/_DSC1037-0001.jpg",
+  "daylightRGBMeanDelta": [
+    11.383538930581613,
+    0.8696998123827392,
+    9.505823170731707
+  ],
+  "daylightRaw": {
+    "WhiteBalance": "Daylight",
+    "Temperature": 5500,
+    "Tint": 10
+  },
+  "grayscale": "/tmp/lr-accept-20260921/render-fix/LR-MCP-export-0379ccddcd294a47bd774ef2fcee2ecb/_DSC1037-0001.jpg",
+  "grayscaleChannelDifference": [
+    0.4040220450281426,
+    0.20435272045028144
+  ],
+  "passed": true,
+  "restored": true
+}

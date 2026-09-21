@@ -1,0 +1,31 @@
+{
+  "tool": "lr_search_photos",
+  "args": {
+    "filters": {
+      "filename": "MCP_ACCEPT_20260921_NO_EXIF"
+    }
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "offset": 0,
+      "total": 1,
+      "hasMore": false,
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "photos": [
+        {
+          "copyName": "",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/MCP_ACCEPT_20260921_NO_EXIF.jpg",
+          "filename": "MCP_ACCEPT_20260921_NO_EXIF.jpg",
+          "isVirtualCopy": false,
+          "photoId": "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8",
+          "rating": 0,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        }
+      ]
+    },
+    "requestId": "7d5535ef649c4147a1335affdbbbb7b2"
+  },
+  "seconds": 0.10759305953979492
+}

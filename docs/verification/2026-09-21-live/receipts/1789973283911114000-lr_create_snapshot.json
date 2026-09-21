@@ -1,0 +1,20 @@
+{
+  "tool": "lr_create_snapshot",
+  "args": {
+    "name": "MCP 20260921 验收基线",
+    "expectedPhotoId": "D0A39377-BC39-463F-B709-BE735D439C7A"
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "globalId": "E066C084-D02D-42F7-B7BB-3BC76B178715",
+      "status": "created",
+      "photoId": "D0A39377-BC39-463F-B709-BE735D439C7A",
+      "snapshotId": "E116A94E-D9D9-4CE9-BE00-36C2CD8B3B54",
+      "verification": "sdk_completed_and_enumerated",
+      "name": "MCP 20260921 验收基线"
+    },
+    "requestId": "d8404c8b7ff34cb9b43baa44971fbf2d"
+  },
+  "seconds": 0.16555500030517578
+}

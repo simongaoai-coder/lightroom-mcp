@@ -1,0 +1,19 @@
+{
+  "tool": "lr_batch_adjust_relative",
+  "args": {
+    "photoIds": [
+      "38307390-7DE1-410D-8014-C0CEF92317FB",
+      "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8"
+    ],
+    "deltas": {
+      "Temperature": 10
+    }
+  },
+  "result": {
+    "requestId": "bc373ed7dcf446719cb3a89dfd7a2ec2",
+    "error": "Split RAW and rendered white-balance adjustments into separate batches",
+    "success": false,
+    "code": "mixed_parameter_units"
+  },
+  "seconds": 0.1631791591644287
+}

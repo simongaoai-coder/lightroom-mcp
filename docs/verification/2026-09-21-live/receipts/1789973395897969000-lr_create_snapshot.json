@@ -1,0 +1,19 @@
+{
+  "tool": "lr_create_snapshot",
+  "args": {
+    "name": "MCP 20260921 风格目标基线"
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "globalId": "CE800147-3330-4606-A71A-AE8EBFC11374",
+      "status": "created",
+      "photoId": "824C4E42-7FD2-4DBB-869B-8958F51D690F",
+      "snapshotId": "45F5A7A5-0D24-415F-825B-A3FBE3BE11F2",
+      "verification": "sdk_completed_and_enumerated",
+      "name": "MCP 20260921 风格目标基线"
+    },
+    "requestId": "fd9fc01a3cca4813a0071dbff13c8d8c"
+  },
+  "seconds": 0.16487884521484375
+}

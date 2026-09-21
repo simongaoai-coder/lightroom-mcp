@@ -1,0 +1,16 @@
+{
+  "tool": "lr_apply_preset",
+  "args": {
+    "presetId": "FB94AB20-9873-47A9-841F-D472B02DF8F6",
+    "photoIds": [
+      "D0A39377-BC39-463F-B709-BE735D439C7A"
+    ]
+  },
+  "result": {
+    "requestId": "e216e5d680344808a96a98253b9c79ac",
+    "error": "Style requires matching source process version",
+    "success": false,
+    "code": "incompatible_style"
+  },
+  "seconds": 0.16269516944885254
+}

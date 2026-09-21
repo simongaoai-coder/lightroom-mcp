@@ -1,0 +1,49 @@
+{
+  "tool": "lr_get_smart_preview_job",
+  "args": {
+    "jobId": "cbdd8c6cf2be44bcb3b38e610c09559b"
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "offset": 0,
+      "total": 6,
+      "operation": "build",
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "createdAt": 811666324.04892,
+      "notStarted": 5,
+      "completed": 1,
+      "cancelRequested": true,
+      "finishedAt": 811666324.78649,
+      "hasMore": false,
+      "jobId": "cbdd8c6cf2be44bcb3b38e610c09559b",
+      "status": "cancelled",
+      "failed": 0,
+      "results": [
+        {
+          "before": {
+            "hasSmartPreview": false,
+            "photoId": "6A644F6A-E754-4788-A73E-6D7B1C03CAC6",
+            "isVideo": false,
+            "originalAvailable": true
+          },
+          "success": true,
+          "photoId": "6A644F6A-E754-4788-A73E-6D7B1C03CAC6",
+          "status": "created",
+          "nativeResult": "created",
+          "after": {
+            "hasSmartPreview": true,
+            "path": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog Smart Previews.lrdata/C/CA5A/CA5A0B3D-3072-4F38-B0AE-C49190FD63BA.dng",
+            "isVideo": false,
+            "photoId": "6A644F6A-E754-4788-A73E-6D7B1C03CAC6",
+            "bytes": 385216,
+            "originalAvailable": true
+          },
+          "nativeCallAttempted": true
+        }
+      ]
+    },
+    "requestId": "4356268a70e5416eb97c8c2fa2ac993b"
+  },
+  "seconds": 0.11020302772521973
+}

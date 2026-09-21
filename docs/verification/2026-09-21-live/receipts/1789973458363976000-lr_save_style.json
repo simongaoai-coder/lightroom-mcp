@@ -1,0 +1,16 @@
+{
+  "tool": "lr_save_style",
+  "args": {
+    "name": "MCP 20260921 实机旅行胶片",
+    "groups": [
+      "grain"
+    ]
+  },
+  "result": {
+    "requestId": "2c3d24cca3c24697a94c822578a977cd",
+    "error": "Choose a new name; existing styles are not overwritten",
+    "success": false,
+    "code": "style_exists"
+  },
+  "seconds": 0.10574102401733398
+}

@@ -1,0 +1,36 @@
+{
+  "tool": "lr_create_virtual_copies",
+  "args": {
+    "copyName": "MCP 20260921 风格目标"
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "created": [
+        {
+          "filename": "_DSC1037.ARW",
+          "photoId": "824C4E42-7FD2-4DBB-869B-8958F51D690F",
+          "copyName": "MCP 20260921 风格目标",
+          "masterPhotoId": "B89CF565-C22A-4BA7-86EE-EF3CDF519EFD",
+          "isVirtualCopy": true
+        }
+      ],
+      "sources": [
+        {
+          "filename": "_DSC1037.ARW",
+          "photoId": "B89CF565-C22A-4BA7-86EE-EF3CDF519EFD",
+          "copyName": "",
+          "masterPhotoId": "B89CF565-C22A-4BA7-86EE-EF3CDF519EFD",
+          "isVirtualCopy": false
+        }
+      ],
+      "count": 1,
+      "photoId": "B89CF565-C22A-4BA7-86EE-EF3CDF519EFD",
+      "selectionMatchesCreated": true,
+      "selectedPhotoId": "824C4E42-7FD2-4DBB-869B-8958F51D690F",
+      "status": "created"
+    },
+    "requestId": "7009e20e05af43ea8c429cd883957d1d"
+  },
+  "seconds": 0.26792478561401367
+}

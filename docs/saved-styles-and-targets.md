@@ -1,7 +1,6 @@
-# Saved styles and explicit batch targets (2.12.0)
+# Saved styles and explicit batch targets (2.12.2)
 
-One new tool, `lr_save_style`, brings the total to 111. Main/Python/Develop/Styles/
-Batch are 2.12.0. Reload matching plugin code and restart the MCP client before use.
+One new tool, `lr_save_style`, brings the total to 111. Main/Python/Styles/Batch are 2.12.2 (Develop remains 2.12.0). Reload matching plugin code and restart the MCP client before use.
 
 ## Save and reuse a style
 
@@ -49,9 +48,9 @@ Creation must enumerate the saved preset and read back its selected settings.
 Unexpected SDK-added source editing fields fail validation (matching ProcessVersion
 is permitted). Failed verification may leave a native preset on disk; its manifest
 is marked unverified and application is blocked. Inspect the returned ID instead
-of blindly repeating creation. Clearing plugin preferences removes the manifest;
-then the preset can only be treated as an ordinary native preset, without these
-saved-style compatibility guarantees.
+of blindly repeating creation. Clearing plugin preferences removes the manifest; applying that plugin-owned preset
+now fails with style_manifest_missing. It never falls back to the unsafe native
+preset path. Recreate the style from a known source or restore its manifest.
 
 For verified saved styles, apply requires the source's exact raw ProcessVersion,
 matching setting types/availability and compatible absolute/incremental WB units.
@@ -59,6 +58,17 @@ Native preset contents must still match the saved manifest. Amount is omitted or
 100; other amounts are rejected because exact selected-field readback would no
 longer describe the requested result. These checks are conservative. They do not
 prove identical appearance across cameras or guarantee all rendering behavior.
+
+As of 2.12.2, verified saved styles apply only a clone of their recorded settings
+through LrPhoto.applyDevelopSettings, under catalog write access. The native preset
+remains the persistent storage/enumeration artifact; its whole-preset application
+path is not used for these styles, because Lightroom 15.2 changed omitted custom
+WB values in native acceptance. Ordinary user presets retain their native path.
+In addition to selected-field readback, unselected process/WB/exposure/crop/profile
+invariants are checked. Custom WB numeric values are protected; Auto/As Shot
+numeric values may be resolved/recomputed, so their mode is protected instead.
+Unexpected protected changes fail with unselected_settings_changed and identify
+the changed fields; there is no blind compensating rollback.
 
 ## Consistent target selection
 
@@ -91,8 +101,21 @@ Or set their absolute exposure:
 ```
 
 Targets are resolved before writes; missing IDs, videos, unsupported APIs and
-known compatibility problems reject the batch during preflight. Photo-object
-operations do not change selection, sources or modules. Selection-driven operations
+known compatibility problems reject the batch during preflight. Numeric settings, saved-style writes and rotation use photo objects without
+changing selection. Treatment and named WB (except the catalog-backed As Shot
+path) use native Quick Develop, which is UI-bound on Lightroom 15.2. Each target
+is temporarily selected alone; both active-photo identity and the entire selection
+are verified before the native call. Original active photo and multi-selection
+are restored after success or failure. Sources/filters are not forced to reveal
+hidden targets: an unselectable target fails before its native write.
+
+Quick Develop results include selectionTemporarilyChanged, selectionRestored and
+an optional selectionRestoreError. If manual selection changes are detected, stop
+and do not override the user's new selection. Failed restoration makes the call
+unsuccessful even when all photo writes completed; applied/failed still count
+photo outcomes separately. Avoid manually changing selection while these calls run.
+
+Selection-driven operations
 such as masks, history, AI controller tools and virtual-copy creation retain their
 existing scope; they are not silently routed through UI switching.
 
@@ -113,8 +136,10 @@ across module reloads, name collisions, unverified saves, incompatible process/W
 native preset changes, missing IDs, offscreen targets without selection, whole-
 batch preflight, partial failure, native no-ops and real Server JSON dispatch.
 Python tests cover schemas and isolated file IPC. These are SDK doubles and
-transport simulations. Native Lightroom preset-file persistence and rendering
-acceptance remain pending; no user catalog/photo was used for these tests.
+transport simulations. Those automated tests alone do not establish native behavior. Native preset
+persistence was subsequently verified, and the two acceptance defects were fixed
+and retested on 2.12.2. See [native fix verification](2026-09-21-native-fixes.md)
+for the actual tested scope and remaining interactive item.
 
 Native acceptance: save the three-group example from a disposable photo, restart
 Lightroom, enumerate/apply it by ID to a different virtual copy, inspect retained

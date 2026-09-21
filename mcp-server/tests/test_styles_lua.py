@@ -161,7 +161,7 @@ def test_real_server_dispatch(sdk):
     # Supply unrelated modules as stubs; exercise real new modules and JSON wire.
     for name in ['Fine','Healing','Previews','Delivery','Masking']:
         modules[name]=lua.table_from({'commands':lua.table_from({})})
-    module=load('Server');version='2.12.0'
+    module=load('Server');version='2.12.2'
     def wire(command,**args):
         return json.loads(module.handleRequest(json.dumps({'command':command,'expectedPluginVersion':version,**args})))
     r=wire('save_style',name='saved',groups=['grain'])
@@ -202,3 +202,117 @@ def test_numeric_catalog_change_after_write_never_claims_verified(sdk):
     r=call('apply_settings',photoIds=['b'],settings={'Exposure':.5})
     assert not r['success'] and r['data']['results'][1]['code']=='catalog_changed'
     assert r['data']['results'][1]['outcomeUnknown']
+
+
+@pytest.mark.parametrize('wb', ['Custom','As Shot','Auto'])
+def test_saved_style_preserves_unselected_white_balance(sdk,wb):
+    _,s,p,call,_,_=sdk
+    p.b.raw.WhiteBalance=wb;p.b.raw.Temperature=4750;p.b.raw.Tint=10
+    p.b.raw.Exposure2012=1.3;p.b.raw.CropLeft=.1;p.b.raw.CropRight=.9
+    saved=call('save_style',name='no-WB',groups=['grain'])
+    r=call('apply_preset',presetId=saved['data']['presetId'],photoIds=['b'])
+    assert r['success']
+    assert p.b.raw.WhiteBalance==wb and p.b.raw.Temperature==4750 and p.b.raw.Tint==10
+    assert p.b.raw.Exposure2012==1.3 and p.b.raw.CropLeft==.1 and p.b.raw.CropRight==.9
+    assert s.presetCalls is None  # never enter the native preset path for a selective style
+
+
+@pytest.mark.parametrize('command,args,key,wanted',[
+    ('set_treatment',{'treatment':'grayscale'},'ConvertToGrayscale',True),
+    ('set_white_balance',{'mode':'Daylight'},'WhiteBalance','Daylight'),
+])
+def test_offscreen_appearance_never_mutates_active_photo(sdk,command,args,key,wanted):
+    _,s,p,call,_,_=sdk
+    def plain(v):return {k:plain(x) for k,x in v.items()} if hasattr(v,'items') else v
+    before=plain(p.a.raw)
+    r=call(command,photoIds=['b'],**args)
+    assert r['success'] and p.b.raw[key]==wanted
+    assert plain(p.a.raw)==before and s.selected=='a'
+
+
+def test_style_refuses_missing_manifest_instead_of_native_fallback(sdk):
+    lua,s,p,call,_,_=sdk
+    call('save_style',name='test',groups=['grain'])
+    lua.globals().prefs.savedStyles=None
+    r=call('apply_preset',presetId='style-1',photoIds=['b'])
+    assert r['code']=='style_manifest_missing' and s.presetCalls is None and s.writes==0
+
+
+def test_style_detects_unselected_custom_wb_side_effect(sdk):
+    lua,s,p,call,_,_=sdk
+    call('save_style',name='test',groups=['grain'])
+    p.b.raw.WhiteBalance='Custom'
+    lua.execute("""
+    local apply=photos.b.applyDevelopSettings
+    function photos.b:applyDevelopSettings(values)
+        apply(self,values);self.raw.Temperature=-999999
+    end
+    """)
+    r=call('apply_preset',presetId='style-1',photoIds=['b'])
+    row=r['data']['results'][1]
+    assert not r['success'] and row['code']=='unselected_settings_changed'
+    assert 'Temperature' in list(row['unselectedFieldChanges'].values()) and row['outcomeUnknown']
+
+
+def test_style_explicit_wb_is_applied_and_other_components_preserved(sdk):
+    _,s,p,call,_,_=sdk
+    p.a.raw.WhiteBalance='Custom';p.a.raw.Temperature=6100
+    p.b.raw.WhiteBalance='Custom';p.b.raw.Temperature=4750;p.b.raw.Tint=15
+    saved=call('save_style',name='wb',parameters=['Temperature'])
+    r=call('apply_preset',presetId=saved['data']['presetId'],photoIds=['b'])
+    assert r['success'] and p.b.raw.Temperature==6100 and p.b.raw.Tint==15
+    assert p.b.raw.WhiteBalance=='Custom' and s.presetCalls is None
+
+
+@pytest.mark.parametrize('command,args',[
+    ('set_treatment',{'treatment':'grayscale'}),('set_white_balance',{'mode':'Daylight'})])
+def test_quick_selection_failure_never_writes_and_restores(sdk,command,args):
+    _,s,p,call,_,_=sdk
+    s.selectionNoop=True
+    r=call(command,photoIds=['b'],**args)
+    assert r['data']['results'][1]['code']=='selection_failed' and s.writes==0
+    assert s.selected=='a' and r['data']['selectionRestored']
+
+
+@pytest.mark.parametrize('command,args',[
+    ('set_treatment',{'treatment':'grayscale'}),('set_white_balance',{'mode':'Daylight'})])
+def test_quick_failure_restores_full_original_multiselection(sdk,command,args):
+    lua,s,p,call,_,_=sdk
+    s.selection=lua.table_from([p.a,p.b]);s.quickFail='b'
+    r=call(command,photoIds=['a','b'],**args)
+    assert r['applied']==1 and r['failed']==1
+    assert s.selected=='a' and len(s.selection)==2 and r['data']['selectionRestored']
+
+
+def test_quick_concurrent_selection_change_aborts_without_overriding_user(sdk):
+    lua,s,p,call,_,_=sdk
+    lua.execute('''
+    local old=photos.b.quickDevelopSetTreatment
+    function photos.b:quickDevelopSetTreatment(value)
+        old(self,value)
+        state.selected='a';state.selection={photos.a,photos.b}
+    end
+    ''')
+    r=call('set_treatment',photoIds=['b'],treatment='grayscale')
+    assert not r['success'] and r['data']['results'][1]['code']=='selection_changed'
+    assert not r['data']['selectionRestored'] and len(s.selection)==2
+    assert p.a.raw.ConvertToGrayscale is None
+
+
+def test_quick_no_active_selection_is_restored(sdk):
+    lua,s,p,call,_,_=sdk
+    s.selected=None;s.selection=lua.table_from([])
+    r=call('set_treatment',photoIds=['b'],treatment='grayscale')
+    assert r['success'] and r['data']['selectionRestored']
+    assert s.selected is None and len(s.selection)==0
+
+
+def test_generic_user_presets_keep_native_amount_path(sdk):
+    lua,s,p,call,_,_=sdk
+    lua.execute('''
+    local app=import 'LrApplication'
+    local p={settings={Exposure2012=1.25},getUuid=function()return 'user-preset'end,getName=function()return 'User'end}
+    app.developPresetFolders=function()return {{getDevelopPresets=function()return {p}end}}end
+    ''')
+    r=call('apply_preset',presetId='user-preset',photoIds=['b'],amount=80)
+    assert r['success'] and s.presetCalls==1 and r['data']['results'][1]['backend']=='native_preset'

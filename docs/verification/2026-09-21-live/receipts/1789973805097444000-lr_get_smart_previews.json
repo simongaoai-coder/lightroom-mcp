@@ -1,0 +1,26 @@
+{
+  "tool": "lr_get_smart_previews",
+  "args": {
+    "photoIds": [
+      "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8"
+    ]
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "photos": [
+        {
+          "hasSmartPreview": true,
+          "path": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog Smart Previews.lrdata/C/C068/C068D363-2B37-4964-ACC0-6CF2C111DAE2.dng",
+          "isVideo": false,
+          "photoId": "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8",
+          "bytes": 168704,
+          "originalAvailable": true
+        }
+      ]
+    },
+    "requestId": "ff6ab89451fc493ea5d2161a33aaff98"
+  },
+  "seconds": 0.1072239875793457
+}

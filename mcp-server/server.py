@@ -37,7 +37,7 @@ from style_tools import style_tools, target_properties, TARGET_TOOLS, STYLE_COMM
 
 REQ_FILE = os.environ.get("LR_MCP_REQ", "/tmp/lr_mcp_req.json")
 RES_FILE = os.environ.get("LR_MCP_RES", "/tmp/lr_mcp_res.json")
-SERVER_VERSION = "2.12.0"
+SERVER_VERSION = "2.12.2"
 PROTOCOL_VERSION = 2
 _IPC_LOCK = threading.Lock()
 TIMEOUT = 10.0   # seconds to wait for Lua to respond
@@ -446,7 +446,9 @@ async def list_tools() -> list[types.Tool]:
         if tool.name in TARGET_TOOLS:
             tool.inputSchema['properties'].update(target_properties('selected' if tool.name == 'lr_batch_apply_settings' else 'current'))
             tool.inputSchema['not'] = {'required': ['photoIds', 'scope']}
-            tool.description += ' Targets: photoIds (1-200 UUIDs) OR scope=current/selected; IDs do not change UI selection. Entire batch preflight, stop on first failure, no rollback. Explicit targets return per-photo results. expectedPhotoId guards the active UI photo, not each target.'
+            ui_note = (' Native treatment/named WB temporarily single-select each target, then restore the original selection. Unselectable targets fail before native writes; manual selection interference stops the batch. As Shot WB uses direct catalog writes.'
+                       if tool.name in {'lr_set_treatment', 'lr_set_white_balance'} else ' IDs do not change UI selection.')
+            tool.description += ' Targets: photoIds (1-200 UUIDs) OR scope=current/selected.' + ui_note + ' Entire batch preflight, stop on first failure, no rollback. Explicit targets return per-photo results. expectedPhotoId guards the initial active UI photo, not each target.'
     return tools
 
 

@@ -1,0 +1,670 @@
+{
+  "styleCall": {
+    "applied": 1,
+    "success": true,
+    "notAttempted": 0,
+    "data": {
+      "note": "Readback verifies stored values, not rendered pixels or AI completion.",
+      "aiUpdateRequested": false,
+      "presetId": "FB94AB20-9873-47A9-841F-D472B02DF8F6",
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "results": [
+        {
+          "protectedFieldsVerified": true,
+          "after": {
+            "ColorGradeGlobalHue": 0,
+            "ColorGradeShadowLum": 0,
+            "GrainAmount": 20,
+            "GrainFrequency": 50,
+            "ColorGradeBlending": 50,
+            "ToneCurvePV2012Blue": [
+              0,
+              0,
+              255,
+              255
+            ],
+            "ColorGradeGlobalSat": 0,
+            "ColorGradeGlobalLum": 0,
+            "ColorGradeMidtoneHue": 0,
+            "ToneCurvePV2012": [
+              0,
+              0,
+              64,
+              55,
+              128,
+              135,
+              255,
+              255
+            ],
+            "SplitToningShadowSaturation": 15,
+            "ColorGradeMidtoneLum": 0,
+            "GrainSize": 25,
+            "ColorGradeHighlightLum": 0,
+            "ColorGradeMidtoneSat": 0,
+            "ToneCurvePV2012Green": [
+              0,
+              0,
+              255,
+              255
+            ],
+            "ToneCurvePV2012Red": [
+              0,
+              0,
+              255,
+              255
+            ],
+            "SplitToningHighlightSaturation": 20,
+            "SplitToningHighlightHue": 45,
+            "SplitToningBalance": -10,
+            "SplitToningShadowHue": 220
+          },
+          "photoId": "824C4E42-7FD2-4DBB-869B-8958F51D690F",
+          "before": {
+            "ColorGradeGlobalHue": 0,
+            "ColorGradeShadowLum": 0,
+            "GrainAmount": 0,
+            "GrainFrequency": 50,
+            "ColorGradeBlending": 50,
+            "ToneCurvePV2012Blue": [
+              0,
+              0,
+              255,
+              255
+            ],
+            "ColorGradeGlobalSat": 0,
+            "ColorGradeGlobalLum": 0,
+            "ColorGradeMidtoneHue": 0,
+            "ToneCurvePV2012": [
+              0,
+              0,
+              255,
+              255
+            ],
+            "SplitToningShadowSaturation": 0,
+            "ColorGradeMidtoneLum": 0,
+            "GrainSize": 25,
+            "ColorGradeHighlightLum": 0,
+            "ColorGradeMidtoneSat": 0,
+            "ToneCurvePV2012Green": [
+              0,
+              0,
+              255,
+              255
+            ],
+            "ToneCurvePV2012Red": [
+              0,
+              0,
+              255,
+              255
+            ],
+            "SplitToningHighlightSaturation": 0,
+            "SplitToningHighlightHue": 0,
+            "SplitToningBalance": 0,
+            "SplitToningShadowHue": 0
+          },
+          "changedKeys": [
+            "GrainAmount",
+            "SplitToningBalance",
+            "SplitToningHighlightHue",
+            "SplitToningHighlightSaturation",
+            "SplitToningShadowHue",
+            "SplitToningShadowSaturation",
+            "ToneCurvePV2012"
+          ],
+          "success": true,
+          "verification": "saved_fields_readback",
+          "status": "applied",
+          "writeAttempted": true,
+          "backend": "selected_catalog_settings",
+          "unselectedFieldChanges": []
+        }
+      ],
+      "presetName": "MCP 20260921 实机旅行胶片"
+    },
+    "failed": 0,
+    "requestId": "c192d6644f78455aa956ba147dead7c1"
+  },
+  "styleComparison": {
+    "selectedFields": 21,
+    "protectedFields": {
+      "WhiteBalance": "Custom",
+      "Temperature": 4750,
+      "Tint": 10,
+      "Exposure2012": 0.2,
+      "CropTop": 0,
+      "CropBottom": 0.790139,
+      "CropLeft": 0,
+      "CropRight": 0.790139,
+      "CropAngle": 0,
+      "CameraProfile": "Adobe Standard",
+      "Look": {
+        "UUID": "B952C231111CD8E0ECCF14B86BAA7077",
+        "SupportsAmount": false,
+        "Name": "Adobe Color",
+        "Amount": 1,
+        "SupportsMonochrome": false,
+        "SupportsOutputReferred": false,
+        "Group": {
+          "x-default": "Profiles"
+        },
+        "Parameters": {
+          "ToneCurvePV2012": [
+            0,
+            0,
+            22,
+            16,
+            40,
+            35,
+            127,
+            127,
+            224,
+            230,
+            240,
+            246,
+            255,
+            255
+          ],
+          "FilterList": [],
+          "ToneCurveName2012": "",
+          "ConvertToGrayscale": false,
+          "ToneCurvePV2012Red": [
+            0,
+            0,
+            255,
+            255
+          ],
+          "ToneCurvePV2012Blue": [
+            0,
+            0,
+            255,
+            255
+          ],
+          "ToneCurvePV2012Green": [
+            0,
+            0,
+            255,
+            255
+          ],
+          "LookTable": "E1095149FDB39D7A057BAB208837E2E1",
+          "ProcessVersion": "15.4",
+          "PointColors": [],
+          "CameraProfile": "Adobe Standard",
+          "Version": "18.2"
+        }
+      }
+    },
+    "activeUnchanged": true
+  },
+  "appearance": [
+    {
+      "tool": "lr_set_treatment",
+      "args": {
+        "treatment": "grayscale"
+      },
+      "result": {
+        "applied": 1,
+        "success": true,
+        "notAttempted": 0,
+        "data": {
+          "note": "Readback verifies stored values, not rendered pixels or AI completion.",
+          "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+          "aiUpdateRequested": false,
+          "results": [
+            {
+              "before": {
+                "ConvertToGrayscale": false
+              },
+              "changedKeys": [
+                "ConvertToGrayscale",
+                "GrayMixerAqua",
+                "GrayMixerBlue",
+                "GrayMixerGreen",
+                "GrayMixerMagenta",
+                "GrayMixerOrange",
+                "GrayMixerPurple",
+                "GrayMixerRed",
+                "GrayMixerYellow",
+                "HueAdjustmentAqua",
+                "HueAdjustmentBlue",
+                "HueAdjustmentGreen",
+                "HueAdjustmentMagenta",
+                "HueAdjustmentOrange",
+                "HueAdjustmentPurple",
+                "HueAdjustmentRed",
+                "HueAdjustmentYellow",
+                "LuminanceAdjustmentAqua",
+                "LuminanceAdjustmentBlue",
+                "LuminanceAdjustmentGreen",
+                "LuminanceAdjustmentMagenta",
+                "LuminanceAdjustmentOrange",
+                "LuminanceAdjustmentPurple",
+                "LuminanceAdjustmentRed",
+                "LuminanceAdjustmentYellow",
+                "Saturation",
+                "SaturationAdjustmentAqua",
+                "SaturationAdjustmentBlue",
+                "SaturationAdjustmentGreen",
+                "SaturationAdjustmentMagenta",
+                "SaturationAdjustmentOrange",
+                "SaturationAdjustmentPurple",
+                "SaturationAdjustmentRed",
+                "SaturationAdjustmentYellow",
+                "Vibrance"
+              ],
+              "success": true,
+              "status": "applied",
+              "photoId": "824C4E42-7FD2-4DBB-869B-8958F51D690F",
+              "writeAttempted": true,
+              "verification": "catalog_readback",
+              "after": {
+                "ConvertToGrayscale": true
+              }
+            }
+          ]
+        },
+        "failed": 0,
+        "requestId": "47855e9fb3274e518c47c85b8422167a"
+      },
+      "activeUnchanged": true,
+      "actual": {
+        "ConvertToGrayscale": true,
+        "WhiteBalance": "Custom",
+        "Temperature": 4750,
+        "Tint": 10
+      }
+    },
+    {
+      "tool": "lr_set_treatment",
+      "args": {
+        "treatment": "color"
+      },
+      "result": {
+        "applied": 1,
+        "success": true,
+        "notAttempted": 0,
+        "data": {
+          "note": "Readback verifies stored values, not rendered pixels or AI completion.",
+          "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+          "aiUpdateRequested": false,
+          "results": [
+            {
+              "before": {
+                "ConvertToGrayscale": true
+              },
+              "changedKeys": [
+                "ConvertToGrayscale",
+                "GrayMixerAqua",
+                "GrayMixerBlue",
+                "GrayMixerGreen",
+                "GrayMixerMagenta",
+                "GrayMixerOrange",
+                "GrayMixerPurple",
+                "GrayMixerRed",
+                "GrayMixerYellow",
+                "HueAdjustmentAqua",
+                "HueAdjustmentBlue",
+                "HueAdjustmentGreen",
+                "HueAdjustmentMagenta",
+                "HueAdjustmentOrange",
+                "HueAdjustmentPurple",
+                "HueAdjustmentRed",
+                "HueAdjustmentYellow",
+                "LuminanceAdjustmentAqua",
+                "LuminanceAdjustmentBlue",
+                "LuminanceAdjustmentGreen",
+                "LuminanceAdjustmentMagenta",
+                "LuminanceAdjustmentOrange",
+                "LuminanceAdjustmentPurple",
+                "LuminanceAdjustmentRed",
+                "LuminanceAdjustmentYellow",
+                "Saturation",
+                "SaturationAdjustmentAqua",
+                "SaturationAdjustmentBlue",
+                "SaturationAdjustmentGreen",
+                "SaturationAdjustmentMagenta",
+                "SaturationAdjustmentOrange",
+                "SaturationAdjustmentPurple",
+                "SaturationAdjustmentRed",
+                "SaturationAdjustmentYellow",
+                "Vibrance"
+              ],
+              "success": true,
+              "status": "applied",
+              "photoId": "824C4E42-7FD2-4DBB-869B-8958F51D690F",
+              "writeAttempted": true,
+              "verification": "catalog_readback",
+              "after": {
+                "ConvertToGrayscale": false
+              }
+            }
+          ]
+        },
+        "failed": 0,
+        "requestId": "210033f5c70b4543a9f9d1b5fa1cc538"
+      },
+      "activeUnchanged": true,
+      "actual": {
+        "ConvertToGrayscale": false,
+        "WhiteBalance": "Custom",
+        "Temperature": 4750,
+        "Tint": 10
+      }
+    },
+    {
+      "tool": "lr_set_white_balance",
+      "args": {
+        "mode": "Daylight"
+      },
+      "result": {
+        "applied": 1,
+        "success": true,
+        "notAttempted": 0,
+        "data": {
+          "note": "Readback verifies stored values, not rendered pixels or AI completion.",
+          "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+          "aiUpdateRequested": false,
+          "results": [
+            {
+              "before": {
+                "Temperature": 4750,
+                "WhiteBalance": "Custom",
+                "Tint": 10
+              },
+              "changedKeys": [
+                "WhiteBalance"
+              ],
+              "success": true,
+              "status": "applied",
+              "photoId": "824C4E42-7FD2-4DBB-869B-8958F51D690F",
+              "writeAttempted": true,
+              "verification": "catalog_readback",
+              "after": {
+                "Temperature": 4750,
+                "WhiteBalance": "Daylight",
+                "Tint": 10
+              }
+            }
+          ]
+        },
+        "failed": 0,
+        "requestId": "2a3fbcaccb724d67bc1edbc189bc0691"
+      },
+      "activeUnchanged": true,
+      "actual": {
+        "ConvertToGrayscale": false,
+        "WhiteBalance": "Daylight",
+        "Temperature": 4750,
+        "Tint": 10
+      }
+    },
+    {
+      "tool": "lr_set_white_balance",
+      "args": {
+        "mode": "Auto"
+      },
+      "result": {
+        "applied": 1,
+        "success": true,
+        "notAttempted": 0,
+        "data": {
+          "note": "Readback verifies stored values, not rendered pixels or AI completion.",
+          "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+          "aiUpdateRequested": false,
+          "results": [
+            {
+              "before": {
+                "Temperature": 4750,
+                "WhiteBalance": "Daylight",
+                "Tint": 10
+              },
+              "changedKeys": [
+                "WhiteBalance"
+              ],
+              "success": true,
+              "status": "applied",
+              "photoId": "824C4E42-7FD2-4DBB-869B-8958F51D690F",
+              "writeAttempted": true,
+              "verification": "catalog_readback",
+              "after": {
+                "Temperature": 4750,
+                "WhiteBalance": "Auto",
+                "Tint": 10
+              }
+            }
+          ]
+        },
+        "failed": 0,
+        "requestId": "aed04ee6eb254e88a18617efd4ba679c"
+      },
+      "activeUnchanged": true,
+      "actual": {
+        "ConvertToGrayscale": false,
+        "WhiteBalance": "Auto",
+        "Temperature": 4750,
+        "Tint": 10
+      }
+    },
+    {
+      "tool": "lr_set_white_balance",
+      "args": {
+        "mode": "As Shot"
+      },
+      "result": {
+        "applied": 1,
+        "success": true,
+        "notAttempted": 0,
+        "data": {
+          "note": "Readback verifies stored values, not rendered pixels or AI completion.",
+          "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+          "aiUpdateRequested": false,
+          "results": [
+            {
+              "before": {
+                "Temperature": 4750,
+                "WhiteBalance": "Auto",
+                "Tint": 10
+              },
+              "changedKeys": [
+                "AutoWhiteVersion",
+                "WhiteBalance"
+              ],
+              "success": true,
+              "status": "applied",
+              "photoId": "824C4E42-7FD2-4DBB-869B-8958F51D690F",
+              "writeAttempted": true,
+              "verification": "catalog_readback",
+              "after": {
+                "Temperature": 4750,
+                "WhiteBalance": "As Shot",
+                "Tint": 10
+              }
+            }
+          ]
+        },
+        "failed": 0,
+        "requestId": "4d2d06ccce2740e99763be916ac3d842"
+      },
+      "activeUnchanged": true,
+      "actual": {
+        "ConvertToGrayscale": false,
+        "WhiteBalance": "As Shot",
+        "Temperature": 4750,
+        "Tint": 10
+      }
+    }
+  ],
+  "batch_lr_set_treatment": {
+    "applied": 2,
+    "success": true,
+    "notAttempted": 0,
+    "data": {
+      "note": "Readback verifies stored values, not rendered pixels or AI completion.",
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "aiUpdateRequested": false,
+      "results": [
+        {
+          "before": {
+            "ConvertToGrayscale": false
+          },
+          "changedKeys": [
+            "ConvertToGrayscale",
+            "GrayMixerAqua",
+            "GrayMixerBlue",
+            "GrayMixerGreen",
+            "GrayMixerMagenta",
+            "GrayMixerOrange",
+            "GrayMixerPurple",
+            "GrayMixerRed",
+            "GrayMixerYellow",
+            "HueAdjustmentAqua",
+            "HueAdjustmentBlue",
+            "HueAdjustmentGreen",
+            "HueAdjustmentMagenta",
+            "HueAdjustmentOrange",
+            "HueAdjustmentPurple",
+            "HueAdjustmentRed",
+            "HueAdjustmentYellow",
+            "LuminanceAdjustmentAqua",
+            "LuminanceAdjustmentBlue",
+            "LuminanceAdjustmentGreen",
+            "LuminanceAdjustmentMagenta",
+            "LuminanceAdjustmentOrange",
+            "LuminanceAdjustmentPurple",
+            "LuminanceAdjustmentRed",
+            "LuminanceAdjustmentYellow",
+            "Saturation",
+            "SaturationAdjustmentAqua",
+            "SaturationAdjustmentBlue",
+            "SaturationAdjustmentGreen",
+            "SaturationAdjustmentMagenta",
+            "SaturationAdjustmentOrange",
+            "SaturationAdjustmentPurple",
+            "SaturationAdjustmentRed",
+            "SaturationAdjustmentYellow",
+            "Vibrance"
+          ],
+          "success": true,
+          "status": "applied",
+          "photoId": "D0A39377-BC39-463F-B709-BE735D439C7A",
+          "writeAttempted": true,
+          "verification": "catalog_readback",
+          "after": {
+            "ConvertToGrayscale": true
+          }
+        },
+        {
+          "before": {
+            "ConvertToGrayscale": false
+          },
+          "changedKeys": [
+            "ConvertToGrayscale",
+            "GrayMixerAqua",
+            "GrayMixerBlue",
+            "GrayMixerGreen",
+            "GrayMixerMagenta",
+            "GrayMixerOrange",
+            "GrayMixerPurple",
+            "GrayMixerRed",
+            "GrayMixerYellow",
+            "HueAdjustmentAqua",
+            "HueAdjustmentBlue",
+            "HueAdjustmentGreen",
+            "HueAdjustmentMagenta",
+            "HueAdjustmentOrange",
+            "HueAdjustmentPurple",
+            "HueAdjustmentRed",
+            "HueAdjustmentYellow",
+            "LuminanceAdjustmentAqua",
+            "LuminanceAdjustmentBlue",
+            "LuminanceAdjustmentGreen",
+            "LuminanceAdjustmentMagenta",
+            "LuminanceAdjustmentOrange",
+            "LuminanceAdjustmentPurple",
+            "LuminanceAdjustmentRed",
+            "LuminanceAdjustmentYellow",
+            "Saturation",
+            "SaturationAdjustmentAqua",
+            "SaturationAdjustmentBlue",
+            "SaturationAdjustmentGreen",
+            "SaturationAdjustmentMagenta",
+            "SaturationAdjustmentOrange",
+            "SaturationAdjustmentPurple",
+            "SaturationAdjustmentRed",
+            "SaturationAdjustmentYellow",
+            "Vibrance"
+          ],
+          "success": true,
+          "status": "applied",
+          "photoId": "824C4E42-7FD2-4DBB-869B-8958F51D690F",
+          "writeAttempted": true,
+          "verification": "catalog_readback",
+          "after": {
+            "ConvertToGrayscale": true
+          }
+        }
+      ]
+    },
+    "failed": 0,
+    "requestId": "1868c46944c04eaf9883724a51e148a8"
+  },
+  "batch_lr_set_white_balance": {
+    "applied": 2,
+    "success": true,
+    "notAttempted": 0,
+    "data": {
+      "note": "Readback verifies stored values, not rendered pixels or AI completion.",
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "aiUpdateRequested": false,
+      "results": [
+        {
+          "before": {
+            "Temperature": 4750,
+            "WhiteBalance": "Custom",
+            "Tint": 0
+          },
+          "changedKeys": [
+            "WhiteBalance"
+          ],
+          "success": true,
+          "status": "applied",
+          "photoId": "D0A39377-BC39-463F-B709-BE735D439C7A",
+          "writeAttempted": true,
+          "verification": "catalog_readback",
+          "after": {
+            "Temperature": 4750,
+            "WhiteBalance": "Daylight",
+            "Tint": 0
+          }
+        },
+        {
+          "before": {
+            "Temperature": 4750,
+            "WhiteBalance": "As Shot",
+            "Tint": 10
+          },
+          "changedKeys": [
+            "WhiteBalance"
+          ],
+          "success": true,
+          "status": "applied",
+          "photoId": "824C4E42-7FD2-4DBB-869B-8958F51D690F",
+          "writeAttempted": true,
+          "verification": "catalog_readback",
+          "after": {
+            "Temperature": 4750,
+            "WhiteBalance": "Daylight",
+            "Tint": 10
+          }
+        }
+      ]
+    },
+    "failed": 0,
+    "requestId": "df5fb28c8e8140839d02c90319152d06"
+  },
+  "passed": true,
+  "restoration": {
+    "38307390-7DE1-410D-8014-C0CEF92317FB": {},
+    "D0A39377-BC39-463F-B709-BE735D439C7A": {},
+    "824C4E42-7FD2-4DBB-869B-8958F51D690F": {}
+  }
+}

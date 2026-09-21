@@ -1,0 +1,238 @@
+{
+  "multiSelectionRestore": {
+    "before": {
+      "offset": 0,
+      "total": 2,
+      "hasMore": false,
+      "activePhotoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "photos": [
+        {
+          "copyName": "MCP 20260921 自动验收 1",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1037.ARW",
+          "filename": "_DSC1037.ARW",
+          "isVirtualCopy": true,
+          "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+          "rating": 5,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        },
+        {
+          "copyName": "MCP 20260921 自动验收 2",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1049.ARW",
+          "filename": "_DSC1049.ARW",
+          "isVirtualCopy": true,
+          "photoId": "D0A39377-BC39-463F-B709-BE735D439C7A",
+          "rating": 5,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        }
+      ]
+    },
+    "after": {
+      "offset": 0,
+      "total": 2,
+      "hasMore": false,
+      "activePhotoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "photos": [
+        {
+          "copyName": "MCP 20260921 自动验收 1",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1037.ARW",
+          "filename": "_DSC1037.ARW",
+          "isVirtualCopy": true,
+          "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+          "rating": 5,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        },
+        {
+          "copyName": "MCP 20260921 自动验收 2",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1049.ARW",
+          "filename": "_DSC1049.ARW",
+          "isVirtualCopy": true,
+          "photoId": "D0A39377-BC39-463F-B709-BE735D439C7A",
+          "rating": 5,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        }
+      ]
+    },
+    "result": {
+      "applied": 1,
+      "success": true,
+      "notAttempted": 0,
+      "data": {
+        "note": "Readback verifies stored values, not rendered pixels or AI completion.",
+        "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+        "selectionTemporarilyChanged": true,
+        "selectionRestored": true,
+        "aiUpdateRequested": false,
+        "results": [
+          {
+            "before": {
+              "Temperature": 4750,
+              "WhiteBalance": "Custom",
+              "Tint": 10
+            },
+            "changedKeys": [
+              "Temperature",
+              "WhiteBalance"
+            ],
+            "success": true,
+            "status": "applied",
+            "photoId": "824C4E42-7FD2-4DBB-869B-8958F51D690F",
+            "writeAttempted": true,
+            "verification": "catalog_readback",
+            "after": {
+              "Temperature": 5500,
+              "WhiteBalance": "Daylight",
+              "Tint": 10
+            }
+          }
+        ]
+      },
+      "failed": 0,
+      "requestId": "b54ce794a3634dda86b564d740943003"
+    }
+  },
+  "restored": true,
+  "initialMasks": {
+    "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+    "masks": [
+      {
+        "id": "133555A0-E8F2-47E3-83F3-654018A084E9",
+        "tools": [
+          {
+            "type": "aiSelection",
+            "name": "Subject 1",
+            "subtype": "subject",
+            "id": "C21AB9F3-A062-4C5D-B92E-398F8635650D",
+            "hidden": false,
+            "inverted": false
+          }
+        ],
+        "name": "Mask 1",
+        "hidden": false
+      }
+    ]
+  },
+  "gradientStart": {
+    "message": "add_mask: awaiting_user_input",
+    "data": {
+      "maskType": "gradient",
+      "adjustmentsDeferred": false,
+      "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+      "status": "awaiting_user_input"
+    },
+    "success": true,
+    "requestId": "720897d7fbd541bb89aab3e53a34134d"
+  },
+  "gradientUpdate": {
+    "message": "update_mask: verified",
+    "data": {
+      "maskId": "D8CA4436-F8A6-4113-962C-B3C6509CCF6B",
+      "selectedMaskId": "D8CA4436-F8A6-4113-962C-B3C6509CCF6B",
+      "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+      "adjustments": {
+        "Exposure": -0.4
+      },
+      "selectedToolId": "DF4AA0AE-CD4E-4171-B03A-2F46A69F9F8E"
+    },
+    "success": true,
+    "requestId": "5277a3ec01ca4a6ca1db2a427073a5ec"
+  },
+  "gradientDelete": {
+    "message": "delete_mask: verified",
+    "data": {
+      "deletedMaskId": "D8CA4436-F8A6-4113-962C-B3C6509CCF6B",
+      "maskId": "D8CA4436-F8A6-4113-962C-B3C6509CCF6B",
+      "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+      "masks": [
+        {
+          "id": "133555A0-E8F2-47E3-83F3-654018A084E9",
+          "tools": [
+            {
+              "type": "aiSelection",
+              "name": "Subject 1",
+              "subtype": "subject",
+              "id": "C21AB9F3-A062-4C5D-B92E-398F8635650D",
+              "hidden": false,
+              "inverted": false
+            }
+          ],
+          "name": "Mask 1",
+          "hidden": false
+        }
+      ]
+    },
+    "success": true,
+    "requestId": "5d14cdbe110a4334816ae203f1d11f4c"
+  },
+  "postDeleteMaskList": {
+    "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+    "masks": [
+      {
+        "id": "133555A0-E8F2-47E3-83F3-654018A084E9",
+        "tools": [
+          {
+            "type": "aiSelection",
+            "name": "Subject 1",
+            "subtype": "subject",
+            "id": "C21AB9F3-A062-4C5D-B92E-398F8635650D",
+            "hidden": false,
+            "inverted": false
+          }
+        ],
+        "name": "Mask 1",
+        "hidden": false
+      }
+    ]
+  },
+  "gradientVerified": true,
+  "gradientRestored": true,
+  "initialRemovePrefs": {
+    "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+    "creationRequiresUserDrawing": true,
+    "status": "ready",
+    "preferences": {
+      "brushFeather": 20,
+      "useGenerativeAI": false,
+      "detectObjects": false,
+      "toolOverlay": "always",
+      "visualizeSpots": false,
+      "newSpotType": "clone",
+      "brushSize": 10,
+      "visualizationThreshold": 50
+    }
+  },
+  "initialSpots": {
+    "offset": 0,
+    "revision": "0f6d1e30795fc4df24041f787c0e2829",
+    "count": 0,
+    "hasMore": false,
+    "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+    "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+    "hasSelection": false,
+    "spots": []
+  },
+  "openClone": {
+    "success": true,
+    "data": {
+      "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+      "creationRequiresUserDrawing": true,
+      "status": "ready",
+      "preferences": {
+        "brushFeather": 20,
+        "useGenerativeAI": false,
+        "detectObjects": false,
+        "toolOverlay": "always",
+        "visualizeSpots": false,
+        "newSpotType": "clone",
+        "brushSize": 10,
+        "visualizationThreshold": 50
+      }
+    },
+    "requestId": "765ee526f1294ca585221a8f26f4b1bd"
+  }
+}

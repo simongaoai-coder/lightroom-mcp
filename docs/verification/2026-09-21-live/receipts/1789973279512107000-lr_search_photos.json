@@ -1,0 +1,159 @@
+{
+  "tool": "lr_search_photos",
+  "args": {
+    "limit": 200
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "offset": 0,
+      "total": 14,
+      "hasMore": false,
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "photos": [
+        {
+          "copyName": "MCP 外观功能验证",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1049.ARW",
+          "filename": "_DSC1049.ARW",
+          "isVirtualCopy": true,
+          "photoId": "0345CEBC-483F-432E-A931-A487AE28DC46",
+          "rating": 5,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        },
+        {
+          "copyName": "MCP 第三阶段验证",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1049.ARW",
+          "filename": "_DSC1049.ARW",
+          "isVirtualCopy": true,
+          "photoId": "14A65391-F7EB-4D38-8442-8FAA09A202D5",
+          "rating": 5,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        },
+        {
+          "copyName": "MCP 旋转裁剪导航验证",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1049.ARW",
+          "filename": "_DSC1049.ARW",
+          "isVirtualCopy": true,
+          "photoId": "3E6469EC-5C95-4BB2-928A-2931C08D68DD",
+          "rating": 5,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        },
+        {
+          "copyName": "MCP 复制来源验证",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1049.ARW",
+          "filename": "_DSC1049.ARW",
+          "isVirtualCopy": true,
+          "photoId": "66FDE358-2C8D-4887-A522-84D173629828",
+          "rating": 5,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        },
+        {
+          "copyName": "",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1049.ARW",
+          "filename": "_DSC1049.ARW",
+          "isVirtualCopy": false,
+          "photoId": "6A644F6A-E754-4788-A73E-6D7B1C03CAC6",
+          "rating": 5,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        },
+        {
+          "copyName": "MCP 处理版本验证",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1049.ARW",
+          "filename": "_DSC1049.ARW",
+          "isVirtualCopy": true,
+          "photoId": "73C20A1A-16DB-415F-B3BE-306991B17034",
+          "rating": 5,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        },
+        {
+          "copyName": "MCP 粘贴撤销验证",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1049.ARW",
+          "filename": "_DSC1049.ARW",
+          "isVirtualCopy": true,
+          "photoId": "7990DCD0-F9ED-4334-8FD3-145385928C98",
+          "rating": 5,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        },
+        {
+          "copyName": "MCP 第二阶段验证",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1049.ARW",
+          "filename": "_DSC1049.ARW",
+          "isVirtualCopy": true,
+          "photoId": "866E8576-A8A5-4E7C-B538-26FBC308CE42",
+          "rating": 5,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        },
+        {
+          "copyName": "",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1042.ARW",
+          "filename": "_DSC1042.ARW",
+          "isVirtualCopy": false,
+          "photoId": "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+          "rating": 0,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        },
+        {
+          "copyName": "",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1044.ARW",
+          "filename": "_DSC1044.ARW",
+          "isVirtualCopy": false,
+          "photoId": "9D5D3A27-F8BE-4212-90B0-85ACD64E7435",
+          "rating": 0,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        },
+        {
+          "copyName": "",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1039.ARW",
+          "filename": "_DSC1039.ARW",
+          "isVirtualCopy": false,
+          "photoId": "ADE6F802-3F9C-472F-A3BE-AF46F9CD4602",
+          "rating": 0,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        },
+        {
+          "copyName": "",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1043.ARW",
+          "filename": "_DSC1043.ARW",
+          "isVirtualCopy": false,
+          "photoId": "B56CC7D2-2A95-4918-9926-D48A888D1751",
+          "rating": 0,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        },
+        {
+          "copyName": "",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1037.ARW",
+          "filename": "_DSC1037.ARW",
+          "isVirtualCopy": false,
+          "photoId": "B89CF565-C22A-4BA7-86EE-EF3CDF519EFD",
+          "rating": 5,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        },
+        {
+          "copyName": "MCP 第五阶段验证",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1049.ARW",
+          "filename": "_DSC1049.ARW",
+          "isVirtualCopy": true,
+          "photoId": "DB123BB2-99B6-436E-8096-4B08F641319D",
+          "rating": 5,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        }
+      ]
+    },
+    "requestId": "fa3c6f84ff90408b812ae81132a1efad"
+  },
+  "seconds": 0.10822510719299316
+}

@@ -4,7 +4,7 @@ local App=import 'LrApplication'
 local Prefs=import 'LrPrefs'
 local Library=require 'Library'
 local Develop=require 'Develop'
-local Styles={VERSION='2.12.0'}
+local Styles={VERSION='2.12.2'}
 local fail=Library.fail
 local groups={
     colorGrading={'SplitToningHighlightHue','SplitToningHighlightSaturation','SplitToningShadowHue',
@@ -33,7 +33,7 @@ function Styles.manifest(id)
 end
 function Styles.check(preset,photos)
     local m=Styles.manifest(preset:getUuid())
-    if not m then return nil end
+    if not m then fail('style_manifest_missing','Plugin preset has no verified selection manifest; recreate the style before applying') end
     if not m.verified then fail('style_unverified','Saved style creation was not verified') end
     local settings=preset:getSetting()
     if type(settings)~='table' then fail('style_changed','Native preset settings unavailable') end
@@ -53,6 +53,19 @@ function Styles.matches(manifest,raw)
     for key,value in pairs(manifest.settings) do if not equal(value,raw[key]) then return false end end
     return true
 end
+-- Verify known unselected invariants independently of the selected-field match.
+-- As Shot/Auto numeric WB values can be unresolved/recomputed by Lightroom;
+-- preserve their mode while requiring exact numeric preservation for Custom WB.
+function Styles.protectedChanges(manifest,before,after)
+    local changed={}
+    for key in string.gmatch('ProcessVersion WhiteBalance Temperature Tint IncrementalTemperature IncrementalTint Exposure Exposure2012 CropTop CropBottom CropLeft CropRight CropAngle HasCrop orientation ConvertToGrayscale CameraProfile CameraProfileDigest Look','%S+') do
+        local derivedWB=(key=='Temperature' or key=='Tint' or key=='IncrementalTemperature' or key=='IncrementalTint') and
+            (before.WhiteBalance=='As Shot' or before.WhiteBalance=='Auto') and manifest.settings.WhiteBalance==nil
+        if manifest.settings[key]==nil and not derivedWB and not equal(before[key],after[key]) then changed[#changed+1]=key end
+    end
+    return changed
+end
+
 function Styles.save(req)
     if type(req.name)~='string' or not req.name:match('%S') or req.name:find('[%z\1-\31\127]') then fail('invalid_arguments','Invalid style name') end
     if type(App.addDevelopPresetForPlugin)~='function' then fail('unsupported_api','Plugin preset creation unavailable') end

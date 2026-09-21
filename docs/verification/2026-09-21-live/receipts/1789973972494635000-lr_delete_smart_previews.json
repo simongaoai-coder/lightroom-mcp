@@ -1,0 +1,16 @@
+{
+  "tool": "lr_delete_smart_previews",
+  "args": {
+    "photoIds": [
+      "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8"
+    ]
+  },
+  "result": {
+    "requestId": "4c67d7c356814bfa9bca3e2540b7d8f3",
+    "error": "Use allowOffline=true to delete a preview whose original is offline",
+    "success": false,
+    "code": "offline_preview_protected",
+    "jobId": "19550bda368a46e2abc0e61fc4b56009"
+  },
+  "seconds": 0.11118006706237793
+}

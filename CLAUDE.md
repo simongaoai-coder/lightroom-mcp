@@ -540,3 +540,22 @@ settings contract; it supersedes older descriptions above of global setValue,
   or change selection. UI-only tools do not inherit these targeting options.
 - Tests: test_styles_lua.py / test_style_tools.py. Native persistence/rendering
   verification pending. Read docs/saved-styles-and-targets.md for exact limits.
+
+
+## Native acceptance fixes (2.12.2)
+
+- Main/Python/Batch/Styles are 2.12.2. Preserve the original 2.12.0 failure report.
+- Native applyDevelopPreset unexpectedly corrupted omitted Custom WB on 15.2.
+  Saved styles now apply cloned manifest.settings via applyDevelopSettings inside
+  write access; never whole preset or whole-photo settings. Native preset content
+  is still checked against the saved manifest. Missing plugin manifests fail closed.
+- Check selected fields plus protected unselected WB/exposure/crop/profile/process
+  invariants. Auto/As Shot numeric WB values may be derived; protect their modes.
+- Quick Develop is UI-bound despite being a photo method. Batch treatment/named WB
+  must verify exactly one selected target, recheck identity, and restore original
+  active/multi-selection after success/failure. Do not override manual selection
+  interference. As Shot retains its existing catalog write path. No source/filter
+  forcing; unselectable targets fail before native writes.
+- SDK double now reproduces native WB corruption and active-photo Quick Develop
+  routing. Test real rendering as well as stored WB mode: writing Daylight alone
+  changes the label but did not alter rendered pixels in the observed runtime.

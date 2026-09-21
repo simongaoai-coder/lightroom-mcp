@@ -318,10 +318,15 @@ IDs through `lr_list_presets` and `lr_apply_preset`. Duplicate names are rejecte
 saved-style process/WB compatibility and readback are checked.
 
 Numeric settings, preset application, treatment, named white balance and rotation
-now accept `photoIds` or `scope`, without changing UI selection. Existing defaults
+now accept `photoIds` or `scope`. Treatment/named WB temporarily select targets
+and restore the original selection; numeric settings/presets/rotation do not need
+selection changes. Existing defaults
 remain: current photo, except `lr_batch_apply_settings` defaults to selected.
 See [Saved styles and targets](docs/saved-styles-and-targets.md) for contracts and
-native-validation limits. Version **2.12.0**, **111 tools**.
+native-validation limits. Version **2.12.2**, **111 tools**. Saved styles apply only their recorded fields
+and independently verify protected unselected settings. See the
+[2.12.2 fix verification report](docs/2026-09-21-native-fixes.md) for native
+validation status and current runtime limitations.
 
 ## Available tools
 

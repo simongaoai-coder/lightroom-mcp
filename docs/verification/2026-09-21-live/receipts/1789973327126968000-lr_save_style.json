@@ -1,0 +1,72 @@
+{
+  "tool": "lr_save_style",
+  "args": {
+    "name": "MCP 20260921 实机旅行胶片",
+    "groups": [
+      "colorGrading",
+      "pointCurve",
+      "grain"
+    ]
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "persistent": true,
+      "settings": {
+        "SplitToningBalance": -10,
+        "ColorGradeShadowLum": 0,
+        "GrainAmount": 20,
+        "GrainFrequency": 50,
+        "ColorGradeBlending": 50,
+        "ToneCurvePV2012Blue": [
+          0,
+          0,
+          255,
+          255
+        ],
+        "SplitToningHighlightHue": 45,
+        "ColorGradeGlobalLum": 0,
+        "ColorGradeMidtoneHue": 0,
+        "ToneCurvePV2012": [
+          0,
+          0,
+          64,
+          55,
+          128,
+          135,
+          255,
+          255
+        ],
+        "ToneCurvePV2012Green": [
+          0,
+          0,
+          255,
+          255
+        ],
+        "ColorGradeHighlightLum": 0,
+        "GrainSize": 25,
+        "ColorGradeGlobalHue": 0,
+        "ColorGradeMidtoneSat": 0,
+        "SplitToningHighlightSaturation": 20,
+        "ToneCurvePV2012Red": [
+          0,
+          0,
+          255,
+          255
+        ],
+        "ColorGradeMidtoneLum": 0,
+        "ColorGradeGlobalSat": 0,
+        "SplitToningShadowSaturation": 15,
+        "SplitToningShadowHue": 220
+      },
+      "name": "MCP 20260921 实机旅行胶片",
+      "processVersion": "15.4",
+      "presetId": "FB94AB20-9873-47A9-841F-D472B02DF8F6",
+      "sourcePhotoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+      "verification": "native_preset_settings_readback",
+      "pluginOwned": true
+    },
+    "requestId": "1eb30c63e3c34c3c9167cdb8dc9f4d4a"
+  },
+  "seconds": 0.17544078826904297
+}

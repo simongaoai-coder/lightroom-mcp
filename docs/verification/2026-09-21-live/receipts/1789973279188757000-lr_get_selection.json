@@ -1,0 +1,28 @@
+{
+  "tool": "lr_get_selection",
+  "args": {},
+  "result": {
+    "success": true,
+    "data": {
+      "offset": 0,
+      "total": 1,
+      "hasMore": false,
+      "activePhotoId": "B89CF565-C22A-4BA7-86EE-EF3CDF519EFD",
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "photos": [
+        {
+          "copyName": "",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1037.ARW",
+          "filename": "_DSC1037.ARW",
+          "isVirtualCopy": false,
+          "photoId": "B89CF565-C22A-4BA7-86EE-EF3CDF519EFD",
+          "rating": 5,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        }
+      ]
+    },
+    "requestId": "c2016bc33cd4489ca9fc0fd6f5470cc0"
+  },
+  "seconds": 0.16670489311218262
+}

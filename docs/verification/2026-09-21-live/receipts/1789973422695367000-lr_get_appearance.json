@@ -1,0 +1,81 @@
+{
+  "tool": "lr_get_appearance",
+  "args": {},
+  "result": {
+    "success": true,
+    "data": {
+      "fileFormat": "RAW",
+      "whiteBalanceValuesSource": "catalog_stored",
+      "photoId": "824C4E42-7FD2-4DBB-869B-8958F51D690F",
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "storedTemperature": 2000,
+      "temperatureUnits": "kelvin",
+      "temperature": 2000,
+      "treatment": "color",
+      "tint": -150,
+      "profile": {
+        "Look": {
+          "Name": "Adobe Color",
+          "Group": {
+            "x-default": "Profiles"
+          },
+          "UUID": "B952C231111CD8E0ECCF14B86BAA7077",
+          "Amount": 1,
+          "SupportsAmount": false,
+          "SupportsOutputReferred": false,
+          "SupportsMonochrome": false,
+          "Parameters": {
+            "ToneCurvePV2012": [
+              0,
+              0,
+              22,
+              16,
+              40,
+              35,
+              127,
+              127,
+              224,
+              230,
+              240,
+              246,
+              255,
+              255
+            ],
+            "Version": "18.2",
+            "CameraProfile": "Adobe Standard",
+            "PointColors": [],
+            "ProcessVersion": "15.4",
+            "ToneCurvePV2012Blue": [
+              0,
+              0,
+              255,
+              255
+            ],
+            "ToneCurvePV2012Green": [
+              0,
+              0,
+              255,
+              255
+            ],
+            "ToneCurvePV2012Red": [
+              0,
+              0,
+              255,
+              255
+            ],
+            "LookTable": "E1095149FDB39D7A057BAB208837E2E1",
+            "ConvertToGrayscale": false,
+            "ToneCurveName2012": "",
+            "FilterList": []
+          }
+        },
+        "CameraProfile": "Adobe Standard",
+        "ConvertToGrayscale": false
+      },
+      "storedTint": -150,
+      "whiteBalance": "Custom"
+    },
+    "requestId": "f7ede6769fce43cc9f4799e2f6457ce9"
+  },
+  "seconds": 0.11031985282897949
+}

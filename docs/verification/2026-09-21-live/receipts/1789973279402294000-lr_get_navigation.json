@@ -1,0 +1,111 @@
+{
+  "tool": "lr_get_navigation",
+  "args": {},
+  "result": {
+    "success": true,
+    "data": {
+      "offset": 0,
+      "total": 1,
+      "filterPresets": [
+        {
+          "name": "Camera Info",
+          "presetId": "AA3F9B24-337A-4DF5-A60B-2709C90BD554"
+        },
+        {
+          "name": "Default Columns",
+          "presetId": "6277E12D-FA51-4872-934E-5B14A91889BD"
+        },
+        {
+          "name": "Exposure Info",
+          "presetId": "56A24080-5EE7-4700-903F-9881DC72BFE9"
+        },
+        {
+          "name": "Filters Off",
+          "presetId": "32983D2E-E1F3-47C6-A74C-15E3D3FA06E4"
+        },
+        {
+          "name": "Flagged",
+          "presetId": "4DCC28BF-BAF4-43F8-8956-4584FA18520D"
+        },
+        {
+          "name": "Location Columns",
+          "presetId": "E30E1A00-B808-4CB4-8DF0-02A279A18DF5"
+        },
+        {
+          "name": "Rated",
+          "presetId": "44AB3522-FCD5-42B3-BDB8-302FDAEF8EE8"
+        },
+        {
+          "name": "Unrated",
+          "presetId": "D0F48510-7810-41F8-A98A-613B4AEC1022"
+        }
+      ],
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "viewFilter": {
+        "export": "<nil>",
+        "ratingOp": ">=",
+        "whichCopies": "<nil>",
+        "comments": "<nil>",
+        "label5": false,
+        "label2": false,
+        "searchStringActive": false,
+        "label1": false,
+        "minRating": 0,
+        "columnBrowserActive": false,
+        "likes": "<nil>",
+        "gpsLocation": false,
+        "edit": "<nil>",
+        "filtersActive": false,
+        "label3": false,
+        "labelOp": "any",
+        "searchTarget": "all",
+        "searchString": "",
+        "noLabel": false,
+        "customLabel": false,
+        "label4": false,
+        "searchOp": "all",
+        "stack": "<nil>",
+        "columnBrowserDesc": [
+          {
+            "criteria": "dateHierarchy"
+          },
+          {
+            "criteria": "camera"
+          },
+          {
+            "criteria": "lens"
+          },
+          {
+            "criteria": "label"
+          }
+        ],
+        "pick": "<nil>"
+      },
+      "sources": [
+        {
+          "id": "entire_library",
+          "kind": "catalog"
+        }
+      ],
+      "activePhotoId": "B89CF565-C22A-4BA7-86EE-EF3CDF519EFD",
+      "hasMore": false,
+      "module": "library",
+      "photos": [
+        {
+          "copyName": "",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1037.ARW",
+          "filename": "_DSC1037.ARW",
+          "isVirtualCopy": false,
+          "photoId": "B89CF565-C22A-4BA7-86EE-EF3CDF519EFD",
+          "rating": 5,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        }
+      ],
+      "filterPresetName": "Filters Off",
+      "mainViewReadbackAvailable": false
+    },
+    "requestId": "81575b8da0684320aca33cf919045972"
+  },
+  "seconds": 0.21311116218566895
+}

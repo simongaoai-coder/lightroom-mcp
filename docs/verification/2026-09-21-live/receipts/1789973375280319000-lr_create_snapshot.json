@@ -1,0 +1,17 @@
+{
+  "tool": "lr_create_snapshot",
+  "args": {
+    "name": "MCP 20260921 验收基线"
+  },
+  "result": {
+    "success": false,
+    "code": "snapshot_exists",
+    "data": {
+      "photoId": "824C4E42-7FD2-4DBB-869B-8958F51D690F",
+      "snapshotId": "DB845D06-4F2D-4F79-B8BA-A5A9E1CC308D"
+    },
+    "error": "Snapshot name already exists",
+    "requestId": "6f2ce8d6544049238b583bd8541ab7be"
+  },
+  "seconds": 0.1080930233001709
+}

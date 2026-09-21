@@ -1,0 +1,25 @@
+{
+  "tool": "lr_apply_snapshot",
+  "args": {
+    "snapshotId": "E116A94E-D9D9-4CE9-BE00-36C2CD8B3B54",
+    "expectedPhotoId": "D0A39377-BC39-463F-B709-BE735D439C7A"
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "note": "Snapshot contents are not exposed by the SDK; changedKeys is observation, not full content verification.",
+      "changedKeys": [
+        "Contrast2012",
+        "Exposure2012",
+        "WhiteBalance"
+      ],
+      "status": "applied",
+      "photoId": "D0A39377-BC39-463F-B709-BE735D439C7A",
+      "snapshotId": "E116A94E-D9D9-4CE9-BE00-36C2CD8B3B54",
+      "verification": "sdk_completed_and_observed",
+      "name": "MCP 20260921 验收基线"
+    },
+    "requestId": "cd7c5d07b223439c94e7dc2869bd9db8"
+  },
+  "seconds": 0.850914716720581
+}

@@ -1,0 +1,30 @@
+{
+  "tool": "lr_select_photos",
+  "args": {
+    "photoIds": [
+      "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8"
+    ],
+    "activePhotoId": "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8"
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "photos": [
+        {
+          "copyName": "",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/MCP_ACCEPT_20260921_NO_EXIF.jpg",
+          "filename": "MCP_ACCEPT_20260921_NO_EXIF.jpg",
+          "isVirtualCopy": false,
+          "photoId": "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8",
+          "rating": 0,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        }
+      ],
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "activePhotoId": "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8"
+    },
+    "requestId": "3d9c9048dab4410390f5898c73bc2d56"
+  },
+  "seconds": 0.3726928234100342
+}

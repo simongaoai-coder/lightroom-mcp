@@ -1,0 +1,38 @@
+{
+  "tool": "lr_cancel_smart_preview_job",
+  "args": {
+    "jobId": "cbdd8c6cf2be44bcb3b38e610c09559b"
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "offset": 0,
+      "total": 6,
+      "operation": "build",
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "notStarted": 5,
+      "completed": 0,
+      "cancelRequested": true,
+      "createdAt": 811666324.04892,
+      "hasMore": false,
+      "jobId": "cbdd8c6cf2be44bcb3b38e610c09559b",
+      "status": "cancelling",
+      "failed": 0,
+      "results": [
+        {
+          "nativeCallAttempted": true,
+          "before": {
+            "hasSmartPreview": false,
+            "photoId": "6A644F6A-E754-4788-A73E-6D7B1C03CAC6",
+            "isVideo": false,
+            "originalAvailable": true
+          },
+          "success": false,
+          "photoId": "6A644F6A-E754-4788-A73E-6D7B1C03CAC6"
+        }
+      ]
+    },
+    "requestId": "95b120652db54de4a9c3eda82e0f13ef"
+  },
+  "seconds": 0.11233377456665039
+}

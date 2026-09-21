@@ -1,0 +1,16 @@
+{
+  "tool": "lr_build_smart_previews",
+  "args": {
+    "photoIds": [
+      "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8"
+    ]
+  },
+  "result": {
+    "requestId": "1546a6248c324f63a63d96b9b65f5df2",
+    "error": "Original is offline; cannot build a missing smart preview",
+    "success": false,
+    "code": "photo_unavailable",
+    "jobId": "16a6f5db2c734211b5e1be8b3b351338"
+  },
+  "seconds": 0.10980892181396484
+}

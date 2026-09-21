@@ -1,0 +1,366 @@
+{
+  "tool": "lr_get_metadata",
+  "args": {
+    "photoIds": [
+      "6A644F6A-E754-4788-A73E-6D7B1C03CAC6",
+      "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+      "9D5D3A27-F8BE-4212-90B0-85ACD64E7435",
+      "ADE6F802-3F9C-472F-A3BE-AF46F9CD4602",
+      "B56CC7D2-2A95-4918-9926-D48A888D1751",
+      "B89CF565-C22A-4BA7-86EE-EF3CDF519EFD"
+    ],
+    "fieldGroup": "capture"
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "photos": [
+        {
+          "missingFields": [
+            "cameraSerialNumber",
+            "subjectDistance",
+            "artist",
+            "gps",
+            "gpsAltitude",
+            "gpsImgDirection"
+          ],
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1049.ARW",
+          "pickStatus": 0,
+          "keywords": [],
+          "colorNameForLabel": "none",
+          "metadata": {
+            "isoSpeedRating": 100,
+            "bitDepth": 16,
+            "isCropped": false,
+            "lens": "E 28-75mm F2.8-2.8",
+            "height": 4000,
+            "flash": false,
+            "cameraModel": "ILCE-7M3",
+            "aspectRatio": 1.5,
+            "shutterSpeed": 0.0050000006577091,
+            "width": 6000,
+            "cameraMake": "Sony",
+            "dateTimeDigitizedISO8601": "2019-06-22T20:37:50-05:00",
+            "focalLength": 75,
+            "croppedDimensions": {
+              "height": 4000,
+              "width": 6000
+            },
+            "focalLength35mm": 75,
+            "dateTimeISO8601": "2019-06-22T20:37:50-05:00",
+            "dateTimeOriginal": 582899870,
+            "dimensions": {
+              "height": 4000,
+              "width": 6000
+            },
+            "dateTimeOriginalISO8601": "2019-06-22T20:37:50-05:00",
+            "fileFormat": "RAW",
+            "aperture": 2.8,
+            "exposure": "¹⁄₂₀₀ sec at ƒ / 2.8",
+            "fileSize": 49149440,
+            "dateTime": 582899870,
+            "exposureBias": 0,
+            "exposureProgram": "Aperture priority",
+            "dateTimeDigitized": 582899870,
+            "brightnessValue": "5.43",
+            "software": "ILCE-7M3 v3.01",
+            "meteringMode": "Pattern"
+          },
+          "filename": "_DSC1049.ARW",
+          "isVirtualCopy": false,
+          "rating": 5,
+          "copyName": "",
+          "photoId": "6A644F6A-E754-4788-A73E-6D7B1C03CAC6"
+        },
+        {
+          "missingFields": [
+            "cameraSerialNumber",
+            "subjectDistance",
+            "artist",
+            "gps",
+            "gpsAltitude",
+            "gpsImgDirection"
+          ],
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1042.ARW",
+          "pickStatus": 0,
+          "keywords": [],
+          "colorNameForLabel": "none",
+          "metadata": {
+            "isoSpeedRating": 100,
+            "bitDepth": 16,
+            "isCropped": false,
+            "lens": "E 28-75mm F2.8-2.8",
+            "height": 4000,
+            "flash": false,
+            "cameraModel": "ILCE-7M3",
+            "aspectRatio": 1.5,
+            "shutterSpeed": 0.0062500004110682,
+            "width": 6000,
+            "cameraMake": "Sony",
+            "dateTimeDigitizedISO8601": "2019-06-22T20:37:31-05:00",
+            "focalLength": 50,
+            "croppedDimensions": {
+              "height": 4000,
+              "width": 6000
+            },
+            "focalLength35mm": 50,
+            "dateTimeISO8601": "2019-06-22T20:37:31-05:00",
+            "dateTimeOriginal": 582899851,
+            "dimensions": {
+              "height": 4000,
+              "width": 6000
+            },
+            "dateTimeOriginalISO8601": "2019-06-22T20:37:31-05:00",
+            "fileFormat": "RAW",
+            "aperture": 2.8,
+            "exposure": "¹⁄₁₆₀ sec at ƒ / 2.8",
+            "fileSize": 49186304,
+            "dateTime": 582899851,
+            "exposureBias": 0,
+            "exposureProgram": "Aperture priority",
+            "dateTimeDigitized": 582899851,
+            "brightnessValue": "5.37",
+            "software": "ILCE-7M3 v3.01",
+            "meteringMode": "Pattern"
+          },
+          "filename": "_DSC1042.ARW",
+          "isVirtualCopy": false,
+          "rating": 0,
+          "copyName": "",
+          "photoId": "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412"
+        },
+        {
+          "missingFields": [
+            "cameraSerialNumber",
+            "subjectDistance",
+            "artist",
+            "gps",
+            "gpsAltitude",
+            "gpsImgDirection"
+          ],
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1044.ARW",
+          "pickStatus": 0,
+          "keywords": [],
+          "colorNameForLabel": "none",
+          "metadata": {
+            "isoSpeedRating": 100,
+            "bitDepth": 16,
+            "isCropped": false,
+            "lens": "E 28-75mm F2.8-2.8",
+            "height": 4000,
+            "flash": false,
+            "cameraModel": "ILCE-7M3",
+            "aspectRatio": 1.5,
+            "shutterSpeed": 0.0050000006577091,
+            "width": 6000,
+            "cameraMake": "Sony",
+            "dateTimeDigitizedISO8601": "2019-06-22T20:37:41-05:00",
+            "focalLength": 66,
+            "croppedDimensions": {
+              "height": 4000,
+              "width": 6000
+            },
+            "focalLength35mm": 66,
+            "dateTimeISO8601": "2019-06-22T20:37:41-05:00",
+            "dateTimeOriginal": 582899861,
+            "dimensions": {
+              "height": 4000,
+              "width": 6000
+            },
+            "dateTimeOriginalISO8601": "2019-06-22T20:37:41-05:00",
+            "fileFormat": "RAW",
+            "aperture": 2.8,
+            "exposure": "¹⁄₂₀₀ sec at ƒ / 2.8",
+            "fileSize": 49190400,
+            "dateTime": 582899861,
+            "exposureBias": 0,
+            "exposureProgram": "Aperture priority",
+            "dateTimeDigitized": 582899861,
+            "brightnessValue": "5.74",
+            "software": "ILCE-7M3 v3.01",
+            "meteringMode": "Pattern"
+          },
+          "filename": "_DSC1044.ARW",
+          "isVirtualCopy": false,
+          "rating": 0,
+          "copyName": "",
+          "photoId": "9D5D3A27-F8BE-4212-90B0-85ACD64E7435"
+        },
+        {
+          "missingFields": [
+            "cameraSerialNumber",
+            "subjectDistance",
+            "artist",
+            "gps",
+            "gpsAltitude",
+            "gpsImgDirection"
+          ],
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1039.ARW",
+          "pickStatus": 0,
+          "keywords": [],
+          "colorNameForLabel": "none",
+          "metadata": {
+            "isoSpeedRating": 100,
+            "bitDepth": 16,
+            "isCropped": false,
+            "lens": "E 28-75mm F2.8-2.8",
+            "height": 4000,
+            "flash": false,
+            "cameraModel": "ILCE-7M3",
+            "aspectRatio": 1.5,
+            "shutterSpeed": 0.0050000006577091,
+            "width": 6000,
+            "cameraMake": "Sony",
+            "dateTimeDigitizedISO8601": "2019-06-22T20:37:25-05:00",
+            "focalLength": 51,
+            "croppedDimensions": {
+              "height": 4000,
+              "width": 6000
+            },
+            "focalLength35mm": 51,
+            "dateTimeISO8601": "2019-06-22T20:37:25-05:00",
+            "dateTimeOriginal": 582899845,
+            "dimensions": {
+              "height": 4000,
+              "width": 6000
+            },
+            "dateTimeOriginalISO8601": "2019-06-22T20:37:25-05:00",
+            "fileFormat": "RAW",
+            "aperture": 2.8,
+            "exposure": "¹⁄₂₀₀ sec at ƒ / 2.8",
+            "fileSize": 49174016,
+            "dateTime": 582899845,
+            "exposureBias": 0,
+            "exposureProgram": "Aperture priority",
+            "dateTimeDigitized": 582899845,
+            "brightnessValue": "5.54",
+            "software": "ILCE-7M3 v3.01",
+            "meteringMode": "Pattern"
+          },
+          "filename": "_DSC1039.ARW",
+          "isVirtualCopy": false,
+          "rating": 0,
+          "copyName": "",
+          "photoId": "ADE6F802-3F9C-472F-A3BE-AF46F9CD4602"
+        },
+        {
+          "missingFields": [
+            "cameraSerialNumber",
+            "subjectDistance",
+            "artist",
+            "gps",
+            "gpsAltitude",
+            "gpsImgDirection"
+          ],
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1043.ARW",
+          "pickStatus": 0,
+          "keywords": [],
+          "colorNameForLabel": "none",
+          "metadata": {
+            "isoSpeedRating": 100,
+            "bitDepth": 16,
+            "isCropped": false,
+            "lens": "E 28-75mm F2.8-2.8",
+            "height": 4000,
+            "flash": false,
+            "cameraModel": "ILCE-7M3",
+            "aspectRatio": 1.5,
+            "shutterSpeed": 0.0062500004110682,
+            "width": 6000,
+            "cameraMake": "Sony",
+            "dateTimeDigitizedISO8601": "2019-06-22T20:37:34-05:00",
+            "focalLength": 41,
+            "croppedDimensions": {
+              "height": 4000,
+              "width": 6000
+            },
+            "focalLength35mm": 41,
+            "dateTimeISO8601": "2019-06-22T20:37:34-05:00",
+            "dateTimeOriginal": 582899854,
+            "dimensions": {
+              "height": 4000,
+              "width": 6000
+            },
+            "dateTimeOriginalISO8601": "2019-06-22T20:37:34-05:00",
+            "fileFormat": "RAW",
+            "aperture": 2.8,
+            "exposure": "¹⁄₁₆₀ sec at ƒ / 2.8",
+            "fileSize": 49178112,
+            "dateTime": 582899854,
+            "exposureBias": 0,
+            "exposureProgram": "Aperture priority",
+            "dateTimeDigitized": 582899854,
+            "brightnessValue": "5.31",
+            "software": "ILCE-7M3 v3.01",
+            "meteringMode": "Pattern"
+          },
+          "filename": "_DSC1043.ARW",
+          "isVirtualCopy": false,
+          "rating": 0,
+          "copyName": "",
+          "photoId": "B56CC7D2-2A95-4918-9926-D48A888D1751"
+        },
+        {
+          "missingFields": [
+            "cameraSerialNumber",
+            "subjectDistance",
+            "artist",
+            "gps",
+            "gpsAltitude",
+            "gpsImgDirection"
+          ],
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1037.ARW",
+          "pickStatus": 0,
+          "keywords": [],
+          "colorNameForLabel": "none",
+          "metadata": {
+            "isoSpeedRating": 100,
+            "bitDepth": 16,
+            "isCropped": true,
+            "lens": "E 28-75mm F2.8-2.8",
+            "height": 4000,
+            "flash": false,
+            "cameraModel": "ILCE-7M3",
+            "aspectRatio": 1.4998418222082,
+            "shutterSpeed": 0.0062500004110682,
+            "width": 6000,
+            "cameraMake": "Sony",
+            "dateTimeDigitizedISO8601": "2019-06-22T20:37:12-05:00",
+            "focalLength": 59,
+            "croppedDimensions": {
+              "height": 3161,
+              "width": 4741
+            },
+            "focalLength35mm": 59,
+            "dateTimeISO8601": "2019-06-22T20:37:12-05:00",
+            "dateTimeOriginal": 582899832,
+            "dimensions": {
+              "height": 4000,
+              "width": 6000
+            },
+            "dateTimeOriginalISO8601": "2019-06-22T20:37:12-05:00",
+            "fileFormat": "RAW",
+            "aperture": 2.8,
+            "exposure": "¹⁄₁₆₀ sec at ƒ / 2.8",
+            "fileSize": 49153536,
+            "dateTime": 582899832,
+            "exposureBias": 0,
+            "exposureProgram": "Aperture priority",
+            "dateTimeDigitized": 582899832,
+            "brightnessValue": "5.55",
+            "software": "ILCE-7M3 v3.01",
+            "meteringMode": "Pattern"
+          },
+          "filename": "_DSC1037.ARW",
+          "isVirtualCopy": false,
+          "rating": 5,
+          "copyName": "",
+          "photoId": "B89CF565-C22A-4BA7-86EE-EF3CDF519EFD"
+        }
+      ]
+    },
+    "requestId": "c36da3782d5e4f8d8ca2999c3600c214"
+  },
+  "seconds": 0.2174389362335205
+}

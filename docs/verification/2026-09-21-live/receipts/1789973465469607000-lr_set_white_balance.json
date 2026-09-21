@@ -1,0 +1,65 @@
+{
+  "tool": "lr_set_white_balance",
+  "args": {
+    "photoIds": [
+      "38307390-7DE1-410D-8014-C0CEF92317FB",
+      "D0A39377-BC39-463F-B709-BE735D439C7A"
+    ],
+    "mode": "As Shot"
+  },
+  "result": {
+    "applied": 2,
+    "success": true,
+    "notAttempted": 0,
+    "data": {
+      "note": "Readback verifies stored values, not rendered pixels or AI completion.",
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "aiUpdateRequested": false,
+      "results": [
+        {
+          "before": {
+            "Temperature": 5500,
+            "WhiteBalance": "Daylight",
+            "Tint": 10
+          },
+          "changedKeys": [
+            "WhiteBalance"
+          ],
+          "success": true,
+          "status": "applied",
+          "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+          "writeAttempted": true,
+          "verification": "catalog_readback",
+          "after": {
+            "Temperature": 5500,
+            "WhiteBalance": "As Shot",
+            "Tint": 10
+          }
+        },
+        {
+          "before": {
+            "Temperature": 4750,
+            "WhiteBalance": "Custom",
+            "Tint": 0
+          },
+          "changedKeys": [
+            "WhiteBalance"
+          ],
+          "success": true,
+          "status": "applied",
+          "photoId": "D0A39377-BC39-463F-B709-BE735D439C7A",
+          "writeAttempted": true,
+          "verification": "catalog_readback",
+          "after": {
+            "Temperature": 4750,
+            "WhiteBalance": "As Shot",
+            "Tint": 0
+          }
+        }
+      ]
+    },
+    "failed": 0,
+    "requestId": "357ef12d31f942fabf6eaaa8a2139212"
+  },
+  "seconds": 0.16624093055725098
+}

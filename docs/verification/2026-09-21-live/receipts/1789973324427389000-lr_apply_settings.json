@@ -1,0 +1,19 @@
+{
+  "tool": "lr_apply_settings",
+  "args": {
+    "photoIds": [
+      "38307390-7DE1-410D-8014-C0CEF92317FB",
+      "not-a-photo"
+    ],
+    "settings": {
+      "Exposure": 3
+    }
+  },
+  "result": {
+    "requestId": "726a31bfe275444696bd7ca3d88ff4bf",
+    "error": "Photo UUID is not in this catalog: not-a-photo",
+    "success": false,
+    "code": "photo_not_found"
+  },
+  "seconds": 0.11341214179992676
+}

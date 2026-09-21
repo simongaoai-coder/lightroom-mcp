@@ -1,0 +1,51 @@
+{
+  "tool": "lr_set_curve",
+  "args": {
+    "points": [
+      [
+        0,
+        0
+      ],
+      [
+        64,
+        55
+      ],
+      [
+        128,
+        135
+      ],
+      [
+        255,
+        255
+      ]
+    ]
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "channel": "rgb",
+      "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          64,
+          55
+        ],
+        [
+          128,
+          135
+        ],
+        [
+          255,
+          255
+        ]
+      ],
+      "nativeScale": 255
+    },
+    "requestId": "568cd84aaedc4d41b70f48abc6f3abaa"
+  },
+  "seconds": 2.074723243713379
+}

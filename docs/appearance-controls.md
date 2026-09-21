@@ -95,3 +95,12 @@ version differences, which were corrected and independently verified.
 SDK develop-settings tables are experimental and can change between versions.
 Automated tests cover the actual production Lua plus schema/IPC behavior. Mocks
 alone do not prove profile compatibility or rendering.
+
+
+## Explicit batches in 2.12.2
+
+Treatment and named WB now support photoIds/scope through Batch.lua. Native Quick
+Develop must operate on a verified single selection; batch execution temporarily
+selects each target and restores the original selection. See
+[saved styles and targets](saved-styles-and-targets.md) for restoration/error fields.
+Do not assume the photo-object method can edit an arbitrary unselected photo.

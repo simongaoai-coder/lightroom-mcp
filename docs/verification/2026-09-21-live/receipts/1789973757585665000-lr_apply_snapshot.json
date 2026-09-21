@@ -1,0 +1,34 @@
+{
+  "tool": "lr_apply_snapshot",
+  "args": {
+    "snapshotId": "DB845D06-4F2D-4F79-B8BA-A5A9E1CC308D"
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "note": "Snapshot contents are not exposed by the SDK; changedKeys is observation, not full content verification.",
+      "changedKeys": [
+        "Contrast2012",
+        "Exposure2012",
+        "GrainAmount",
+        "Look",
+        "SplitToningBalance",
+        "SplitToningHighlightHue",
+        "SplitToningHighlightSaturation",
+        "SplitToningShadowHue",
+        "SplitToningShadowSaturation",
+        "Temperature",
+        "ToneCurveName2012",
+        "ToneCurvePV2012",
+        "WhiteBalance"
+      ],
+      "status": "applied",
+      "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+      "snapshotId": "DB845D06-4F2D-4F79-B8BA-A5A9E1CC308D",
+      "verification": "sdk_completed_and_observed",
+      "name": "MCP 20260921 验收基线"
+    },
+    "requestId": "0e36c320be464bdf9b6db41edcfe523f"
+  },
+  "seconds": 0.5404229164123535
+}

@@ -1,0 +1,43 @@
+{
+  "tool": "lr_rotate_photo",
+  "args": {
+    "photoIds": [
+      "38307390-7DE1-410D-8014-C0CEF92317FB",
+      "D0A39377-BC39-463F-B709-BE735D439C7A"
+    ],
+    "direction": "right"
+  },
+  "result": {
+    "applied": 2,
+    "success": true,
+    "notAttempted": 0,
+    "data": {
+      "note": "Readback verifies stored values, not rendered pixels or AI completion.",
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "aiUpdateRequested": false,
+      "results": [
+        {
+          "before": "AB",
+          "success": true,
+          "status": "applied",
+          "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+          "writeAttempted": true,
+          "verification": "catalog_readback",
+          "after": "BC"
+        },
+        {
+          "before": "AB",
+          "success": true,
+          "status": "applied",
+          "photoId": "D0A39377-BC39-463F-B709-BE735D439C7A",
+          "writeAttempted": true,
+          "verification": "catalog_readback",
+          "after": "BC"
+        }
+      ]
+    },
+    "failed": 0,
+    "requestId": "44fde2530e5e47b7b8178d362b1d1cab"
+  },
+  "seconds": 0.16335105895996094
+}

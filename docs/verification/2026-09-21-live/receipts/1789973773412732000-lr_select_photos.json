@@ -1,0 +1,30 @@
+{
+  "tool": "lr_select_photos",
+  "args": {
+    "photoIds": [
+      "824C4E42-7FD2-4DBB-869B-8958F51D690F"
+    ],
+    "activePhotoId": "824C4E42-7FD2-4DBB-869B-8958F51D690F"
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "photos": [
+        {
+          "copyName": "MCP 20260921 风格目标",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1037.ARW",
+          "filename": "_DSC1037.ARW",
+          "isVirtualCopy": true,
+          "photoId": "824C4E42-7FD2-4DBB-869B-8958F51D690F",
+          "rating": 5,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        }
+      ],
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "activePhotoId": "824C4E42-7FD2-4DBB-869B-8958F51D690F"
+    },
+    "requestId": "e14a5110bee74318ba777fc0c72b65c0"
+  },
+  "seconds": 0.2693448066711426
+}

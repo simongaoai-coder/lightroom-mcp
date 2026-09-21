@@ -1,0 +1,20 @@
+{
+  "tool": "lr_apply_snapshot",
+  "args": {
+    "snapshotId": "45F5A7A5-0D24-415F-825B-A3FBE3BE11F2"
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "note": "Snapshot contents are not exposed by the SDK; changedKeys is observation, not full content verification.",
+      "changedKeys": [],
+      "status": "applied",
+      "photoId": "824C4E42-7FD2-4DBB-869B-8958F51D690F",
+      "snapshotId": "45F5A7A5-0D24-415F-825B-A3FBE3BE11F2",
+      "verification": "sdk_completed_and_observed",
+      "name": "MCP 20260921 风格目标基线"
+    },
+    "requestId": "4d0ca431bc164e3497a8e32d701bf90b"
+  },
+  "seconds": 1.3933837413787842
+}

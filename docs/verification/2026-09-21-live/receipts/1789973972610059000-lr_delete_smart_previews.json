@@ -1,0 +1,30 @@
+{
+  "tool": "lr_delete_smart_previews",
+  "args": {
+    "photoIds": [
+      "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8"
+    ],
+    "allowOffline": true
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "offset": 0,
+      "total": 1,
+      "operation": "delete",
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "notStarted": 1,
+      "completed": 0,
+      "cancelRequested": false,
+      "createdAt": 811666772.57798,
+      "hasMore": false,
+      "jobId": "35bf7234ba7f42fdb9ed8b9a9854247a",
+      "status": "queued",
+      "failed": 0,
+      "results": []
+    },
+    "requestId": "1377fa6caf8d48c5971d08d2c6620bf1",
+    "jobId": "35bf7234ba7f42fdb9ed8b9a9854247a"
+  },
+  "seconds": 0.11122703552246094
+}

@@ -1,0 +1,34 @@
+{
+  "tool": "lr_export_photos",
+  "args": {
+    "photoIds": [
+      "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412"
+    ],
+    "destination": "/tmp/lr-accept-20260921/export-fixture",
+    "longEdge": 1400,
+    "metadata": "copyrightOnly",
+    "removeLocation": true
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "offset": 0,
+      "total": 1,
+      "createdAt": 811666325.76417,
+      "status": "queued",
+      "notStarted": 1,
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "outputDirectory": "/private/tmp/lr-accept-20260921/export-fixture/LR-MCP-export-15742062b91e4f0e9fb7d1920357322b",
+      "completed": 0,
+      "cancelRequested": false,
+      "hasMore": false,
+      "jobId": "15742062b91e4f0e9fb7d1920357322b",
+      "format": "JPEG",
+      "failed": 0,
+      "results": []
+    },
+    "requestId": "b7fb0159c59c416985c375b4c810712e",
+    "jobId": "15742062b91e4f0e9fb7d1920357322b"
+  },
+  "seconds": 0.22081804275512695
+}

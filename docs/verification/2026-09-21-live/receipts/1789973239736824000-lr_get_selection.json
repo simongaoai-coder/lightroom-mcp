@@ -1,0 +1,12 @@
+{
+  "tool": "lr_get_selection",
+  "args": {},
+  "result": {
+    "success": false,
+    "code": "timeout",
+    "requestId": "c1c787cdea784ff8a594529f079d150d",
+    "outcomeUnknown": false,
+    "error": "Lightroom did not respond in time. An accepted operation may still finish; read back state before retrying."
+  },
+  "seconds": 5.025042772293091
+}

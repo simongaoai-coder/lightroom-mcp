@@ -1,0 +1,75 @@
+{
+  "tool": "lr_batch_adjust_relative",
+  "args": {
+    "photoIds": [
+      "38307390-7DE1-410D-8014-C0CEF92317FB",
+      "D0A39377-BC39-463F-B709-BE735D439C7A"
+    ],
+    "deltas": {
+      "Exposure": 0.5,
+      "Contrast": -5
+    }
+  },
+  "result": {
+    "applied": 2,
+    "success": true,
+    "notAttempted": 0,
+    "data": {
+      "deltas": {
+        "Exposure": 0.5,
+        "Contrast": -5
+      },
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "verification": "numeric_readback",
+      "results": [
+        {
+          "before": {
+            "Contrast": 0,
+            "Exposure": -0.5
+          },
+          "after": {
+            "Exposure": 0,
+            "Contrast": -5
+          },
+          "success": true,
+          "status": "applied",
+          "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+          "parameterKeys": {
+            "Contrast": "Contrast2012",
+            "Exposure": "Exposure2012"
+          },
+          "writeAttempted": true,
+          "target": {
+            "Contrast": -5,
+            "Exposure": 0
+          }
+        },
+        {
+          "before": {
+            "Contrast": 0,
+            "Exposure": 1
+          },
+          "after": {
+            "Exposure": 1.5,
+            "Contrast": -5
+          },
+          "success": true,
+          "status": "applied",
+          "photoId": "D0A39377-BC39-463F-B709-BE735D439C7A",
+          "parameterKeys": {
+            "Contrast": "Contrast2012",
+            "Exposure": "Exposure2012"
+          },
+          "writeAttempted": true,
+          "target": {
+            "Contrast": -5,
+            "Exposure": 1.5
+          }
+        }
+      ]
+    },
+    "failed": 0,
+    "requestId": "4183732ee3484ae3acffb7ab3737e5b3"
+  },
+  "seconds": 0.2691769599914551
+}

@@ -1,0 +1,57 @@
+{
+  "tool": "lr_apply_settings",
+  "args": {
+    "photoIds": [
+      "38307390-7DE1-410D-8014-C0CEF92317FB"
+    ],
+    "settings": {
+      "SplitToningHighlightHue": 45,
+      "SplitToningHighlightSaturation": 20,
+      "SplitToningShadowHue": 220,
+      "SplitToningShadowSaturation": 15,
+      "SplitToningBalance": -10,
+      "GrainAmount": 20,
+      "GrainSize": 25,
+      "GrainFrequency": 50
+    }
+  },
+  "result": {
+    "applied": 1,
+    "success": true,
+    "notAttempted": 0,
+    "data": {
+      "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "settings": {
+        "SplitToningBalance": -10,
+        "SplitToningShadowHue": 220,
+        "SplitToningHighlightSaturation": 20,
+        "SplitToningShadowSaturation": 15,
+        "SplitToningHighlightHue": 45,
+        "GrainFrequency": 50,
+        "GrainAmount": 20,
+        "GrainSize": 25
+      },
+      "results": [
+        {
+          "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+          "writeAttempted": true,
+          "success": true,
+          "settings": {
+            "SplitToningBalance": -10,
+            "SplitToningShadowHue": 220,
+            "SplitToningHighlightSaturation": 20,
+            "SplitToningShadowSaturation": 15,
+            "SplitToningHighlightHue": 45,
+            "GrainFrequency": 50,
+            "GrainAmount": 20,
+            "GrainSize": 25
+          }
+        }
+      ]
+    },
+    "failed": 0,
+    "requestId": "3d34a5fb94e347a193bf1ad55580f114"
+  },
+  "seconds": 0.1102750301361084
+}

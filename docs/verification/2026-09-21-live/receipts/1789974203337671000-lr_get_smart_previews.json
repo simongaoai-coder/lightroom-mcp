@@ -1,0 +1,66 @@
+{
+  "tool": "lr_get_smart_previews",
+  "args": {
+    "photoIds": [
+      "6A644F6A-E754-4788-A73E-6D7B1C03CAC6",
+      "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+      "9D5D3A27-F8BE-4212-90B0-85ACD64E7435",
+      "ADE6F802-3F9C-472F-A3BE-AF46F9CD4602",
+      "B56CC7D2-2A95-4918-9926-D48A888D1751",
+      "B89CF565-C22A-4BA7-86EE-EF3CDF519EFD",
+      "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8"
+    ]
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "photos": [
+        {
+          "hasSmartPreview": false,
+          "isVideo": false,
+          "photoId": "6A644F6A-E754-4788-A73E-6D7B1C03CAC6",
+          "originalAvailable": true
+        },
+        {
+          "hasSmartPreview": false,
+          "isVideo": false,
+          "photoId": "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+          "originalAvailable": true
+        },
+        {
+          "hasSmartPreview": false,
+          "isVideo": false,
+          "photoId": "9D5D3A27-F8BE-4212-90B0-85ACD64E7435",
+          "originalAvailable": true
+        },
+        {
+          "hasSmartPreview": false,
+          "isVideo": false,
+          "photoId": "ADE6F802-3F9C-472F-A3BE-AF46F9CD4602",
+          "originalAvailable": true
+        },
+        {
+          "hasSmartPreview": false,
+          "isVideo": false,
+          "photoId": "B56CC7D2-2A95-4918-9926-D48A888D1751",
+          "originalAvailable": true
+        },
+        {
+          "hasSmartPreview": false,
+          "isVideo": false,
+          "photoId": "B89CF565-C22A-4BA7-86EE-EF3CDF519EFD",
+          "originalAvailable": true
+        },
+        {
+          "hasSmartPreview": false,
+          "isVideo": false,
+          "photoId": "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8",
+          "originalAvailable": true
+        }
+      ]
+    },
+    "requestId": "a52110e597af406d9623c2bcfd1c948a"
+  },
+  "seconds": 0.10759496688842773
+}

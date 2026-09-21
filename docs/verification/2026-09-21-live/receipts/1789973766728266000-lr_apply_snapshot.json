@@ -1,0 +1,57 @@
+{
+  "tool": "lr_apply_snapshot",
+  "args": {
+    "snapshotId": "DB845D06-4F2D-4F79-B8BA-A5A9E1CC308D"
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "note": "Snapshot contents are not exposed by the SDK; changedKeys is observation, not full content verification.",
+      "changedKeys": [
+        "ConvertToGrayscale",
+        "GrayMixerAqua",
+        "GrayMixerBlue",
+        "GrayMixerGreen",
+        "GrayMixerMagenta",
+        "GrayMixerOrange",
+        "GrayMixerPurple",
+        "GrayMixerRed",
+        "GrayMixerYellow",
+        "HueAdjustmentAqua",
+        "HueAdjustmentBlue",
+        "HueAdjustmentGreen",
+        "HueAdjustmentMagenta",
+        "HueAdjustmentOrange",
+        "HueAdjustmentPurple",
+        "HueAdjustmentRed",
+        "HueAdjustmentYellow",
+        "Look",
+        "LuminanceAdjustmentAqua",
+        "LuminanceAdjustmentBlue",
+        "LuminanceAdjustmentGreen",
+        "LuminanceAdjustmentMagenta",
+        "LuminanceAdjustmentOrange",
+        "LuminanceAdjustmentPurple",
+        "LuminanceAdjustmentRed",
+        "LuminanceAdjustmentYellow",
+        "Saturation",
+        "SaturationAdjustmentAqua",
+        "SaturationAdjustmentBlue",
+        "SaturationAdjustmentGreen",
+        "SaturationAdjustmentMagenta",
+        "SaturationAdjustmentOrange",
+        "SaturationAdjustmentPurple",
+        "SaturationAdjustmentRed",
+        "SaturationAdjustmentYellow",
+        "Vibrance"
+      ],
+      "status": "applied",
+      "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+      "snapshotId": "DB845D06-4F2D-4F79-B8BA-A5A9E1CC308D",
+      "verification": "sdk_completed_and_observed",
+      "name": "MCP 20260921 验收基线"
+    },
+    "requestId": "7035b6582ed347248a22ddb79a16562a"
+  },
+  "seconds": 1.0113539695739746
+}

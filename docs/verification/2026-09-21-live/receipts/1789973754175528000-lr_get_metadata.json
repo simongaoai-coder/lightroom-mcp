@@ -1,0 +1,76 @@
+{
+  "tool": "lr_get_metadata",
+  "args": {
+    "photoIds": [
+      "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8"
+    ],
+    "fieldGroup": "capture"
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "photos": [
+        {
+          "missingFields": [
+            "cameraMake",
+            "cameraModel",
+            "cameraSerialNumber",
+            "lens",
+            "shutterSpeed",
+            "aperture",
+            "isoSpeedRating",
+            "focalLength",
+            "focalLength35mm",
+            "exposureBias",
+            "flash",
+            "exposure",
+            "brightnessValue",
+            "exposureProgram",
+            "meteringMode",
+            "subjectDistance",
+            "artist",
+            "software",
+            "dateTimeOriginal",
+            "dateTimeDigitized",
+            "dateTime",
+            "dateTimeOriginalISO8601",
+            "dateTimeDigitizedISO8601",
+            "dateTimeISO8601",
+            "gps",
+            "gpsAltitude",
+            "gpsImgDirection"
+          ],
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/MCP_ACCEPT_20260921_NO_EXIF.jpg",
+          "pickStatus": 0,
+          "keywords": [],
+          "colorNameForLabel": "none",
+          "metadata": {
+            "fileFormat": "JPG",
+            "isCropped": false,
+            "width": 1400,
+            "fileSize": 461209,
+            "aspectRatio": 1.5005359056806,
+            "bitDepth": 8,
+            "height": 933,
+            "croppedDimensions": {
+              "height": 933,
+              "width": 1400
+            },
+            "dimensions": {
+              "height": 933,
+              "width": 1400
+            }
+          },
+          "filename": "MCP_ACCEPT_20260921_NO_EXIF.jpg",
+          "isVirtualCopy": false,
+          "rating": 0,
+          "copyName": "",
+          "photoId": "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8"
+        }
+      ]
+    },
+    "requestId": "5dd2ee505f434b93b9dc379888f21782"
+  },
+  "seconds": 0.161956787109375
+}

@@ -1,0 +1,36 @@
+{
+  "tool": "lr_create_virtual_copies",
+  "args": {
+    "copyName": "MCP 20260921 自动验收 2"
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "created": [
+        {
+          "filename": "_DSC1049.ARW",
+          "photoId": "D0A39377-BC39-463F-B709-BE735D439C7A",
+          "copyName": "MCP 20260921 自动验收 2",
+          "masterPhotoId": "6A644F6A-E754-4788-A73E-6D7B1C03CAC6",
+          "isVirtualCopy": true
+        }
+      ],
+      "sources": [
+        {
+          "filename": "_DSC1049.ARW",
+          "photoId": "6A644F6A-E754-4788-A73E-6D7B1C03CAC6",
+          "copyName": "",
+          "masterPhotoId": "6A644F6A-E754-4788-A73E-6D7B1C03CAC6",
+          "isVirtualCopy": false
+        }
+      ],
+      "count": 1,
+      "photoId": "6A644F6A-E754-4788-A73E-6D7B1C03CAC6",
+      "selectionMatchesCreated": true,
+      "selectedPhotoId": "D0A39377-BC39-463F-B709-BE735D439C7A",
+      "status": "created"
+    },
+    "requestId": "ac9fcc92a2bc4e1bad3ea0cea59d9219"
+  },
+  "seconds": 0.22057819366455078
+}

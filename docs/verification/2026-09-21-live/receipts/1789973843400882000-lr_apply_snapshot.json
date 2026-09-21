@@ -1,0 +1,24 @@
+{
+  "tool": "lr_apply_snapshot",
+  "args": {
+    "snapshotId": "DB845D06-4F2D-4F79-B8BA-A5A9E1CC308D",
+    "expectedPhotoId": "38307390-7DE1-410D-8014-C0CEF92317FB"
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "note": "Snapshot contents are not exposed by the SDK; changedKeys is observation, not full content verification.",
+      "changedKeys": [
+        "Temperature",
+        "WhiteBalance"
+      ],
+      "status": "applied",
+      "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+      "snapshotId": "DB845D06-4F2D-4F79-B8BA-A5A9E1CC308D",
+      "verification": "sdk_completed_and_observed",
+      "name": "MCP 20260921 验收基线"
+    },
+    "requestId": "0342ca3833cb47c8baa11de449259fe9"
+  },
+  "seconds": 1.3873789310455322
+}

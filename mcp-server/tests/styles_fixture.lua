@@ -17,6 +17,7 @@ function app.addDevelopPresetForPlugin(plugin,name,values)
     nativePresets[#nativePresets+1]=p;return p
 end
 function import(name)
+    if name=='LrSelection' then return {selectNone=function()state.selected=nil;state.selection={}end}end
     if name=='LrPrefs' then return {prefsForPlugin=function()return prefs end} end
     if name=='LrApplication' then return app end
     if name=='LrFileUtils' then return {}end
@@ -32,15 +33,23 @@ for _,p in pairs(photos) do
     function p:applyDevelopPreset(preset,plugin,amount)
         state.presetCalls=(state.presetCalls or 0)+1
         if state.failPhoto==self.id then error('preset failed')end
-        if not state.noop then for k,v in pairs(preset.settings)do self.raw[k]=clone(v)end end
+        if not state.noop then
+            for k,v in pairs(preset.settings)do self.raw[k]=clone(v)end
+            -- Observed Lightroom 15.2 native selective-preset side effect.
+            if preset.settings.WhiteBalance==nil then self.raw.Temperature=-999999;self.raw.Tint=-999999 end
+        end
     end
     function p:quickDevelopSetTreatment(value)
+        assert(state.selected==self.id and #state.selection==1)
+        if state.quickFail==self.id then error('injected Quick Develop failure')end
         state.writes=state.writes+1
-        if not state.noop then self.raw.ConvertToGrayscale=value=='grayscale' end
+        if not state.noop then photos[state.selected].raw.ConvertToGrayscale=value=='grayscale' end
     end
     function p:quickDevelopSetWhiteBalance(value)
+        assert(state.selected==self.id and #state.selection==1)
+        if state.quickFail==self.id then error('injected Quick Develop failure')end
         state.writes=state.writes+1
-        if not state.noop then self.raw.WhiteBalance=value end
+        if not state.noop then photos[state.selected].raw.WhiteBalance=value end
     end
     function p:rotateRight()
         state.writes=state.writes+1

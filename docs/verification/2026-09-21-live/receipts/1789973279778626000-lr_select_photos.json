@@ -1,0 +1,30 @@
+{
+  "tool": "lr_select_photos",
+  "args": {
+    "photoIds": [
+      "6A644F6A-E754-4788-A73E-6D7B1C03CAC6"
+    ],
+    "activePhotoId": "6A644F6A-E754-4788-A73E-6D7B1C03CAC6"
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "photos": [
+        {
+          "copyName": "",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1049.ARW",
+          "filename": "_DSC1049.ARW",
+          "isVirtualCopy": false,
+          "photoId": "6A644F6A-E754-4788-A73E-6D7B1C03CAC6",
+          "rating": 5,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        }
+      ],
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "activePhotoId": "6A644F6A-E754-4788-A73E-6D7B1C03CAC6"
+    },
+    "requestId": "830110c6bb21438eb6102eec6b8b3b26"
+  },
+  "seconds": 0.26386404037475586
+}

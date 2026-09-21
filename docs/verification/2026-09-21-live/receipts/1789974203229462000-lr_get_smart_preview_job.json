@@ -1,0 +1,155 @@
+{
+  "tool": "lr_get_smart_preview_job",
+  "args": {
+    "jobId": "6abd9cc012514760aa9f589a7a27cdba"
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "offset": 0,
+      "total": 7,
+      "operation": "delete",
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "createdAt": 811667003.10912,
+      "notStarted": 0,
+      "completed": 7,
+      "cancelRequested": false,
+      "finishedAt": 811667003.17651,
+      "hasMore": false,
+      "jobId": "6abd9cc012514760aa9f589a7a27cdba",
+      "status": "completed",
+      "failed": 0,
+      "results": [
+        {
+          "before": {
+            "hasSmartPreview": true,
+            "path": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog Smart Previews.lrdata/C/CA5A/CA5A0B3D-3072-4F38-B0AE-C49190FD63BA.dng",
+            "isVideo": false,
+            "photoId": "6A644F6A-E754-4788-A73E-6D7B1C03CAC6",
+            "bytes": 385216,
+            "originalAvailable": true
+          },
+          "success": true,
+          "photoId": "6A644F6A-E754-4788-A73E-6D7B1C03CAC6",
+          "status": "deleted",
+          "nativeResult": "deleted",
+          "after": {
+            "hasSmartPreview": false,
+            "photoId": "6A644F6A-E754-4788-A73E-6D7B1C03CAC6",
+            "isVideo": false,
+            "originalAvailable": true
+          },
+          "nativeCallAttempted": true
+        },
+        {
+          "before": {
+            "hasSmartPreview": false,
+            "photoId": "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+            "isVideo": false,
+            "originalAvailable": true
+          },
+          "success": true,
+          "status": "unchanged",
+          "photoId": "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+          "after": {
+            "hasSmartPreview": false,
+            "photoId": "8DF6154A-2719-4BC8-91AB-BEC4AEBE1412",
+            "isVideo": false,
+            "originalAvailable": true
+          }
+        },
+        {
+          "before": {
+            "hasSmartPreview": false,
+            "photoId": "9D5D3A27-F8BE-4212-90B0-85ACD64E7435",
+            "isVideo": false,
+            "originalAvailable": true
+          },
+          "success": true,
+          "status": "unchanged",
+          "photoId": "9D5D3A27-F8BE-4212-90B0-85ACD64E7435",
+          "after": {
+            "hasSmartPreview": false,
+            "photoId": "9D5D3A27-F8BE-4212-90B0-85ACD64E7435",
+            "isVideo": false,
+            "originalAvailable": true
+          }
+        },
+        {
+          "before": {
+            "hasSmartPreview": false,
+            "photoId": "ADE6F802-3F9C-472F-A3BE-AF46F9CD4602",
+            "isVideo": false,
+            "originalAvailable": true
+          },
+          "success": true,
+          "status": "unchanged",
+          "photoId": "ADE6F802-3F9C-472F-A3BE-AF46F9CD4602",
+          "after": {
+            "hasSmartPreview": false,
+            "photoId": "ADE6F802-3F9C-472F-A3BE-AF46F9CD4602",
+            "isVideo": false,
+            "originalAvailable": true
+          }
+        },
+        {
+          "before": {
+            "hasSmartPreview": false,
+            "photoId": "B56CC7D2-2A95-4918-9926-D48A888D1751",
+            "isVideo": false,
+            "originalAvailable": true
+          },
+          "success": true,
+          "status": "unchanged",
+          "photoId": "B56CC7D2-2A95-4918-9926-D48A888D1751",
+          "after": {
+            "hasSmartPreview": false,
+            "photoId": "B56CC7D2-2A95-4918-9926-D48A888D1751",
+            "isVideo": false,
+            "originalAvailable": true
+          }
+        },
+        {
+          "before": {
+            "hasSmartPreview": true,
+            "path": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog Smart Previews.lrdata/B/BE49/BE49BB18-5C7F-45ED-A530-80061DA159CB.dng",
+            "isVideo": false,
+            "photoId": "B89CF565-C22A-4BA7-86EE-EF3CDF519EFD",
+            "bytes": 356868,
+            "originalAvailable": true
+          },
+          "success": true,
+          "photoId": "B89CF565-C22A-4BA7-86EE-EF3CDF519EFD",
+          "status": "deleted",
+          "nativeResult": "deleted",
+          "after": {
+            "hasSmartPreview": false,
+            "photoId": "B89CF565-C22A-4BA7-86EE-EF3CDF519EFD",
+            "isVideo": false,
+            "originalAvailable": true
+          },
+          "nativeCallAttempted": true
+        },
+        {
+          "before": {
+            "hasSmartPreview": false,
+            "photoId": "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8",
+            "isVideo": false,
+            "originalAvailable": true
+          },
+          "success": true,
+          "status": "unchanged",
+          "photoId": "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8",
+          "after": {
+            "hasSmartPreview": false,
+            "photoId": "ED2FA80A-3BF3-40F4-8A8C-4FF2C98656A8",
+            "isVideo": false,
+            "originalAvailable": true
+          }
+        }
+      ]
+    },
+    "requestId": "923342ebb8d54f75b8da2258f507dcd0"
+  },
+  "seconds": 0.11109519004821777
+}

@@ -1,0 +1,30 @@
+{
+  "tool": "lr_select_photos",
+  "args": {
+    "photoIds": [
+      "38307390-7DE1-410D-8014-C0CEF92317FB"
+    ],
+    "activePhotoId": "38307390-7DE1-410D-8014-C0CEF92317FB"
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "photos": [
+        {
+          "copyName": "MCP 20260921 自动验收 1",
+          "path": "/Users/gsm/Pictures/Lightroom_MCP_Test_Photo/_DSC1037.ARW",
+          "filename": "_DSC1037.ARW",
+          "isVirtualCopy": true,
+          "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+          "rating": 5,
+          "colorNameForLabel": "none",
+          "pickStatus": 0
+        }
+      ],
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "activePhotoId": "38307390-7DE1-410D-8014-C0CEF92317FB"
+    },
+    "requestId": "5d07b5d2bb504afc9f563c5fd17c046f"
+  },
+  "seconds": 0.16373896598815918
+}

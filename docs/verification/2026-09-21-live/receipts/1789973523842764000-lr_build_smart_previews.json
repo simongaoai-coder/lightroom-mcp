@@ -1,0 +1,29 @@
+{
+  "tool": "lr_build_smart_previews",
+  "args": {
+    "photoIds": [
+      "B89CF565-C22A-4BA7-86EE-EF3CDF519EFD"
+    ]
+  },
+  "result": {
+    "success": true,
+    "data": {
+      "offset": 0,
+      "total": 1,
+      "operation": "build",
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "notStarted": 1,
+      "completed": 0,
+      "cancelRequested": false,
+      "createdAt": 811666323.79501,
+      "hasMore": false,
+      "jobId": "bd55afc16f0747bbbe667e64329b05bc",
+      "status": "queued",
+      "failed": 0,
+      "results": []
+    },
+    "requestId": "5cd4ab59bba44ce3a3a44a620b1dcfe5",
+    "jobId": "bd55afc16f0747bbbe667e64329b05bc"
+  },
+  "seconds": 0.1658649444580078
+}

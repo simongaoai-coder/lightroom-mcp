@@ -1,0 +1,14 @@
+{
+  "tool": "lr_add_mask",
+  "args": {
+    "maskType": "gradient",
+    "expectedPhotoId": "38307390-7DE1-410D-8014-C0CEF92317FB"
+  },
+  "result": {
+    "requestId": "b9b355b295bf49e880295b5791e43b94",
+    "error": "Mask summary has not caught up with the selected photo",
+    "success": false,
+    "code": "context_timeout"
+  },
+  "seconds": 5.477725267410278
+}

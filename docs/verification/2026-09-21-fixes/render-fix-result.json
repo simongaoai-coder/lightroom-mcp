@@ -1,0 +1,15 @@
+{
+  "baseline": "/tmp/lr-accept-20260921/render-fix/LR-MCP-export-7884d341eaba4acfa8597b9b4821b69e/_DSC1037-0001.jpg",
+  "daylight": "/tmp/lr-accept-20260921/render-fix/LR-MCP-export-e5ad0598508f46228b68843642ffcceb/_DSC1037-0001.jpg",
+  "daylightRGBMeanDelta": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "daylightRaw": {
+    "WhiteBalance": "Daylight",
+    "Temperature": 4750,
+    "Tint": 10
+  },
+  "restored": true
+}

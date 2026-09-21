@@ -1,0 +1,36 @@
+{
+  "tool": "lr_apply_settings",
+  "args": {
+    "photoIds": [
+      "38307390-7DE1-410D-8014-C0CEF92317FB"
+    ],
+    "settings": {
+      "Exposure": -0.5
+    }
+  },
+  "result": {
+    "applied": 1,
+    "success": true,
+    "notAttempted": 0,
+    "data": {
+      "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+      "catalogPath": "/Users/gsm/Pictures/Lightroom/Lightroom Catalog.lrcat",
+      "settings": {
+        "Exposure": -0.5
+      },
+      "results": [
+        {
+          "photoId": "38307390-7DE1-410D-8014-C0CEF92317FB",
+          "writeAttempted": true,
+          "success": true,
+          "settings": {
+            "Exposure": -0.5
+          }
+        }
+      ]
+    },
+    "failed": 0,
+    "requestId": "c669f7ec353c4b9e84d55008dc1e3cbf"
+  },
+  "seconds": 0.21332502365112305
+}
