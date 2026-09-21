@@ -21,6 +21,21 @@ class MockWorkflows:
             return {'success': True, 'data': {'photos': [
                 {'photoId': pid, 'originalAvailable': True, 'hasSmartPreview': pid in self.previews}
                 for pid in ids]}}
+        if cmd in {'get_settings', 'preflight_settings'}:
+            rows=[]
+            for pid in ids:
+                values=self.settings[pid]
+                names=req.get('parameters', list(values))
+                if cmd=='get_settings':
+                    row={'photoId':pid,'success':True,'settings':{k:values[k] for k in names if k in values},
+                         'parameterKeys':{k:k for k in names if k in values},'unavailableParameters':[k for k in names if k not in values], 'processVersion':'15.4'}
+                else:
+                    relative=req.get('mode')=='relative';wanted=req['deltas' if relative else 'settings']
+                    target={k:values.get(k,0)+v if relative else v for k,v in wanted.items()}
+                    row={'photoId':pid,'ready':True,'before':{k:values.get(k,0) for k in wanted},'target':target,'catalogChanges':target}
+                rows.append(row)
+            if cmd=='get_settings':return {'success':True,'data':{'photos':rows,'total':len(rows),'read':len(rows),'failed':0}}
+            return {'success':True,'data':{'mode':req.get('mode','absolute'),'photos':rows,'total':len(rows),'readyCount':len(rows),'blockedCount':0,'batchIssues':[],'canApply':True,'readOnly':True}}
         if cmd == 'batch_adjust_relative':
             results = []
             for pid in ids:

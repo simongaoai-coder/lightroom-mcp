@@ -97,3 +97,10 @@ References: Adobe SDK Guide in this repository; API reference mirrors for
 [LrDevelopPreset](https://lrc.mcor.dev/modules/LrDevelopPreset.html). Adobe describes
 the catalog develop settings table as experimental; mappings therefore require
 per-photo presence checks and verified readback.
+
+
+## 2.13.0 update
+
+Settings reads now support explicit photo batches and parameter filtering. Numeric
+preflight shares execution planners; known tone/WB bounds are validated before
+absolute writes too. See [batch reads and preflight](batch-read-and-preflight.md).

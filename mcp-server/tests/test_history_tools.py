@@ -22,4 +22,4 @@ def test_history_over_ipc(mock_lr):
  s=call('lr_get_history_state')['data'];assert call('lr_redo',historyToken=s['historyToken'])['success']
 
 def test_registration():
- names={t.name for t in asyncio.run(server.list_tools())};assert len(names)==111 and set(HISTORY_COMMANDS)<=names
+ names={t.name for t in asyncio.run(server.list_tools())};assert len(names)==112 and set(HISTORY_COMMANDS)<=names

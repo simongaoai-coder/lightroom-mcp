@@ -116,6 +116,8 @@ class _State:
     def handle(self, req: dict) -> dict:
         cmd = req.get("command")
         with self._lock:
+            if cmd=='preflight_settings' or (cmd=='get_settings' and ('photoIds' in req or 'scope' in req)):
+                return self.workflow_state.handle(req)
             if cmd == 'save_style':
                 return self.version_state.handle(req)
             if 'lr_' + cmd in TARGET_TOOLS and ('photoIds' in req or 'scope' in req):
@@ -141,7 +143,7 @@ class _State:
             if cmd in MASK_COMMANDS.values():
                 return self.mask_state.handle({k: v for k, v in req.items() if k not in {"requestId", "expectedPluginVersion"}})
             if cmd == "ping":
-                return {"success": True, "message": "Mock LR Bridge running", "version": "2.12.2", "protocolVersion": 2}
+                return {"success": True, "message": "Mock LR Bridge running", "version": "2.13.0", "protocolVersion": 2}
 
             if cmd == "get_settings":
                 return {
@@ -149,7 +151,7 @@ class _State:
                     "data": {
                         "filename": self.photos[0] if self.photos else "none",
                         "rating": self.rating,
-                        "settings": dict(self.settings),
+                        "settings": {k:v for k,v in self.settings.items() if "parameters" not in req or k in req["parameters"]},
                     },
                 }
 

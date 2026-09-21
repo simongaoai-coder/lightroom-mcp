@@ -34,10 +34,11 @@ from healing_tools import healing_tools, HEALING_COMMANDS
 from library_tools import library_tools, LIBRARY_COMMANDS, DELIVERY_COMMANDS
 from workflow_tools import workflow_tools, PREVIEW_COMMANDS, RELATIVE_COMMANDS
 from style_tools import style_tools, target_properties, TARGET_TOOLS, STYLE_COMMANDS
+from inspection_tools import preflight_tools
 
 REQ_FILE = os.environ.get("LR_MCP_REQ", "/tmp/lr_mcp_req.json")
 RES_FILE = os.environ.get("LR_MCP_RES", "/tmp/lr_mcp_res.json")
-SERVER_VERSION = "2.12.2"
+SERVER_VERSION = "2.13.0"
 PROTOCOL_VERSION = 2
 _IPC_LOCK = threading.Lock()
 TIMEOUT = 10.0   # seconds to wait for Lua to respond
@@ -114,7 +115,7 @@ def _exchange(command: dict, timeout: float) -> dict:
     except (FileNotFoundError, ValueError):
         pass
     return {"success": False, "code": "timeout", "requestId": request_id,
-            "outcomeUnknown": command.get("command") not in {"ping", "get_settings", "list_presets", "list_snapshots", "list_virtual_copies", "get_curve", "list_point_colors", "get_selection", "search_photos", "get_metadata", "list_keywords", "list_collections", "get_export_status", "list_spots", "get_selected_spot", "get_remove_preferences", "get_ai_update_status", "get_appearance", "list_profiles", "get_geometry", "get_navigation", "list_folders", "list_folder_photos", "get_history_state", "get_process_version", "list_keyword_photos", "list_metadata_presets", "get_smart_previews", "get_smart_preview_job"},
+            "outcomeUnknown": command.get("command") not in {"ping", "get_settings", "list_presets", "list_snapshots", "list_virtual_copies", "get_curve", "list_point_colors", "get_selection", "search_photos", "get_metadata", "list_keywords", "list_collections", "get_export_status", "list_spots", "get_selected_spot", "get_remove_preferences", "get_ai_update_status", "get_appearance", "list_profiles", "get_geometry", "get_navigation", "list_folders", "list_folder_photos", "get_history_state", "get_process_version", "list_keyword_photos", "list_metadata_presets", "get_smart_previews", "get_smart_preview_job", "preflight_settings"},
             "error": "Lightroom did not respond in time. An accepted operation may still finish; read back state before retrying."}
 
 
@@ -177,7 +178,7 @@ def validate_settings(arguments):
 
 @app.list_tools()
 async def list_tools() -> list[types.Tool]:
-    tools = management_tools() + version_tools() + fine_tools() + library_tools() + healing_tools() + appearance_tools() + navigation_tools() + history_tools() + workflow_tools() + style_tools() + [
+    tools = management_tools() + version_tools() + fine_tools() + library_tools() + healing_tools() + appearance_tools() + navigation_tools() + history_tools() + workflow_tools() + style_tools() + preflight_tools() + [
         types.Tool(
             name="lr_apply_settings",
             description=(
@@ -449,6 +450,12 @@ async def list_tools() -> list[types.Tool]:
             ui_note = (' Native treatment/named WB temporarily single-select each target, then restore the original selection. Unselectable targets fail before native writes; manual selection interference stops the batch. As Shot WB uses direct catalog writes.'
                        if tool.name in {'lr_set_treatment', 'lr_set_white_balance'} else ' IDs do not change UI selection.')
             tool.description += ' Targets: photoIds (1-200 UUIDs) OR scope=current/selected.' + ui_note + ' Entire batch preflight, stop on first failure, no rollback. Explicit targets return per-photo results. expectedPhotoId guards the initial active UI photo, not each target.'
+    for tool in tools:
+        if tool.name == 'lr_get_settings':
+            tool.inputSchema['properties'].update(target_properties())
+            tool.inputSchema['properties']['parameters']={'type':'array','items':{'type':'string','minLength':1},'minItems':1,'maxItems':150,'uniqueItems':True}
+            tool.inputSchema['not']={'required':['photoIds','scope']}
+            tool.description='Read mapped numeric develop settings without changing selection. Optional parameters filters names (case insensitive). photoIds or scope returns data.photos with per-photo success/errors and unavailableParameters; omitted targets preserve the current-photo response. includeRaw defaults false; batch raw tables can be large. Boolean controls map to 0/1; WB units depend on each photo.'
     return tools
 
 
@@ -537,13 +544,8 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
         if result.get("success") and not result["compatible"]:
             result["warning"] = "Plugin/server versions differ; writes are blocked until deployment is updated."
 
-    elif name == "lr_get_settings":
-        if (not isinstance(arguments, dict) or set(arguments) - {"includeRaw", "expectedPhotoId"}
-                or ("includeRaw" in arguments and not isinstance(arguments["includeRaw"], bool))
-                or ("expectedPhotoId" in arguments and (not isinstance(arguments["expectedPhotoId"], str) or not arguments["expectedPhotoId"].strip()))):
-            result = {"success": False, "code": "invalid_arguments", "error": "Invalid get_settings arguments"}
-        else:
-            result = send_to_lightroom({"command": "get_settings", **arguments})
+    elif name in {"lr_get_settings", "lr_preflight_settings"}:
+        result = send_to_lightroom({"command": name.removeprefix("lr_"), **arguments}, timeout=120.0)
 
     elif name == "lr_auto_tone":
         result = send_to_lightroom({"command": "auto_tone"})

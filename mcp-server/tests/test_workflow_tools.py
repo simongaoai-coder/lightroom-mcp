@@ -30,7 +30,7 @@ def test_invalid_arguments_never_reach_ipc(monkeypatch,tool,args):
 
 def test_new_tools_registered_and_color_names_discoverable():
     tools={t.name:t for t in asyncio.run(server.list_tools())}
-    assert len(tools)==111 and set(PREVIEW_COMMANDS)|set(RELATIVE_COMMANDS)<=tools.keys()
+    assert len(tools)==112 and set(PREVIEW_COMMANDS)|set(RELATIVE_COMMANDS)<=tools.keys()
     assert 'SplitToningHighlightHue' in tools['lr_apply_settings'].description
 
 

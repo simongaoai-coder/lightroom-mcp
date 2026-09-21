@@ -13,7 +13,7 @@ local LrLogger            = import "LrLogger"
 local REQ_FILE      = "/tmp/lr_mcp_req.json"
 local RES_FILE      = "/tmp/lr_mcp_res.json"
 local POLL_INTERVAL = 0.05  -- seconds
-local VERSION       = "2.12.2"  -- keep in sync with Info.lua VERSION
+local VERSION       = "2.13.0"  -- keep in sync with Info.lua VERSION
 
 -- ── Bundled JSON encoder/decoder (no LrJSON dependency) ─────────────────────
 local function jsonEncodeValue(val)
@@ -421,7 +421,7 @@ local function dispatch(req)
         response.pluginPath = _PLUGIN.path
         response.protocolVersion = 2
 
-    elseif cmd == "apply_settings" or cmd == "get_settings" or cmd == "batch_apply_settings" or cmd == "batch_adjust_relative" then
+    elseif cmd == "apply_settings" or cmd == "get_settings" or cmd == "batch_apply_settings" or cmd == "batch_adjust_relative" or cmd == "preflight_settings" then
         response = Develop.handle(req)
 
     elseif cmd == "auto_tone" then

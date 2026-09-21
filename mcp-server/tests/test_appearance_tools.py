@@ -22,4 +22,4 @@ def test_transport(mock_lr):
  assert call('lr_get_appearance')['success']
 
 def test_registration():
- names={t.name for t in asyncio.run(server.list_tools())};assert len(names)==111 and set(APPEARANCE_COMMANDS)<=names
+ names={t.name for t in asyncio.run(server.list_tools())};assert len(names)==112 and set(APPEARANCE_COMMANDS)<=names

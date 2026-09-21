@@ -3,7 +3,7 @@ local Application = import "LrApplication"
 local Tasks = import "LrTasks"
 local View = import "LrApplicationView"
 local Date = import "LrDate"
-local Versions = {VERSION="2.7.0"}
+local Versions = {VERSION="2.13.0"}
 Versions.commands = {
     list_snapshots=true, create_snapshot=true, apply_snapshot=true, delete_snapshot=true,
     list_virtual_copies=true, create_virtual_copies=true, select_virtual_copy=true,
@@ -359,7 +359,7 @@ end
 -- Read-only bridge commands do not consume history. Other MCP operations do,
 -- even if they eventually fail: conservative invalidation is preferable to reuse.
 function Versions.beforeCommand(cmd)
-    if cmd=='get_history_state' or cmd=='undo' or cmd=='redo' or cmd=='ping' or cmd=='export_preview' or cmd:match('^get_') or cmd:match('^list_') or cmd:match('^search_')then return end
+    if cmd=='preflight_settings' or cmd=='get_history_state' or cmd=='undo' or cmd=='redo' or cmd=='ping' or cmd=='export_preview' or cmd:match('^get_') or cmd:match('^list_') or cmd:match('^search_')then return end
     historyObservation=nil
 end
 local function historyHandle(req)

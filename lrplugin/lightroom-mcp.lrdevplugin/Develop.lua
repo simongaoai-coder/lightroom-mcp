@@ -3,7 +3,7 @@ local Application = import "LrApplication"
 local Controller = import "LrDevelopController"
 local Tasks = import "LrTasks"
 local Date = import "LrDate"
-local Develop = {VERSION="2.12.0"}
+local Develop = {VERSION="2.13.0"}
 local PARAMETERS = {
     -- Additional documented numeric controls
     "ShadowTint", "RedHue", "RedSaturation", "GreenHue", "GreenSaturation", "BlueHue", "BlueSaturation",
@@ -144,16 +144,32 @@ local function normalize(settings)
     end
     return normalized
 end
-local function plan(photo, normalized)
+local relativeNames={}
+for name in string.gmatch('Exposure Contrast Highlights Shadows Whites Blacks Clarity Texture Dehaze Vibrance Saturation Temperature Tint','%S+') do relativeNames[name]=true end
+local function bounds(name,key,raw)
+    if name=='Temperature' then if key=='IncrementalTemperature' then return -100,100 end;return 2000,50000 end
+    if name=='Tint' then if key=='IncrementalTint' then return -100,100 end;return -150,150 end
+    if name:match('^Crop') then if name=='CropAngle' then return -45,45 end;return 0,1 end
+    if relativeNames[name] and finite(raw.Exposure2012) and (not tonumber(raw.ProcessVersion) or tonumber(raw.ProcessVersion)>=6.6) then
+        if name=='Exposure' then return -5,5 end;return -100,100
+    end
+end
+local function plan(photo, normalized, observed)
     requireAPI(photo, "applyDevelopSettings")
     if photo:getRawMetadata("isVideo") then fail("unsupported_photo", "Video develop writes are not supported") end
-    local raw = snapshot(photo)
-    local settings, keys = {}, {}
+    local raw = observed or snapshot(photo)
+    local settings, keys, before, ranges, unchecked = {}, {}, {}, {}, {}
     for name, value in pairs(normalized) do
         local key = resolve(name, raw)
         if not key then fail("unsupported_parameter", name .. " has no supported numeric mapping on this photo", {photoId=photoId(photo), parameter=name}) end
         if keys[key] then fail("invalid_arguments", "Parameters address the same catalog key: " .. key) end
-        keys[key] = name
+        keys[key] = name;before[name]=readValue(raw,key)
+        local low,high=bounds(name,key,raw)
+        if type(raw[key])=='boolean' then low,high=0,1 end
+        if low then
+            ranges[name]={minimum=low,maximum=high}
+            if value<low or value>high then fail('out_of_range','Target outside supported bounds',{photoId=photoId(photo),parameter=name,before=before[name],target=value,minimum=low,maximum=high}) end
+        else unchecked[#unchecked+1]=name end
         if type(raw[key]) == "boolean" then
             if value ~= 0 and value ~= 1 then fail("out_of_range", name .. " requires 0 or 1") end
             settings[key] = value == 1
@@ -169,7 +185,7 @@ local function plan(photo, normalized)
         settings.WhiteBalance = "Custom"
     end
     if settings.CropTop or settings.CropBottom or settings.CropLeft or settings.CropRight or settings.CropAngle then settings.HasCrop = true end
-    return {photo=photo, settings=settings, keys=keys, photoId=photoId(photo)}
+    return {photo=photo, settings=settings, keys=keys, photoId=photoId(photo),before=before,processVersion=raw.ProcessVersion,checkedRanges=ranges,uncheckedRanges=unchecked}
 end
 local function readback(item, normalized)
     local values, matches = {}, true
@@ -249,62 +265,106 @@ local function apply(req, batch)
         applied=applied, failed=success and 0 or 1, notAttempted=#plans-#results,
         data={photoId=target and photoId(target) or nil, catalogPath=context and context.path or nil, settings=#plans==1 and results[1].settings or nil, results=results}}
 end
-local function get(req)
-    local photo = Application.activeCatalog():getTargetPhoto()
-    if not photo then fail("no_photo", "No photo selected") end
-    checkTarget(photo, req.expectedPhotoId)
-    local raw, settings, mapping, unavailable = snapshot(photo), {}, {}, {}
-    for _, name in ipairs(PARAMETERS) do
-        local key = resolve(name, raw)
-        if key then settings[name] = readValue(raw, key); mapping[name] = key
-        else unavailable[#unavailable+1] = name end
+local function object() return setmetatable({}, {__jsontype='object'}) end
+local function parameterList(requested)
+    if requested==nil then return PARAMETERS end
+    if type(requested)~='table' or #requested<1 or #requested>150 then fail('invalid_arguments','parameters must contain 1-150 names') end
+    local list,seen={},{}
+    for i,name in pairs(requested) do
+        if type(i)~='number' or i%1~=0 or i<1 or i>#requested then fail('invalid_arguments','parameters must be an array') end
+        local canonical=type(name)=='string' and index[name:lower()]
+        if not canonical then fail('unsupported_parameter','Unknown parameter: '..tostring(name)) end
+        if seen[canonical] then fail('invalid_arguments','Duplicate parameter: '..canonical) end
+        seen[canonical]=true;list[i]=canonical
     end
-    checkTarget(photo, req.expectedPhotoId)
-    return {success=true, data={photoId=photoId(photo), filename=photo:getFormattedMetadata("fileName"),
-        rating=photo:getRawMetadata("rating"), processVersion=raw.ProcessVersion,
-        settings=settings, parameterKeys=mapping, unavailableParameters=unavailable,
-        rawSettings=req.includeRaw and raw or nil}}
+    return list
+end
+local function readPhoto(photo,req,names)
+    local raw,settings,mapping,unavailable=snapshot(photo),object(),object(),{}
+    for _,name in ipairs(names) do
+        local key=resolve(name,raw)
+        if key then settings[name]=readValue(raw,key);mapping[name]=key
+        else unavailable[#unavailable+1]=name end
+    end
+    return {photoId=photoId(photo),filename=photo:getFormattedMetadata('fileName'),
+        rating=photo:getRawMetadata('rating'),processVersion=raw.ProcessVersion,
+        settings=settings,parameterKeys=mapping,unavailableParameters=unavailable,
+        rawSettings=req.includeRaw and raw or nil}
+end
+local function get(req)
+    if req.includeRaw~=nil and type(req.includeRaw)~='boolean' then fail('invalid_arguments','includeRaw must be boolean') end
+    local names=parameterList(req.parameters)
+    if req.photoIds==nil and req.scope==nil and req.expectedCatalogPath==nil then
+        local photo=Application.activeCatalog():getTargetPhoto()
+        if not photo then fail('no_photo','No photo selected') end
+        checkTarget(photo,req.expectedPhotoId)
+        local row=readPhoto(photo,req,names);checkTarget(photo,req.expectedPhotoId)
+        return {success=true,data=row}
+    end
+    local Library=require 'Library'
+    local c=Library.context(req);local photos=Library.targets(c,req);local rows,failed={},0
+    for _,photo in ipairs(photos) do
+        Library.check(c)
+        local ok,row=Tasks.pcall(function()return readPhoto(photo,req,names)end)
+        Library.check(c)
+        if ok then row.success=true else
+            failed=failed+1
+            row={photoId=photoId(photo),success=false,code=type(row)=='table' and row.code or 'sdk_error',error=type(row)=='table' and row.error or tostring(row)}
+        end
+        rows[#rows+1]=row
+    end
+    if req.photoIds==nil and req.scope==nil and failed==0 then
+        rows[1].catalogPath=c.path;return {success=true,data=rows[1]}
+    end
+    return {success=failed==0,code=failed>0 and 'partial_failure' or nil,
+        data={catalogPath=c.path,total=#photos,read=#photos-failed,failed=failed,photos=rows}}
 end
 -- Exact per-photo deltas on the existing catalog-backed numeric API. Quick
 -- Develop's small/large buttons have different semantics and are not used here.
-local relativeNames={}
-for name in string.gmatch('Exposure Contrast Highlights Shadows Whites Blacks Clarity Texture Dehaze Vibrance Saturation Temperature Tint','%S+') do relativeNames[name]=true end
+local function relativePlan(photo,deltas,observed)
+    local units={}
+    local raw=observed or snapshot(photo)
+    if not finite(raw.Exposure2012) or (tonumber(raw.ProcessVersion) and tonumber(raw.ProcessVersion)<6.6) then fail('unsupported_process_version','Relative adjustments require modern process settings (Exposure2012)') end
+    local before,target,keys={},{},{}
+    for name,delta in pairs(deltas) do
+        local key=resolve(name,raw)
+        if not key or not finite(raw[key]) then fail('unsupported_parameter','No numeric mapping for '..name) end
+        local unit=(name=='Temperature' or name=='Tint') and key or name
+        units[name]=unit
+        local low,high=bounds(name,key,raw)
+        before[name]=raw[key];target[name]=raw[key]+delta;keys[name]=key
+        if not finite(target[name]) or target[name]<low or target[name]>high then
+            fail('out_of_range','Relative target outside supported range; no clamping',
+                {photoId=photoId(photo),parameter=name,before=raw[key],target=target[name],minimum=low,maximum=high})
+        end
+    end
+    local item=plan(photo,target,raw)
+    -- A zero WB delta must not switch Auto/As Shot to Custom when another
+    -- parameter is changed in the same request.
+    for name,delta in pairs(deltas) do if delta==0 then item.settings[keys[name]]=nil end end
+    if (deltas.Temperature or 0)==0 and (deltas.Tint or 0)==0 then item.settings.WhiteBalance=nil end
+    item.before=before;item.target=target;item.parameterKeys=keys
+    item.processVersion=raw.ProcessVersion;item.whiteBalance=raw.WhiteBalance
+    item.units=units;return item
+end
+local function unitIssue(plans)
+    local units={}
+    for _,item in ipairs(plans) do for name,unit in pairs(item.units or {}) do
+        if units[name] and units[name]~=unit then return {code='mixed_parameter_units',parameter=name,error='Split RAW and rendered white-balance adjustments into separate batches'} end
+        units[name]=unit
+    end end
+end
+
 local function relative(req)
     local Library=require 'Library'
     local c=Library.context(req);local photos=Library.targets(c,req)
     local deltas=normalize(req.deltas)
     for name in pairs(deltas) do if not relativeNames[name] then fail('unsupported_parameter','Not an additive parameter: '..name) end end
-    local plans,units={},{}
+    local plans={}
     for _,photo in ipairs(photos) do
-        Library.check(c)
-        local raw=snapshot(photo)
-        if not finite(raw.Exposure2012) or (tonumber(raw.ProcessVersion) and tonumber(raw.ProcessVersion)<6.6) then fail('unsupported_process_version','Relative adjustments require modern process settings (Exposure2012)') end
-        local before,target,keys={},{},{}
-        for name,delta in pairs(deltas) do
-            local key=resolve(name,raw)
-            if not key or not finite(raw[key]) then fail('unsupported_parameter','No numeric mapping for '..name) end
-            local unit=(name=='Temperature' or name=='Tint') and key or name
-            if units[name] and units[name]~=unit then fail('mixed_parameter_units','Split RAW and rendered white-balance adjustments into separate batches') end
-            units[name]=unit
-            local low,high=-100,100
-            if name=='Exposure' then low,high=-5,5
-            elseif name=='Temperature' and key=='Temperature' then low,high=2000,50000
-            elseif name=='Tint' and key=='Tint' then low,high=-150,150 end
-            before[name]=raw[key];target[name]=raw[key]+delta;keys[name]=key
-            if not finite(target[name]) or target[name]<low or target[name]>high then
-                fail('out_of_range','Relative target outside supported range; no clamping',
-                    {photoId=photoId(photo),parameter=name,before=raw[key],target=target[name],minimum=low,maximum=high})
-            end
-        end
-        local item=plan(photo,target)
-        -- A zero WB delta must not switch Auto/As Shot to Custom when another
-        -- parameter is changed in the same request.
-        for name,delta in pairs(deltas) do if delta==0 then item.settings[keys[name]]=nil end end
-        if (deltas.Temperature or 0)==0 and (deltas.Tint or 0)==0 then item.settings.WhiteBalance=nil end
-        item.before=before;item.target=target;item.parameterKeys=keys
-        item.processVersion=raw.ProcessVersion;item.whiteBalance=raw.WhiteBalance
-        plans[#plans+1]=item
+        Library.check(c);plans[#plans+1]=relativePlan(photo,deltas)
     end
+    local issue=unitIssue(plans);if issue then fail(issue.code,issue.error) end
     Library.check(c)
     local results,applied={},0
     for _,item in ipairs(plans) do
@@ -359,6 +419,50 @@ local function relative(req)
         data={catalogPath=c.path,results=results,deltas=deltas,verification='numeric_readback'}}
 end
 
+local function preflight(req)
+    local Library=require 'Library'
+    local c=Library.context(req);local photos=Library.targets(c,req)
+    local mode=req.mode or 'absolute'
+    if mode~='absolute' and mode~='relative' then fail('invalid_arguments','Invalid preflight mode') end
+    if (mode=='absolute' and (req.deltas~=nil or req.settings==nil)) or
+       (mode=='relative' and (req.settings~=nil or req.deltas==nil)) then fail('invalid_arguments','Use settings for absolute or deltas for relative') end
+    local normalized=normalize(mode=='absolute' and req.settings or req.deltas)
+    if mode=='relative' then for name in pairs(normalized) do if not relativeNames[name] then fail('unsupported_parameter','Not an additive parameter: '..name) end end end
+    local rows,plans,blocked={}, {},0
+    for _,photo in ipairs(photos) do
+        Library.check(c)
+        local row={photoId=photoId(photo),ready=false}
+        local ok,err=Tasks.pcall(function()
+            local raw=snapshot(photo)
+            row.processVersion=raw.ProcessVersion
+            row.before=object();row.parameterKeys=object();row.unavailableParameters={}
+            for name in pairs(normalized) do
+                local key=resolve(name,raw)
+                if key then row.before[name]=readValue(raw,key);row.parameterKeys[name]=key
+                else row.unavailableParameters[#row.unavailableParameters+1]=name end
+            end
+            table.sort(row.unavailableParameters)
+            local item=mode=='relative' and relativePlan(photo,normalized,raw) or plan(photo,normalized,raw)
+            row.target=mode=='relative' and item.target or Library.clone(normalized)
+            row.catalogChanges=next(item.settings) and Library.clone(item.settings) or object()
+            row.checkedRanges=next(item.checkedRanges) and item.checkedRanges or object();row.uncheckedRanges=item.uncheckedRanges
+            table.sort(row.uncheckedRanges)
+            row.ready=true;plans[#plans+1]=item
+        end)
+        Library.check(c)
+        if not ok then
+            blocked=blocked+1;row.code=type(err)=='table' and err.code or 'sdk_error'
+            row.error=type(err)=='table' and err.error or tostring(err);row.details=type(err)=='table' and err.data or nil
+        end
+        rows[#rows+1]=row
+    end
+    local issues={};local issue=unitIssue(plans);if issue then issues[1]=issue end
+    return {success=true,data={mode=mode,catalogPath=c.path,total=#photos,readyCount=#photos-blocked,blockedCount=blocked,
+        canApply=blocked==0 and #issues==0,photos=rows,batchIssues=issues,readOnly=true,
+        validationScope='existing_execution_preflight',
+        note='Observation only, not a reservation or rendering guarantee. Execution rechecks state. Known numeric bounds, crop geometry and boolean constraints are checked. uncheckedRanges lists controls without per-photo range validation; native clamping/rendering is not guaranteed.'}}
+end
+
 function Develop.captureStyle(photo,names,curve)
     if photo:getRawMetadata('isVideo') then fail('unsupported_photo','Styles require a photo') end
     local raw=snapshot(photo);local settings={}
@@ -407,6 +511,7 @@ end
 function Develop.handle(req)
     local ok, result = Tasks.pcall(function()
         if req.command == "get_settings" then return get(req) end
+        if req.command == "preflight_settings" then return preflight(req) end
         if req.command == "batch_adjust_relative" then return relative(req) end
         return apply(req, req.command == "batch_apply_settings")
     end)

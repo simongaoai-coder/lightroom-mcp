@@ -559,3 +559,22 @@ settings contract; it supersedes older descriptions above of global setValue,
 - SDK double now reproduces native WB corruption and active-photo Quick Develop
   routing. Test real rendering as well as stored WB mode: writing Daylight alone
   changes the label but did not alter rendered pixels in the observed runtime.
+
+
+## Batch reads and numeric preflight (2.13.0)
+
+- Main/Python/Develop/Versions are 2.13.0; 112 tools. Read-only workflows do not
+  acquire write gates, call UI/setters, change selection, or consume undo tokens.
+- lr_get_settings keeps legacy current-photo output when target options are absent;
+  photoIds/scope returns per-photo data.photos and read/failed counts. parameters
+  is case-insensitive, canonical duplicates rejected. Missing target IDs are fatal;
+  getter errors are per-photo. Guard catalog/active context before and after reads.
+- lr_preflight_settings covers absolute settings/relative deltas only. Reuse plan
+  and relativePlan; do not fork an independent approximation. success means the
+  inspection completed; data.canApply combines individual and cross-photo checks.
+- Known modern numeric bounds are shared with actual writes. uncheckedRanges means
+  other ranges were not validated; never query current UI getRange for another photo.
+- Preview is not a reservation. Execution rechecks current values; no automatic
+  apply, mutation retry or rollback. See docs/batch-read-and-preflight.md.
+- Tests: test_inspection_lua.py/test_inspection_tools.py plus existing mutation and
+  history suites. Native 2.13 validation pending; do not reuse older live claims.

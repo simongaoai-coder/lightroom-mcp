@@ -21,4 +21,4 @@ def test_recursive_search_and_structures_over_ipc(mock_lr):
  p=call('lr_list_metadata_presets')['data']['presets'][0]
  assert call('lr_apply_metadata_preset',presetId=p['presetId'])['success']
 
-def test_count():assert len(asyncio.run(server.list_tools()))==111
+def test_count():assert len(asyncio.run(server.list_tools()))==112

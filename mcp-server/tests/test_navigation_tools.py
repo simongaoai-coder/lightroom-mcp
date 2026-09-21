@@ -28,4 +28,4 @@ def test_native_routes_over_ipc(mock_lr):
  assert call('lr_get_navigation')['data']['viewFilter']['minRating']==4
 
 def test_tool_registration():
- names={t.name for t in asyncio.run(server.list_tools())};assert len(names)==111 and set(GEOMETRY_COMMANDS)|set(NAVIGATION_COMMANDS)<=names
+ names={t.name for t in asyncio.run(server.list_tools())};assert len(names)==112 and set(GEOMETRY_COMMANDS)|set(NAVIGATION_COMMANDS)<=names

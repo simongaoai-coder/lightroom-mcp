@@ -328,12 +328,25 @@ and independently verify protected unselected settings. See the
 [2.12.2 fix verification report](docs/2026-09-21-native-fixes.md) for native
 validation status and current runtime limitations.
 
+## Batch settings reads and numeric preflight (2.13)
+
+`lr_get_settings` now accepts photoIds/scope and an optional parameters list,
+returning per-photo settings, mappings and unavailable controls without changing
+selection. Existing current-photo calls retain their response shape.
+
+`lr_preflight_settings` previews absolute settings or relative deltas using the
+execution planners. It reports before/target values, implicit changes, blocked
+photos, mixed-unit issues and range-validation coverage; it performs no writes.
+See [Batch reads and preflight](docs/batch-read-and-preflight.md). Version **2.13.0**,
+**112 tools**. Native validation for these new read-only workflows is pending.
+
 ## Available tools
 
 | Tool                      | What it does                                                  |
 | ------------------------- | ------------------------------------------------------------- |
 | `lr_ping`                 | Check the connection is working                               |
-| `lr_get_settings`         | Read all current develop slider values + filename + rating    |
+| `lr_get_settings`         | Read current/selected/explicit photo settings, optionally filtered |
+| `lr_preflight_settings` | Inspect planned numeric edits and blockers without applying them |
 | `lr_apply_settings`       | Apply develop parameters to the selected photo                |
 | `lr_export_preview`       | Export a JPEG preview; AI client sees the photo inline        |
 | `lr_batch_apply_settings` | Apply develop parameters to **all** currently selected photos |

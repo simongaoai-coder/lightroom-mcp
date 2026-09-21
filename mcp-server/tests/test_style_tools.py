@@ -49,7 +49,7 @@ def test_explicit_target_transport(mock_lr,name,args):
 
 def test_targets_schema_defaults():
     tools={t.name:t for t in asyncio.run(server.list_tools())}
-    assert len(tools)==111
+    assert len(tools)==112
     for name in TARGET_TOOLS:
         props=tools[name].inputSchema['properties']
         assert props['photoIds']['maxItems']==200

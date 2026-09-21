@@ -78,3 +78,11 @@ def test_receipt_eviction(sdk):
  _,s,p,c,_=sdk
  for n in range(21):assert c('copy_settings',copyId=f'{n:032x}',mode='explicit',parameters=['Exposure'])['success']
  assert c('paste_settings',copyId='0'*32,expectedPhotoId='a')['code']=='copy_not_found'
+
+
+def test_numeric_preflight_does_not_consume_history_observation(sdk):
+ _,s,p,c,m=sdk
+ native_paste(s,p,c)
+ c('get_history_state',historyToken='f'*32)
+ m.beforeCommand('preflight_settings')
+ assert c('undo',historyToken='f'*32)['success']
