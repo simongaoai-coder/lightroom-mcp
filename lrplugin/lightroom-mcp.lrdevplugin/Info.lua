@@ -19,4 +19,5 @@ return {
     },
 
     LrInitPlugin = "InitPlugin.lua",
+    LrForceInitPlugin = true,
 }
