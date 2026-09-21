@@ -154,9 +154,9 @@ def test_empty_maps_remain_json_objects_in_real_dispatch(sdk):
     _PLUGIN={path='/test/plugin'}
     ''')
     server=lua.execute((PLUGIN/'Server.lua').read_text())
-    r=json.loads(server.handleRequest(json.dumps({'command':'get_settings','photoIds':['a'],'parameters':['Texture'],'expectedPluginVersion':'2.13.0'})))
+    r=json.loads(server.handleRequest(json.dumps({'command':'get_settings','photoIds':['a'],'parameters':['Texture'],'expectedPluginVersion':'2.14.0'})))
     assert r['data']['photos'][0]['settings']=={} and r['data']['photos'][0]['parameterKeys']=={}
-    r=json.loads(server.handleRequest(json.dumps({'command':'preflight_settings','mode':'relative','deltas':{'Exposure':0},'expectedPluginVersion':'2.13.0'})))
+    r=json.loads(server.handleRequest(json.dumps({'command':'preflight_settings','mode':'relative','deltas':{'Exposure':0},'expectedPluginVersion':'2.14.0'})))
     assert r['success'] and r['data']['photos'][0]['catalogChanges']=={}
 
 

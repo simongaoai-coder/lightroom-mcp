@@ -128,7 +128,7 @@ No import, image-file move or photo deletion is provided by this phase.
 from `lr_export_preview`, which remains a cached JPEG preview tool.
 
 The required `destination` is an existing absolute directory on the Lightroom
-host. Each job creates `LR-MCP-export-<jobId>` beneath it. File names include the
+host. Each job creates `LR-MCP-export-<jobId>` beneath it. By default, file names include the
 source name and a sequence number; native collision handling is rename. Existing
 batch folders are never reused. Exported photos are not automatically reimported.
 Python resolves the destination's filesystem aliases before dispatch. Lightroom
@@ -140,10 +140,14 @@ Supported output settings:
 | Option | Values/default |
 | --- | --- |
 | `format` | JPEG (default), TIFF |
-| `quality` | JPEG only, 1-100; default 90 |
+| `quality` | JPEG only, 1-100; default 90 without a size limit |
+| `maxFileSizeKB` | JPEG-only size cap, exclusive with quality; 1 KB = 1024 bytes |
 | `bitDepth` | TIFF only, 8 or 16; default 16 |
 | `colorSpace` | sRGB (default), AdobeRGB, ProPhotoRGB |
-| `longEdge` | Optional pixel limit, 1-65000; omitted means unconstrained |
+| `longEdge` / `shortEdge` | Exclusive optional pixel limits, 1-65000 |
+| `width`, `height` | Pixel bounding box; both required, exclusive with other sizing modes |
+| `megapixels` | 0.01-1000, exclusive with other sizing modes |
+| `naming` | Original/custom prefix, sequence start/padding, extension case |
 | `doNotEnlarge` | true by default |
 | `resolution` | DPI, default 240 |
 | `sharpenFor` | none (default), screen, matte, glossy |
@@ -191,3 +195,9 @@ References: the bundled Adobe SDK Guide, pp. 61-68 (export properties) and 77-83
 [LrCollection](https://lrc.mcor.dev/modules/LrCollection.html),
 [LrExportSession](https://lrc.mcor.dev/modules/LrExportSession.html), and
 [LrExportRendition](https://lrc.mcor.dev/modules/LrExportRendition.html).
+
+
+For the 2.14.0 argument combinations, limits, naming examples and failure semantics,
+see [Export sizing and naming](export-sizing-and-naming.md). All sizing omitted
+means unconstrained dimensions. Oversized JPEG output is retained but reported
+failed, not counted as a completed delivery.

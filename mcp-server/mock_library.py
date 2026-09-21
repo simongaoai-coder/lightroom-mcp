@@ -116,10 +116,28 @@ class MockLibrary:
             data={'collectionId':req['collectionId']}
         elif cmd=='export_photos':
             job=req['jobId'];folder=Path(req['destination'])/('LR-MCP-export-'+job);folder.mkdir()
-            data={'jobId':job,'status':'completed','total':len(target_ids),'completed':len(target_ids),'failed':0,'notStarted':0,'outputDirectory':str(folder),'results':[]}
+            n=req.get('naming',{});mode=n.get('mode','original_sequence')
+            resize={'mode':'none'}
+            for k in ['longEdge','shortEdge','megapixels']:
+                if k in req:resize={'mode':k,'value':req[k]}
+            if 'width' in req:resize={'mode':'wh','width':req['width'],'height':req['height']}
+            data={'jobId':job,'status':'completed','total':len(target_ids),'completed':len(target_ids),'failed':0,'notStarted':0,'outputDirectory':str(folder),'results':[],
+                  'resize':resize,'naming':{'mode':mode,'extensionCase':n.get('extensionCase','lowercase')},'format':req.get('format','JPEG')}
+            if mode!='original':data['naming'].update(sequenceStart=n.get('sequenceStart',1),sequenceDigits=n.get('sequenceDigits',4))
+            if 'customText' in n:data['naming']['customText']=n['customText']
+            if 'maxFileSizeKB' in req:data['maxFileSizeKB']=req['maxFileSizeKB']
+            elif req.get('format','JPEG')=='JPEG':data['quality']=req.get('quality',90)
             for i,pid in enumerate(target_ids):
-                path=folder/f'photo-{i}.jpg';path.write_bytes(b'mock-export')
-                data['results'].append({'photoId':pid,'success':True,'path':str(path),'bytes':11})
+                stem=n['customText'] if mode=='custom_sequence' else Path(self.photos[pid]['filename']).stem
+                if mode!='original':stem+='-'+str(n.get('sequenceStart',1)+i).zfill(n.get('sequenceDigits',4))
+                ext='.tif' if req.get('format')=='TIFF' else '.jpg'
+                if n.get('extensionCase')=='uppercase':ext=ext.upper()
+                path=folder/(stem+ext);suffix=2
+                while path.exists():path=folder/(stem+'-'+str(suffix)+ext);suffix+=1
+                path.write_bytes(b'mock-export')
+                row={'photoId':pid,'success':True,'path':str(path),'bytes':11}
+                if 'maxFileSizeKB' in req:row.update(maxBytes=req['maxFileSizeKB']*1024,sizeLimitMet=True)
+                data['results'].append(row)
             self.jobs[job]=deepcopy(data)
         elif cmd in {'get_export_status','cancel_export'}:
             if req['jobId'] not in self.jobs:return self.error('job_not_found')

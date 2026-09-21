@@ -340,6 +340,16 @@ photos, mixed-unit issues and range-validation coverage; it performs no writes.
 See [Batch reads and preflight](docs/batch-read-and-preflight.md). Version **2.13.0**,
 **112 tools**. Native validation for these new read-only workflows is pending.
 
+## Export sizing, size limits and naming (2.14)
+
+`lr_export_photos` adds short-edge, width/height bounding-box and megapixel sizing;
+JPEG maxFileSizeKB with actual output byte verification; and naming modes for
+original names, original-plus-sequence, or custom text plus sequence. Sequence
+start/padding and extension case are configurable. Existing longEdge, fixed quality
+and default original-name/four-digit-sequence behavior are preserved. Size limits
+and fixed quality are mutually exclusive. See [Export options](docs/export-sizing-and-naming.md).
+Version **2.14.0**, still **112 tools**; native validation of these options is pending.
+
 ## Available tools
 
 | Tool                      | What it does                                                  |

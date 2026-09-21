@@ -1,5 +1,6 @@
 """Typed library and delivery tool contracts."""
 from mcp import types
+from export_options import extend_export_schema
 
 LIBRARY_COMMANDS={f'lr_{n}':n for n in (
  'get_selection','search_photos','select_photos','get_metadata','set_metadata',
@@ -92,4 +93,10 @@ def library_tools():
  ('get_export_status','Read export job status and paginated per-photo output paths/errors. Jobs belong to this plugin session; unknown IDs do not prove that no files were written.',{**paging,'jobId':ident},['jobId']),
  ('cancel_export','Request cooperative cancellation between photos. An in-flight rendition can finish; completed files remain.',{'jobId':ident},['jobId']),
  ]
- return [types.Tool(name='lr_'+n,description=d,inputSchema={'type':'object','properties':p,'required':r,'additionalProperties':False,'definitions':{'searchFilter':filter_definition},**({'not':{'required':['fields','fieldGroup']}} if n=='get_metadata' else {})}) for n,d,p,r in specs]
+ tools = [types.Tool(name='lr_'+n,description=d,inputSchema={'type':'object','properties':p,'required':r,'additionalProperties':False,'definitions':{'searchFilter':filter_definition},**({'not':{'required':['fields','fieldGroup']}} if n=='get_metadata' else {})}) for n,d,p,r in specs]
+
+ for tool in tools:
+  if tool.name=='lr_export_photos':
+   extend_export_schema(tool.inputSchema)
+   tool.description += ' Resize with exactly one of longEdge, shortEdge, width+height (fit within bounds), or megapixels; omitted means original dimensions. maxFileSizeKB is JPEG-only and exclusive with fixed quality. naming controls original/custom names, sequence start/digits and extension case. Defaults retain original name plus four-digit sequence. Renderer chooses final names on collisions; inspect job results.'
+ return tools

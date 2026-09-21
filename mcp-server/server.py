@@ -35,10 +35,11 @@ from library_tools import library_tools, LIBRARY_COMMANDS, DELIVERY_COMMANDS
 from workflow_tools import workflow_tools, PREVIEW_COMMANDS, RELATIVE_COMMANDS
 from style_tools import style_tools, target_properties, TARGET_TOOLS, STYLE_COMMANDS
 from inspection_tools import preflight_tools
+from export_options import validate_export_call
 
 REQ_FILE = os.environ.get("LR_MCP_REQ", "/tmp/lr_mcp_req.json")
 RES_FILE = os.environ.get("LR_MCP_RES", "/tmp/lr_mcp_res.json")
-SERVER_VERSION = "2.13.0"
+SERVER_VERSION = "2.14.0"
 PROTOCOL_VERSION = 2
 _IPC_LOCK = threading.Lock()
 TIMEOUT = 10.0   # seconds to wait for Lua to respond
@@ -510,6 +511,9 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
         payload = {"command": DELIVERY_COMMANDS[name], **arguments}
         job_id = None
         if name == "lr_export_photos":
+            error = validate_export_call(arguments)
+            if error:
+                return [types.TextContent(type="text", text=json.dumps({"success": False, "code": "invalid_arguments", "error": error}))]
             if not os.path.isabs(arguments["destination"]):
                 return [types.TextContent(type="text", text=json.dumps({"success": False, "code": "invalid_arguments", "error": "destination must be absolute"}))]
             payload["destination"] = os.path.realpath(arguments["destination"])

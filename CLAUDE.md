@@ -578,3 +578,21 @@ settings contract; it supersedes older descriptions above of global setValue,
   apply, mutation retry or rollback. See docs/batch-read-and-preflight.md.
 - Tests: test_inspection_lua.py/test_inspection_tools.py plus existing mutation and
   history suites. Native 2.13 validation pending; do not reuse older live claims.
+
+
+## Export options (2.14.0)
+
+- Main/Python/Delivery are 2.14.0; 112 tools (existing export tool extended).
+- Resize modes: longEdge, shortEdge, paired width/height -> wh, megapixels; at most
+  one mode. Native long/shortEdge constrain maxHeight. Preserve aspect ratio and
+  doNotEnlarge semantics; do not promise exact bounding-box dimensions.
+- maxFileSizeKB is JPEG-only/exclusive with quality. Native SDK chooses quality;
+  independently require bytes <= KB*1024 before reporting per-photo success.
+  Oversize leaves the file/path/bytes and fails; never auto-delete or recompress.
+- Naming allows only original/original_sequence/custom_sequence with documented
+  SDK tokens; custom text is literal, safe, <=200 UTF-8 bytes. Sequence uses batch
+  index across separate sessions. Keep collision rename and unique job folders.
+- Python export_options.py adds schema plus UTF-8 validation; Lua repeats validation
+  before filesystem/task mutation. Existing default names, quality and sizing kept.
+- SDK double tests verify settings/filenames/byte boundaries, not native image
+  encoding/dimensions. See docs/export-sizing-and-naming.md; native tests pending.
